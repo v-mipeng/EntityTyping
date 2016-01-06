@@ -1,0 +1,59 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using com.sun.tools.jdi;
+using edu.stanford.nlp.pipeline;
+using edu.stanford.nlp.tagger.maxent;
+using pml.type;
+using ikvm.extensions;
+
+namespace msra.nlp.tr
+{
+    public class PosTagger
+    {
+        private static MaxentTagger tagger = null;
+        private static object locker = new object();
+
+        private PosTagger()
+        {
+        }
+
+        public static List<Pair<string, string>> TagString(string sequence)
+        {
+             lock (locker)
+             {
+                 if (tagger == null)
+                 {
+                     Initial();
+                 }
+                 var tagged = tagger.tagString(sequence);
+                 var list = new List<Pair<string, string>>();
+                 var array = tagged.Split(' ');
+                 foreach (var w in array)
+                 {
+                     try
+                     {
+                         var word = w.trim();
+                         var array2 = word.split("_");
+                         var pair = new Pair<string, string>(array2[0], array2[1]);
+                         list.Add(pair);
+                     }
+                     catch (Exception)
+                     {
+                         continue;
+                     }
+                 }
+                 return list;
+             }
+        }
+        static void Initial(string modelFile = null)
+        {
+            tagger = new MaxentTagger(modelFile ?? (string)GlobalParameter.Get("tagger_model_file"));
+        }
+
+    }
+}
