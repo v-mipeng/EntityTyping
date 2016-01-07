@@ -96,7 +96,7 @@ namespace msra.nlp.tr
             return CompressArray(array);
         }
 
-        protected char MapChar(char c)
+        protected static char MapChar(char c)
         {
             if (c >= '0' && c <= '9')
             {

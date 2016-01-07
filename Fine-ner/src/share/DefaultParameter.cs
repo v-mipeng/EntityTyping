@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace msra.nlp.tr
 {
@@ -27,7 +28,7 @@ namespace msra.nlp.tr
             public const string tagger_model_file = "tagger_model_file";
             public const string sentence_split_model_dir = "sentence_split_model_dir";
             public const string method = "method";
-            public const string shape_table_file = "shape_table_file";
+            public const string word_shape_table_file = "shape_table_file";
             public const string posTag_table_file = "posTag_table_file";
         };
 
@@ -74,25 +75,24 @@ namespace msra.nlp.tr
         {
             string basedir = "../../";
             parameters = new Dictionary<object, object>();
-            parameters[Field.word_table_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\input\word table\wordTable.txt";
-            parameters[Field.train_data_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\input\train.txt";
-            parameters[Field.develop_data_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\input\develop.txt";
-            parameters[Field.test_data_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\input\test.txt";
-            parameters[Field.train_feature_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\input\test.txt";
-            parameters[Field.develop_feature_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\output\developFeature.txt";
-            parameters[Field.test_feature_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\output\testFeature.txt";
-            parameters[Field.dic_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\data\dictionary\UIUC.txt";
-            parameters[Field.dic_type_value_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\data\dictionary\UIUC-Type-Value.txt";
-            parameters[Field.stem_map] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\input\word stem map\stem-map.txt";
+            parameters[Field.word_table_file] = Path.Combine(basedir,@"input\word table\wordTable.txt");
+            parameters[Field.train_data_file] = Path.Combine(basedir,@"input\train.txt");
+            parameters[Field.develop_data_file] = Path.Combine(basedir,@"input\develop.txt");
+            parameters[Field.test_data_file] = Path.Combine(basedir,@"input\test.txt");
+            parameters[Field.train_feature_file] = Path.Combine(basedir,@"input\test.txt");
+            parameters[Field.develop_feature_file] = Path.Combine(basedir,@"output\developFeature.txt");
+            parameters[Field.test_feature_file] = Path.Combine(basedir,@"output\testFeature.txt");
+            parameters[Field.dic_file] = Path.Combine(basedir,@"input\dictionary\UIUC.txt");
+            parameters[Field.dic_type_value_file] = Path.Combine(basedir,@"inlput\dictionary\UIUC-Type-Value.txt");
+            parameters[Field.stem_map] = Path.Combine(basedir,@"input\word stem map\stem-map.txt");
             parameters[Field.method]= Method;
-            parameters[Field.model_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\output\model\model.txt";
-            parameters[Field.test_result_file] = @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\output\result\result.txt";
+            parameters[Field.model_file] = Path.Combine(basedir,@"output\model\model.txt");
+            parameters[Field.test_result_file] = Path.Combine(basedir,@"output\result\result.txt");
+            basedir = "../../input";
             parameters[Field.tagger_model_file] = @"E:/Users/v-mipeng/Codes/Java/ASE/nlp_pos/package/pos-tagger/english-left3words/english-left3words-distsim.tagger";
-            parameters[Field.sentence_split_model_dir] = @"E:\Users\v-mipeng\Software Install\Stanford NLP\stanford-corenlp-full-2015-04-20";
-            parameters[Field.shape_table_file] = "shape-table-file.txt";
-            parameters[Field.posTag_table_file] = "posTag-table-file.txt";
-
-            
+            parameters[Field.sentence_split_model_dir] = basedir;
+            parameters[Field.word_shape_table_file] = Path.Combine(basedir,@"shape-table-file.txt");
+            parameters[Field.posTag_table_file] = Path.Combine(basedir,@"posTag-table-file.txt");
         }
         private DefaultParameter() { }
     }

@@ -135,7 +135,7 @@ namespace msra.nlp.tr
         {
             wordShape2index = new Dictionary<string, int>();
 
-            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.shape_table_file));
+            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_shape_table_file));
             String line;
 
             while ((line = reader.ReadLine()) != null)

@@ -522,7 +522,7 @@ namespace msra.nlp.tr
         {
             FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file));
             FileWriter writer = new LargeFileWriter((string)GlobalParameter.Get(DefaultParameter.Field.word_table_file), FileMode.Create);
-            FileWriter wordShapeWriter = new LargeFileWriter((string)GlobalParameter.Get(DefaultParameter.Field.shape_table_file), FileMode.Create);
+            FileWriter wordShapeWriter = new LargeFileWriter((string)GlobalParameter.Get(DefaultParameter.Field.word_shape_table_file), FileMode.Create);
             string line = null;
             var wordTable = new HashSet<string>();
             var wordShapeTable = new HashSet<string>();

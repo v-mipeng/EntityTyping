@@ -13,7 +13,7 @@ namespace User
 {
     class UnitTest
     {
-        static void Mains(string[] args)
+        static void Main(string[] args)
         {
             //Temp();
             //Analyse();
@@ -93,7 +93,7 @@ namespace User
             /************************************************************************/
             /* Bayes train and test                                                                     */
             /************************************************************************/
-            if (true)
+            if (false)
             {
                 props.SetProperty("method", @"/ts -b");
                 //props.SetProperty("train_feature_file", @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\unit test\output\trainFeature.txt");
@@ -101,6 +101,18 @@ namespace User
                 props.SetProperty("model_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\output\model.txt");
                 props.SetProperty("result_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\output\result.txt");
                 
+                pipeline = new Pipeline(props);
+                pipeline.Execute();
+            }
+            /************************************************************************/
+            /* Extract word table and word shapes                                                                     */
+            /************************************************************************/
+            if (true)
+            {
+                props.SetProperty("method", @"/ewt");
+                //props.SetProperty("train_data_file", @"");
+                //props.SetProperty("word_table_file", @"");
+                //props.SetProperty("word_shape_table_file", "");
                 pipeline = new Pipeline(props);
                 pipeline.Execute();
             }

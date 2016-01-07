@@ -160,12 +160,12 @@
     <Compile Include="src\feature\EmbedFeature.cs" />
     <Compile Include="src\feature\Feature.cs" />
     <Compile Include="src\feature\FeatureExtractor.cs" />
-    <Compile Include="src\feature\PosTagger.cs" />
-    <Compile Include="src\feature\SentenceSplit.cs" />
-    <Compile Include="src\feature\Stemmer.cs" />
+    <Compile Include="src\services\PosTagger.cs" />
+    <Compile Include="src\services\SentenceSplit.cs" />
+    <Compile Include="src\services\Stemmer.cs" />
     <Compile Include="src\feature\SVMFeature.cs" />
-    <Compile Include="src\feature\Tokenizer.cs" />
-    <Compile Include="src\feature\Generalizer.cs" />
+    <Compile Include="src\services\Tokenizer.cs" />
+    <Compile Include="src\services\Generalizer.cs" />
     <Compile Include="src\pipeline\Pipeline.cs" />
     <Compile Include="src\script\Embed\TrainDataPreprocess.cs" />
     <Compile Include="src\script\Script.cs" />

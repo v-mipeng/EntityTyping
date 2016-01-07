@@ -25,18 +25,17 @@ namespace msra.nlp.tr
          *   The output are a list of pairs store the features' index and value:                                   
          *      Mention surface  
          *      Mention Shape
-         *      Cluster ID of mention words
-         *      Mention length
+         *      Cluster ID of mention words     :TODO
+         *      Mention length              
          *      Last token
          *      Last token pos tag
-         *      Last token ID
+         *      Last token ID                   :TODO
          *      Next token
          *      Next token pos tag
-         *      Next token ID
-         *      Parent in dependency tree(stanford corenlp)
-         *      Dictionary
-         *      Topic(Define topic)
-         *      Matched entity type within UIUC: type code
+         *      Next token ID                   :TODO
+         *      Parent in dependency tree(stanford corenlp)   :TODO
+         *      Dictionary                      :TODO
+         *      Topic(Define topic)             :TODO
          * 
          */
         public Dictionary<int,int> ExtractFeature(String[] input)
