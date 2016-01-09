@@ -11,87 +11,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User", "User\User.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Type-hierachy-extractor", "Type-hierarchy-construct\Type-hierachy-extractor.csproj", "{654990FB-F813-463E-8254-599D3830F456}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme", "Readme", "{C2F37492-38AE-4186-8A7F-17B0B080942C}"
-	ProjectSection(SolutionItems) = preProject
-		Mathnet\CONTRIBUTING.md = Mathnet\CONTRIBUTING.md
-		Mathnet\CONTRIBUTORS.md = Mathnet\CONTRIBUTORS.md
-		Mathnet\LICENSE.md = Mathnet\LICENSE.md
-		Mathnet\README.md = Mathnet\README.md
-		Mathnet\RELEASENOTES-CUDA.md = Mathnet\RELEASENOTES-CUDA.md
-		Mathnet\RELEASENOTES-Data.md = Mathnet\RELEASENOTES-Data.md
-		Mathnet\RELEASENOTES-MKL.md = Mathnet\RELEASENOTES-MKL.md
-		Mathnet\RELEASENOTES-OpenBLAS.md = Mathnet\RELEASENOTES-OpenBLAS.md
-		Mathnet\RELEASENOTES.md = Mathnet\RELEASENOTES.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{A4A66FA9-C00C-4D5C-A776-27516EA0C536}"
-	ProjectSection(SolutionItems) = preProject
-		Mathnet\docs\tools\build-docs.fsx = Mathnet\docs\tools\build-docs.fsx
-		Mathnet\build.fsx = Mathnet\build.fsx
-		Mathnet\build\MathNet.Numerics.Extension.nuspec = Mathnet\build\MathNet.Numerics.Extension.nuspec
-		Mathnet\build\MathNet.Numerics.nuspec = Mathnet\build\MathNet.Numerics.nuspec
-		Mathnet\build\NativeProvider.targets = Mathnet\build\NativeProvider.targets
-		Mathnet\paket.dependencies = Mathnet\paket.dependencies
-		Mathnet\paket.lock = Mathnet\paket.lock
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{039229DA-AFDA-48DB-B7FC-B064691DEE96}"
-	ProjectSection(SolutionItems) = preProject
-		Mathnet\docs\content\Build.md = Mathnet\docs\content\Build.md
-		Mathnet\docs\content\Compatibility.md = Mathnet\docs\content\Compatibility.md
-		Mathnet\docs\content\Constants.md = Mathnet\docs\content\Constants.md
-		Mathnet\docs\content\CSV.md = Mathnet\docs\content\CSV.md
-		Mathnet\docs\content\DescriptiveStatistics.md = Mathnet\docs\content\DescriptiveStatistics.md
-		Mathnet\docs\content\Distance.md = Mathnet\docs\content\Distance.md
-		Mathnet\docs\content\Euclid.md = Mathnet\docs\content\Euclid.md
-		Mathnet\docs\content\Functions.md = Mathnet\docs\content\Functions.md
-		Mathnet\docs\content\Generate.md = Mathnet\docs\content\Generate.md
-		Mathnet\docs\content\IFsharpNotebook.md = Mathnet\docs\content\IFsharpNotebook.md
-		Mathnet\docs\content\index.md = Mathnet\docs\content\index.md
-		Mathnet\docs\content\IntegralTransforms.md = Mathnet\docs\content\IntegralTransforms.md
-		Mathnet\docs\content\Integration.md = Mathnet\docs\content\Integration.md
-		Mathnet\docs\content\Interpolation.md = Mathnet\docs\content\Interpolation.md
-		Mathnet\docs\content\LinearEquations.md = Mathnet\docs\content\LinearEquations.md
-		Mathnet\docs\content\MatlabFiles.md = Mathnet\docs\content\MatlabFiles.md
-		Mathnet\docs\content\Matrix.md = Mathnet\docs\content\Matrix.md
-		Mathnet\docs\content\MatrixMarket.md = Mathnet\docs\content\MatrixMarket.md
-		Mathnet\docs\content\MKL.md = Mathnet\docs\content\MKL.md
-		Mathnet\docs\content\Packages.md = Mathnet\docs\content\Packages.md
-		Mathnet\docs\content\Probability.md = Mathnet\docs\content\Probability.md
-		Mathnet\docs\content\Random.md = Mathnet\docs\content\Random.md
-		Mathnet\docs\content\Regression.md = Mathnet\docs\content\Regression.md
-		Mathnet\docs\tools\templates\template.cshtml = Mathnet\docs\tools\templates\template.cshtml
-		Mathnet\docs\content\Users.md = Mathnet\docs\content\Users.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityTyping", "EntityTyping", "{32BBDF45-67EA-41CC-AFCD-F8C51D30BAF8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProcessor", "DataProcessor\DataProcessor.csproj", "{DF5EA57F-C0F1-40C3-8EF9-0A6F022F9D07}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "KMeans", "KMeans\KMeans.pyproj", "{F13E1464-D3F3-4DD6-A521-CA048322A7BD}"
+EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://minlong.visualstudio.com/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Fine-ner\\Fine-ner.csproj
-		SccProjectTopLevelParentUniqueName1 = NLP-develop.sln
-		SccProjectName1 = Fine-ner
-		SccLocalPath1 = Fine-ner
-		SccProjectUniqueName2 = package-pml\\Package-pml.csproj
-		SccProjectName2 = package-pml
-		SccLocalPath2 = package-pml
-		SccProjectUniqueName3 = User\\User.csproj
-		SccProjectName3 = User
-		SccLocalPath3 = User
-		SccProjectUniqueName4 = Type-hierarchy-construct\\Type-hierachy-extractor.csproj
-		SccProjectName4 = Type-hierarchy-construct
-		SccLocalPath4 = Type-hierarchy-construct
-		SccProjectUniqueName5 = DataProcessor\\DataProcessor.csproj
-		SccProjectTopLevelParentUniqueName5 = NLP-develop.sln
-		SccProjectName5 = DataProcessor
-		SccLocalPath5 = DataProcessor
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -179,6 +105,15 @@ Global
 		{DF5EA57F-C0F1-40C3-8EF9-0A6F022F9D07}.Release-Signed|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{DF5EA57F-C0F1-40C3-8EF9-0A6F022F9D07}.Release-Signed|Mixed Platforms.Build.0 = Release|Any CPU
 		{DF5EA57F-C0F1-40C3-8EF9-0A6F022F9D07}.Release-Signed|Win32.ActiveCfg = Release|Any CPU
+		{F13E1464-D3F3-4DD6-A521-CA048322A7BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F13E1464-D3F3-4DD6-A521-CA048322A7BD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F13E1464-D3F3-4DD6-A521-CA048322A7BD}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{F13E1464-D3F3-4DD6-A521-CA048322A7BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F13E1464-D3F3-4DD6-A521-CA048322A7BD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F13E1464-D3F3-4DD6-A521-CA048322A7BD}.Release|Win32.ActiveCfg = Release|Any CPU
+		{F13E1464-D3F3-4DD6-A521-CA048322A7BD}.Release-Signed|Any CPU.ActiveCfg = Release|Any CPU
+		{F13E1464-D3F3-4DD6-A521-CA048322A7BD}.Release-Signed|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F13E1464-D3F3-4DD6-A521-CA048322A7BD}.Release-Signed|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -186,6 +121,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{EA5B7BB2-AF8D-44C0-A60A-226A079D71CF} = {32BBDF45-67EA-41CC-AFCD-F8C51D30BAF8}
 		{DF5EA57F-C0F1-40C3-8EF9-0A6F022F9D07} = {32BBDF45-67EA-41CC-AFCD-F8C51D30BAF8}
+		{F13E1464-D3F3-4DD6-A521-CA048322A7BD} = {32BBDF45-67EA-41CC-AFCD-F8C51D30BAF8}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = User\\User.csproj

@@ -26,7 +26,8 @@ namespace msra.nlp.tr
          *      Mention surface  
          *      Mention Shape
          *      Cluster ID of mention words     :TODO
-         *      Mention length              
+         *      Mention length      
+         *      Head of mention                 :TODO
          *      Last token
          *      Last token pos tag
          *      Last token ID                   :TODO
@@ -45,11 +46,35 @@ namespace msra.nlp.tr
             int wordTableSize = DataCenter.GetWordTableSize();
             var feature = new Dictionary<int,int>();
             String[] words = Tokenizer.Tokenize(mention).ToArray();
-            // pos tags of mention words
+            // pos tags of words
             var pairs = GetPosTags(mention, context);
             var pair = GetMentionRange(pairs, mention);
-            
             int offset = 0;
+            // Parse sentence
+            var sentence = new List<string>();
+            foreach (var p in pairs)
+            {
+                sentence.Add(p.first);
+            }
+            DependencyParser.Parse(sentence);
+            var headIndex = DependencyParser.GetLexicalHead(pair.first, pair.second);
+            Pair<string, string> head = null;
+            if(headIndex != -1)
+            {
+                head = pairs.ElementAt(headIndex);
+            }
+            var adjIndex = DependencyParser.GetAdjModifier(pair.first, pair.second);
+            Pair<string, string> adj = null;
+            if (headIndex != -1)
+            {
+                adj = pairs.ElementAt(headIndex);
+            }
+            var opeIndex = DependencyParser.GetDirectObj(pair.first, pair.second);
+            Pair<string, string> ope = null;
+            if(opeIndex != -1)
+            {
+                ope = pairs.ElementAt(opeIndex);
+            }
             /**************Word Level****************/
             // last word
             var lastWord = GetLastToken(mention, context);
@@ -96,6 +121,69 @@ namespace msra.nlp.tr
                 offset += DataCenter.GetPosTagTableSize() + 1;
             }
             else
+            {
+                offset += DataCenter.GetWordTableSize() + 1;
+                offset += DataCenter.GetWordShapeTableSize() + 1;
+                offset += DataCenter.GetPosTagTableSize() + 1;
+            }
+            // head
+            if(head != null)
+            {
+                // head word surface
+                var word = Generalizer.Generalize(head.first);
+                feature[offset + DataCenter.GetWordIndex(word)] = 1;
+                offset += DataCenter.GetWordTableSize() + 1;
+                // head word shape
+                var shape = GetWordShape(head.first);
+                feature[offset + DataCenter.GetWordShapeIndex(shape)] = 1;
+                offset += DataCenter.GetWordShapeTableSize() + 1;
+                // head word pos tag
+                var posTag = head.second;
+                feature[offset + DataCenter.GetPosTagIndex(posTag)] = 1;
+                offset += DataCenter.GetPosTagTableSize() + 1;
+            }
+            {
+                offset += DataCenter.GetWordTableSize() + 1;
+                offset += DataCenter.GetWordShapeTableSize() + 1;
+                offset += DataCenter.GetPosTagTableSize() + 1;
+            }
+            // adjective word
+            if (adj != null)
+            {
+                // adjective word surface
+                var word = Generalizer.Generalize(adj.first);
+                feature[offset + DataCenter.GetWordIndex(word)] = 1;
+                offset += DataCenter.GetWordTableSize() + 1;
+                // adjective word shape
+                var shape = GetWordShape(adj.first);
+                feature[offset + DataCenter.GetWordShapeIndex(shape)] = 1;
+                offset += DataCenter.GetWordShapeTableSize() + 1;
+                // adjective word pos tag
+                var posTag = adj.second;
+                feature[offset + DataCenter.GetPosTagIndex(posTag)] = 1;
+                offset += DataCenter.GetPosTagTableSize() + 1;
+            }
+            {
+                offset += DataCenter.GetWordTableSize() + 1;
+                offset += DataCenter.GetWordShapeTableSize() + 1;
+                offset += DataCenter.GetPosTagTableSize() + 1;
+            }
+            // direct object word
+            if (ope != null)
+            {
+                // adjective word surface
+                var word = Generalizer.Generalize(ope.first);
+                feature[offset + DataCenter.GetWordIndex(word)] = 1;
+                offset += DataCenter.GetWordTableSize() + 1;
+                // adjective word shape
+                var shape = GetWordShape(ope.first);
+                feature[offset + DataCenter.GetWordShapeIndex(shape)] = 1;
+                offset += DataCenter.GetWordShapeTableSize() + 1;
+                // adjective word pos tag
+                var posTag = ope.second;
+                feature[offset + DataCenter.GetPosTagIndex(posTag)] = 1;
+                offset += DataCenter.GetPosTagTableSize() + 1;
+            }
             {
                 offset += DataCenter.GetWordTableSize() + 1;
                 offset += DataCenter.GetWordShapeTableSize() + 1;

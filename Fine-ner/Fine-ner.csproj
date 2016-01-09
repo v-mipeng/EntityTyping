@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{EA5B7BB2-AF8D-44C0-A60A-226A079D71CF}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Fine_ner</RootNamespace>
     <AssemblyName>Fine-ner</AssemblyName>
@@ -160,6 +160,7 @@
     <Compile Include="src\feature\EmbedFeature.cs" />
     <Compile Include="src\feature\Feature.cs" />
     <Compile Include="src\feature\FeatureExtractor.cs" />
+    <Compile Include="src\services\DependencyParser.cs" />
     <Compile Include="src\services\PosTagger.cs" />
     <Compile Include="src\services\SentenceSplit.cs" />
     <Compile Include="src\services\Stemmer.cs" />

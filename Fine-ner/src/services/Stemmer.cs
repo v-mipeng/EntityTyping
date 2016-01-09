@@ -14,7 +14,7 @@ namespace msra.nlp.tr
 {
     public class Stemmer
     {
-       static StanfordCoreNLP pipeline = null;
+        static StanfordCoreNLP pipeline = null;
         private static object locker = new object();
 
         private Stemmer()
