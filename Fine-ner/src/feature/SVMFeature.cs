@@ -34,7 +34,7 @@ namespace msra.nlp.tr
          *      Next token
          *      Next token pos tag
          *      Next token ID                   :TODO
-         *      Parent in dependency tree(stanford corenlp)   :TODO
+         *      Parent in dependency tree(stanford corenlp)
          *      Dictionary                      :TODO
          *      Topic(Define topic)             :TODO
          * 
