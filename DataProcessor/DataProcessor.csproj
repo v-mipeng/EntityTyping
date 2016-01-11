@@ -45,11 +45,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\Program.cs" />
+    <Compile Include="src\DataRefiner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\DataSpliter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\package-pml\Package-pml.csproj">
+      <Project>{5617da2a-e03f-4e48-8150-d13fc0644c9c}</Project>
+      <Name>Package-pml</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

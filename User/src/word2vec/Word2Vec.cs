@@ -16,9 +16,9 @@ namespace User.src
         public static void Main(string[] args)
         {
             //SelectInterestWordVector(@"D:\Codes\C#\EntityTyping\word2vec\wordTable.txt",
-            //                         @"D:\Codes\C#\EntityTyping\word2vec\test\vectors.bin",
+            //                         @"D:\Codes\C#\EntityTyping\word2vec\test\vectors.bin", 
             //                         @"D:\Codes\C#\EntityTyping\word2vec\google-vectors.txt");
-            ParseWord2Vec(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300.bin", @"D:\Data\Google-word2vec\GoogleNews-vectors-negative300.txt");
+            ParseWord2Vec(@"E:\Users\v-mipeng\Data\Google-word2vec\freebase-mention-vectors", @"E:\Users\v-mipeng\Data\Google-word2vec\freebase-mention-vectors.txt");
         }
 
         public static void SelectInterestWordVector(string interestWordFile, string word2vecFile, string compressedWord2VectorFile)
@@ -27,7 +27,7 @@ namespace User.src
             string line;
             var set = new HashSet<string>();
 
-            while ((line = reader.ReadLine()) != null)
+            while((line = reader.ReadLine())!=null)
             {
                 set.Add(line.Trim());
             }
@@ -53,7 +53,8 @@ namespace User.src
                         }
                         writer.Write("\r");
                     }
-                }catch(Exception)
+                }
+                catch (Exception)
                 {
                     continue;
                 }
@@ -61,7 +62,7 @@ namespace User.src
             writer.Close();
         }
 
-        static void ParseWord2Vec(string word2vecFile, string parsedFile)
+        static void  ParseWord2Vec(string word2vecFile, string parsedFile)
         {
             var writer = new LargeFileWriter(parsedFile, FileMode.Create);
             var parser = new ParseBinaryVector(word2vecFile);
@@ -75,14 +76,15 @@ namespace User.src
                 try
                 {
                     var pair = parser.GetNextVector();
-                    writer.Write(pair.first);
+                    var index = pair.first.IndexOf("en/");
+                    writer.Write(pair.first.Substring(index+3));
                     foreach (var value in pair.second)
                     {
                         writer.Write(string.Format(" {0}", value));
                     }
                     writer.Write("\r");
                 }
-                catch (Exception)
+                catch(Exception )
                 {
                     continue;
                 }

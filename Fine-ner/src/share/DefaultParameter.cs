@@ -25,13 +25,11 @@ namespace msra.nlp.tr
             public const string stem_map = "stem_map";
             public const string model_file = "model_file";
             public const string test_result_file = "result_file";
+            public const string tagger_model_file = "tagger_model_file";
+            public const string sentence_split_model_dir = "sentence_split_model_dir";
             public const string method = "method";
             public const string word_shape_table_file = "shape_table_file";
             public const string posTag_table_file = "posTag_table_file";
-            public const string tagger_model_dir = "tagger_model_file";
-            public const string sentence_split_model_dir = "sentence_split_model_dir";
-            public const string stanford_model_dir = "stanford_model_dir";
-
         };
 
        
@@ -91,12 +89,10 @@ namespace msra.nlp.tr
             parameters[Field.model_file] = Path.Combine(basedir,@"output\model\model.txt");
             parameters[Field.test_result_file] = Path.Combine(basedir,@"output\result\result.txt");
             basedir = "../../input";
-            parameters[Field.tagger_model_dir] = basedir;
+            parameters[Field.tagger_model_file] = @"E:/Users/v-mipeng/Codes/Java/ASE/nlp_pos/package/pos-tagger/english-left3words/english-left3words-distsim.tagger";
             parameters[Field.sentence_split_model_dir] = basedir;
-            parameters[Field.stanford_model_dir] = basedir;
             parameters[Field.word_shape_table_file] = Path.Combine(basedir,@"shape-table-file.txt");
             parameters[Field.posTag_table_file] = Path.Combine(basedir,@"posTag-table-file.txt");
-
         }
         private DefaultParameter() { }
     }

@@ -130,7 +130,6 @@ namespace msra.nlp.tr
             return builder.ToString();
         }
 
-
         /// <summary>
         /// Get pos tag informaiton of mention and its context. The context is limited to a sentence contains this mention.
         /// </summary>

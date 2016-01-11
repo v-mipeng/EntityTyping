@@ -15,7 +15,6 @@ namespace User.src
         private BinaryReader reader = null;
         private int size = 0;
         private int dimension = 0;
-        private int count = 0;
 
 
         // get the vocabular size
@@ -41,7 +40,7 @@ namespace User.src
         {
             get
             {
-                return (reader.BaseStream.Position == reader.BaseStream.Length || count >= size);
+                return reader.BaseStream.Position == reader.BaseStream.Length;
             }
         }
 
@@ -66,7 +65,6 @@ namespace User.src
         /// </returns>
         public Pair<string,List<float>> GetNextVector()
         {
-            this.count++;
             try
             {
                 char c;
@@ -86,7 +84,7 @@ namespace User.src
                     var bs = reader.ReadBytes(4);
                     vector.Add(BitConverter.ToSingle(bs, 0));
                 }
-                //var end = reader.ReadChar();// skip \n (However, for google's word2vec binary file, there is not \n)
+                reader.ReadChar();// skip \n
                 return new Pair<string, List<float>>(word, vector);
             }
             catch(Exception e)
@@ -97,6 +95,7 @@ namespace User.src
                 }
                 else
                 {
+                    Console.WriteLine(e.Message);
                     throw e;
                 }
             }
