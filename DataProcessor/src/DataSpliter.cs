@@ -150,7 +150,7 @@ namespace msra.nlp.tr.dp
             devWriter.Close();
         }
 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             DataSpliter spliter = new DataSpliter(
                 @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\refined-satori.txt",
