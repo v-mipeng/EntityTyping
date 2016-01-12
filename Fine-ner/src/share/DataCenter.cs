@@ -14,7 +14,7 @@ namespace msra.nlp.tr
     class DataCenter
     {
         /************************************************************************/
-        /* Word table data                                                                     */
+        /* Word surface table                                                                     */
         /************************************************************************/
         /*The word table of the train data
          */ 
@@ -440,7 +440,71 @@ namespace msra.nlp.tr
             writer.Close();
         }
 
+        /************************************************************************/
+        /* Word cluster ID                                                                     */
+        /************************************************************************/
+        static Dictionary<string, int> wordIdDic = null;
+        static int clusterSize = 0;
 
+        /// <summary>
+        /// Get the cluster id of a word
+        /// The id of words begin with 0. If the word table does not contains the word, it return number of clusters.
+        /// </summary>
+        /// <param name="word"></param>
+        /// <returns></returns>
+        public static int GetWordClusterID(string word)
+        {
+            if(wordIdDic == null)
+            {
+                LoadWordClusterID();
+            }
+            int id;
+            wordIdDic.TryGetValue(word, out id);
+            try
+            {
+                id = wordIdDic[word];
+            }
+            catch(Exception)
+            {
+                id = clusterSize;
+            }
+            return id;
+        }
+
+        public static int GetClusterNumber()
+        {
+            if (wordIdDic == null)
+            {
+                LoadWordClusterID();
+            }
+            return clusterSize;
+        }
+
+        private static void LoadWordClusterID()
+        {
+            wordIdDic = new Dictionary<string, int>();
+            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_id_file));
+            string line;
+            string[] array;
+            HashSet<int> ids = new HashSet<int>();
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                array = line.Split('\t');
+                try
+                {
+                    var id = int.Parse(array[1]);
+                    ids.Add(id); 
+                    wordIdDic[array[0]] = id;
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            reader.Close();
+            clusterSize = ids.Count;
+        }
         private DataCenter() { }
     }
 }

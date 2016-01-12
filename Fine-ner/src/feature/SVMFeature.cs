@@ -25,15 +25,16 @@ namespace msra.nlp.tr
          *   The output are a list of pairs store the features' index and value:                                   
          *      Mention surface  
          *      Mention Shape
-         *      Cluster ID of mention words     :TODO
-         *      Mention length              
+         *      Cluster ID of mention words     
+         *      Mention length         
+         *      Mention ID                      :TODO
          *      Last token
          *      Last token pos tag
-         *      Last token ID                   :TODO
+         *      Last token ID                   
          *      Next token
          *      Next token pos tag
-         *      Next token ID                   :TODO
-         *      Parent in dependency tree(stanford corenlp)   :TODO
+         *      Next token ID                   
+         *      Parent in dependency tree(stanford corenlp)   
          *      Dictionary                      :TODO
          *      Topic(Define topic)             :TODO
          * 
@@ -59,6 +60,9 @@ namespace msra.nlp.tr
                 var word = Generalizer.Generalize(lastWord);
                 feature[offset + DataCenter.GetWordIndex(word)] = 1;
                 offset += DataCenter.GetWordTableSize() + 1;
+                // Cluster id of last word
+                feature[offset] = DataCenter.GetWordClusterID(lastWord);
+                offset++;
                 // last word shape
                 var shape = GetWordShape(lastWord);
                 feature[offset + DataCenter.GetWordShapeIndex(shape)] = 1;
@@ -73,6 +77,7 @@ namespace msra.nlp.tr
             else
             {
                 offset += DataCenter.GetWordTableSize() + 1;
+                offset++;
                 offset += DataCenter.GetWordShapeTableSize() + 1;
                 offset += DataCenter.GetPosTagTableSize() + 1;
             }
@@ -84,6 +89,9 @@ namespace msra.nlp.tr
                 var word = Generalizer.Generalize(nextWord);
                 feature[offset + DataCenter.GetWordIndex(word)] = 1;
                 offset += DataCenter.GetWordTableSize() + 1;
+                // Cluster id of last word
+                feature[offset] = DataCenter.GetWordClusterID(nextWord);
+                offset++;
                 // next word shape
                 var shape = GetWordShape(nextWord);
                 feature[offset + DataCenter.GetWordShapeIndex(shape)] = 1;
@@ -98,19 +106,27 @@ namespace msra.nlp.tr
             else
             {
                 offset += DataCenter.GetWordTableSize() + 1;
+                offset++;
                 offset += DataCenter.GetWordShapeTableSize() + 1;
                 offset += DataCenter.GetPosTagTableSize() + 1;
             }
             // mention words
             foreach(var w in words) // words surface
             {
-                var word = Generalizer.Generalize(nextWord);
+                var word = Generalizer.Generalize(w);
                 var index = offset + DataCenter.GetWordIndex(word);
                 int value;
                 feature.TryGetValue(index, out value);
                 feature[index] = value + 1;
             }
             offset += DataCenter.GetWordTableSize() + 1;
+            foreach (var w in words) // words' cluster id
+            {
+
+                var index = offset + DataCenter.GetWordClusterID(w);
+                feature[index] = 1;
+            }
+            offset += DataCenter.GetClusterNumber() + 1;
             foreach (var w in words) // words shapes
             {
                 var shape = GetWordShape(w);
@@ -133,7 +149,11 @@ namespace msra.nlp.tr
             // mention length
             feature[offset] = words.Length;
             offset++;
+            // mention cluster id
+
+            /**************Document Level****************/
             // topic
+
            return feature;
         }
 
