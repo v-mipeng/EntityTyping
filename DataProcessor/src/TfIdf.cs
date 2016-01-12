@@ -20,6 +20,7 @@ namespace msra.nlp.tr.dr
         Dictionary<string, int> df = null;
         Dictionary<string, int> wordTable = null;
 
+
         public TfIdf(string corpusPath, string vectorPath, string dfPath, string wordTablePath) 
         {
             this.corpusPath = corpusPath;
@@ -28,6 +29,15 @@ namespace msra.nlp.tr.dr
             this.dfPath = dfPath;
         }
 
+        public void   GetVectorCorpus()
+        {
+            AnalyzeCorpus();
+            SaveDf();
+            SaveWordTable();
+            OutputTfIdf();
+        }
+
+
         private void AnalyzeCorpus()
         {
             documents = new List<List<string>>();
@@ -35,12 +45,17 @@ namespace msra.nlp.tr.dr
             wordTable = new Dictionary<string,int>();
             ReadOneDoc();
             HashSet<string> set = null;
+            int num = 0;
 
             while(this.doc != null)
             {
+                if(++num%1000==0)
+                {
+                    Console.WriteLine(num);
+                }
                 var document = Tokenizer.Tokenize(this.doc);
                 set = new HashSet<string>(document);
-                documents.Add(document);
+                //documents.Add(document);
                 foreach(var word in set)
                 {
                     int times;
@@ -80,9 +95,16 @@ namespace msra.nlp.tr.dr
         {
             var writer = new LargeFileWriter(vectorPath, FileMode.Create);
             int docLabel = 1;
+            int num =0;
+            ReadOneDoc();
 
-            foreach(var document in this.documents)
+            while(this.doc != null)
             {
+                var document = Tokenizer.Tokenize(doc);
+                if (++num % 1000 == 0)
+                {
+                    Console.WriteLine(num);
+                }
                 var vector = GetTfIdf(document);
                 writer.Write(docLabel);
                 foreach(var value in vector)
@@ -139,7 +161,16 @@ namespace msra.nlp.tr.dr
                 doc = line.Split('\t')[3];
             }
         }
-
+       
+        public static void Main(string[] args)
+        {
+            TfIdf tfidf = new TfIdf(
+                @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train.txt",
+                @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\docVectors.txt",
+               @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\trainDf.txt",
+               @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\trainWordTable.txt");
+            tfidf.GetVectorCorpus();
+        }
 
     }
 }

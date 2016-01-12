@@ -8,7 +8,7 @@ using pml.file.reader;
 using pml.file.writer;
 
 
-namespace DataProcessor
+namespace msra.nlp.tr.dp
 {
     class DataRefiner
     {
@@ -135,13 +135,15 @@ namespace DataProcessor
             reader.Close();
         }
 
-        static void Main(string[] args)
+        static void Mains(string[] args)
         {
            var refiner = new DataRefiner(@"E:\Users\v-mipeng\Data\Satori\Raw\Interlink.stype.tsv", 
                @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori ontology\temp-hierarchy.txt",
                @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\refined-satori.txt",
                @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\statisticInfo.txt");
             refiner.Refine();
+           File.SetAttributes(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\refined-satori.txt",FileAttributes.ReadOnly);
+            File.SetAttributes(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\refined-satori.txt", FileAttributes.ReadOnly);
         }
     }
 }
