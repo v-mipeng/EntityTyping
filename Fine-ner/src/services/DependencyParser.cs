@@ -244,7 +244,7 @@ namespace msra.nlp.tr
         public static void Main(string[] args)
         {
             DependencyParser.Parse("I want to see this wonderful movie");         //"FeiLin, who Barak H. Obama first picked as vice president, resigned."
-            string str = DependencyParser.GetLexicalHead(6, 6);
+            int str = DependencyParser.GetLexicalHead(6, 6);
             //DependencyParser.Parse("I want to go to England, America or Brizial.");
         }
     }

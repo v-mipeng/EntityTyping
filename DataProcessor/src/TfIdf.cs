@@ -109,7 +109,7 @@ namespace msra.nlp.tr.dr
             List<Pair<int, double>> pairs = new List<Pair<int, double>>();
             foreach(var word in tf.Keys)
             {
-                var pair = new Pair<int,double>(wordTabel[word],(1 + Math.Log(tf[word])) * Math.Log(documents.Count / df[word]));
+                var pair = new Pair<int,double>(wordTable[word],(1 + Math.Log(tf[word])) * Math.Log(documents.Count / df[word]));
                 pairs.Add(pair);
             }
             pairs.Sort(pairs[0].GetByFirstComparer());

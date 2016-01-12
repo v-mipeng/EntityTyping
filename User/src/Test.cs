@@ -12,6 +12,8 @@ using java.util;
 using pml.collection.map;
 using pml.file.reader;
 using pml.file.writer;
+using Accord.MachineLearning;
+using User.src;
 
 namespace msra.nlp.tr
 {
@@ -93,15 +95,19 @@ namespace msra.nlp.tr
         //    writer.Close();
         //}
 
-        public static void Mains(string[] args)
+        public static void Main(string[] args)
         {
-            //Console.WriteLine(SplitSequence("I like Beijing. I went there yesterday!"));
-           var tokens = Tokenize("I like china, which standing at southeast.");
+           // //Console.WriteLine(SplitSequence("I like Beijing. I went there yesterday!"));
+           //var tokens = Tokenize("I like china, which standing at southeast.");
 
-           var output = Generalizer.Generalize("1092-2322");
-           output = Generalizer.Generalize("Chinese2012");
-           Console.WriteLine(output);
-           Console.Read();
+           //var output = Generalizer.Generalize("1092-2322");
+           //output = Generalizer.Generalize("Chinese2012");
+           //Console.WriteLine(output);
+           //Console.Read();
+            var cluster = new VectorCluster(@"D:\Data\Google-word2vec\tmp.txt",//GoogleNews-vectors-negative300.txt",
+                @"D:\Codes\C#\EntityTyping\Fine-ner\input\word table\centroids.txt",
+                @"D:\Codes\C#\EntityTyping\Fine-ner\input\word table\wordID.txt");
+            cluster.Cluster(100);
         }
     }
 }

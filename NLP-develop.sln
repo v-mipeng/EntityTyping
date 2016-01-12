@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProcessor", "DataProces
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "KMeans", "KMeans\KMeans.pyproj", "{F13E1464-D3F3-4DD6-A521-CA048322A7BD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{BC38E624-D054-4546-8116-2A2181F9BE9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

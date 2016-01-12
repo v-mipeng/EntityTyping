@@ -13,7 +13,7 @@ namespace User.src
     public class Word2Vec
     {
         //refine word2vec: select necessary words 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             //SelectInterestWordVector(@"D:\Codes\C#\EntityTyping\word2vec\wordTable.txt",
             //                         @"D:\Codes\C#\EntityTyping\word2vec\test\vectors.bin",
