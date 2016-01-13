@@ -50,16 +50,16 @@ namespace msra.nlp.tr
 
         public static void Main(string[] args)
         {
-           // //Console.WriteLine(SplitSequence("I like Beijing. I went there yesterday!"));
+           // //Console.WriteLine(SplitSequence("I like Beijing. I went there yesterday!"));                                                                                             
            //var tokens = Tokenize("I like china, which standing at southeast.");
 
            //var output = Generalizer.Generalize("1092-2322");
            //output = Generalizer.Generalize("Chinese2012");
            //Console.WriteLine(output);
            //Console.Read();
-            var cluster = new VectorCluster(@"D:\Data\Google-word2vec\tmp.txt",//GoogleNews-vectors-negative300.txt",
-                @"D:\Codes\C#\EntityTyping\Fine-ner\input\word table\centroids.txt",
-                @"D:\Codes\C#\EntityTyping\Fine-ner\input\word table\wordID.txt");
+            var cluster = new VectorCluster(@"E:\Users\v-wengji\Google-word2vec\freebase-mention-vectors.txt",
+                @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\word table\phrase-centroids.txt",
+                @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\word table\phraseID.txt");
             cluster.Cluster(100);
         }
         //static void Initial(string modelDir = null)
@@ -119,6 +119,5 @@ namespace msra.nlp.tr
         //   Console.WriteLine(output);
         //   Console.Read();
         //}
->>>>>>> ef23a18181bc4b31a41c0e67e97319757d6e0d34
     }
 }

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using pml.ml.cluster;
 
 namespace User.src
 {
@@ -37,8 +38,8 @@ namespace User.src
         // labels of words according
         int[] labels;
         // kmeans object
-        KMeans kmeans = null;
-
+        //KMeans kmeans = null;
+        ParallelKMeans kmeans = null;
 
         // cluster word vectors
         public VectorCluster(string vectorFile, string centroidInfoFile, string wordClusterIDFile)
@@ -56,10 +57,10 @@ namespace User.src
         /// </param>
         public void Cluster(int k)
         {
-            this.kmeans = new KMeans(k);
+            this.kmeans = new ParallelKMeans();
             LoadVectors();
             Console.WriteLine("Clustering...");
-            this.labels = kmeans.Compute(vectors);
+            this.labels = kmeans.Compute(100,vectors);
             Console.WriteLine("Done!");
             SaveCentroids();
             SaveWordClusterId();
@@ -173,7 +174,7 @@ namespace User.src
         {
             var writer = new LargeFileWriter(centroidInfoFile, FileMode.Create);
             
-            foreach(var centroid in kmeans.Clusters.Centroids)
+            foreach(var centroid in kmeans.Centroids)
             {
                  foreach(var value in centroid)
                  {
