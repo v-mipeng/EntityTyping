@@ -207,6 +207,23 @@ namespace msra.nlp.tr
             {
                 // extract features for svm model
                 // TODO: Add svm feature extraction
+                // extract features for bayes model
+                if (options.Contains("train") || options.Contains("all"))
+                {
+                    ExtractSvmFeature((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
+                        (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
+                }
+                if (options.Contains("dev") || options.Contains("all"))
+                {
+                    ExtractSvmFeature((string) GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
+                        (string) GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
+                }
+                if (options.Contains("test") || options.Contains("all"))
+                {
+                    ExtractSvmFeature((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
+                        (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
+                }
+            
             }        
         }
 
@@ -523,6 +540,8 @@ namespace msra.nlp.tr
             FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file));
             FileWriter writer = new LargeFileWriter((string)GlobalParameter.Get(DefaultParameter.Field.word_table_file), FileMode.Create);
             FileWriter wordShapeWriter = new LargeFileWriter((string)GlobalParameter.Get(DefaultParameter.Field.word_shape_table_file), FileMode.Create);
+            //FileWriter wordShapeWriter = new LargeFileWriter("../../../Fine-ner/input/shape-table-file.txt", FileMode.Create);
+
             string line = null;
             var wordTable = new HashSet<string>();
             var wordShapeTable = new HashSet<string>();
@@ -553,8 +572,9 @@ namespace msra.nlp.tr
                         }
                     }
                 }
-                catch(Exception)
+                catch(Exception e)
                 {
+                    Console.WriteLine(e.Message);
                     continue;
                 }
                 

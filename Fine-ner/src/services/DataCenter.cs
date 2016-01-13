@@ -444,7 +444,7 @@ namespace msra.nlp.tr
         /* Word cluster ID                                                                     */
         /************************************************************************/
         static Dictionary<string, int> wordIdDic = null;
-        static int clusterSize = 0;
+        static int wordClusterSize = 0;
 
         /// <summary>
         /// Get the cluster id of a word
@@ -466,7 +466,7 @@ namespace msra.nlp.tr
             }
             catch(Exception)
             {
-                id = clusterSize;
+                id = wordClusterSize;
             }
             return id;
         }
@@ -477,7 +477,7 @@ namespace msra.nlp.tr
             {
                 LoadWordClusterID();
             }
-            return clusterSize;
+            return wordClusterSize;
         }
 
         private static void LoadWordClusterID()
@@ -503,8 +503,78 @@ namespace msra.nlp.tr
                 }
             }
             reader.Close();
-            clusterSize = ids.Count;
+            wordClusterSize = ids.Count;
         }
+
+        /************************************************************************/
+        /* Mention cluster ID                                                                     */
+        /************************************************************************/
+      
+        static Dictionary<string, int> mentionIdDic = null;
+        static int mentionClusterSize = 0;
+
+        /// <summary>
+        /// Get the cluster id of a mention
+        /// The id of mentions begin with 0. If the mention table does not contains the mention, it return number of clusters.
+        /// </summary>
+        /// <param name="mention"></param>
+        /// <returns></returns>
+        public static int GetMentionClusterID(string mention)
+        {
+            if (mentionIdDic == null)
+            {
+                LoadMentionClusterID();
+            }
+            int id;
+            mentionIdDic.TryGetValue(mention, out id);
+            try
+            {
+                id = mentionIdDic[mention];
+            }
+            catch (Exception)
+            {
+                id = mentionClusterSize;
+            }
+            return id;
+        }
+
+        public static int GetMentionClusterNumber()
+        {
+            if (mentionIdDic == null)
+            {
+                LoadMentionClusterID();
+            }
+            return mentionClusterSize;
+        }
+
+        private static void LoadMentionClusterID()
+        {
+            mentionIdDic = new Dictionary<string, int>();
+            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.mention_id_file));
+            string line;
+            string[] array;
+            HashSet<int> ids = new HashSet<int>();
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                array = line.Split('\t');
+                try
+                {
+                    var id = int.Parse(array[1]);
+                    ids.Add(id);
+                    mentionIdDic[array[0]] = id;
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            reader.Close();
+            mentionClusterSize = ids.Count;
+        }
+       
+        
+        
         private DataCenter() { }
     }
 }

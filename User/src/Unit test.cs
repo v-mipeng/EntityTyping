@@ -13,7 +13,7 @@ namespace User
 {
     class UnitTest
     {
-        static void Mains(string[] args)
+        static void Main(string[] args)
         {
             //Temp();
             //Analyse();
@@ -82,11 +82,14 @@ namespace User
             /************************************************************************/
             /* Feature extractor                                                                     */
             /************************************************************************/
-            if (false)
+            if (true)
             {
-                props.SetProperty("method", @"/ef -train");
-                props.SetProperty("train_data_file", @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\unit test\input\temp.txt");
-                props.SetProperty("train_feature_file", @"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\unit test\output\tempFeature.txt");
+                props.SetProperty("method", @"/ewt");             // /ef -s -train -dev
+                props.SetProperty("train_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\train.txt");
+                props.SetProperty("train_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\trainFeature.txt");
+                props.SetProperty("develop_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\develop.txt");
+                props.SetProperty("develop_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\developFeature.txt");
+               
                 pipeline = new Pipeline(props);
                 pipeline.Execute();
             }
@@ -107,7 +110,7 @@ namespace User
             /************************************************************************/
             /* Extract word table and word shapes                                                                     */
             /************************************************************************/
-            if (true)
+            if (false)
             {
                 props.SetProperty("method", @"/ewt");
                 //props.SetProperty("train_data_file", @"");

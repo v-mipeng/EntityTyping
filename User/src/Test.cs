@@ -48,7 +48,7 @@ namespace msra.nlp.tr
         //    return (from CoreMap token in tokens select token.ToString()).ToList();
         //}
 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
            // //Console.WriteLine(SplitSequence("I like Beijing. I went there yesterday!"));
            //var tokens = Tokenize("I like china, which standing at southeast.");

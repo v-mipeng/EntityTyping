@@ -28,7 +28,7 @@ namespace msra.nlp.tr
             {
                 return null;
             }
-            var word = Stemmer.Stem(input.ToLower())[0];
+            var word = DataCenter.GetStemmedWord(input.ToLower());
             // map number to 0 and compress number
             var buffer = word.ToArray();
             var newBuffer = new StringBuilder();

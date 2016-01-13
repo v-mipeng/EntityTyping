@@ -1,8 +1,10 @@
 ﻿using Accord.MachineLearning;
 using pml.file.reader;
 using pml.file.writer;
+using pml.ml.cluster;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -37,8 +39,8 @@ namespace User.src
         // labels of words according
         int[] labels;
         // kmeans object
-        KMeans kmeans = null;
-
+        //KMeans kmeans = null;
+        ParallelKMeans kmeans = null;
 
         // cluster word vectors
         public VectorCluster(string vectorFile, string centroidInfoFile, string wordClusterIDFile)
@@ -56,11 +58,18 @@ namespace User.src
         /// </param>
         public void Cluster(int k)
         {
-            this.kmeans = new KMeans(k);
+            this.kmeans = new ParallelKMeans();
             LoadVectors();
             Console.WriteLine("Clustering...");
-            this.labels = kmeans.Compute(vectors);
-            Console.WriteLine("Done!");
+            Stopwatch watcher = new Stopwatch();
+            watcher.Start();
+            this.labels = kmeans.Compute(100, vectors);
+            //this.labels = kmeans.Compute(vectors);
+            watcher.Stop();
+            int seconds = (int)watcher.ElapsedMilliseconds/1000;
+            int mins = seconds/60;
+            seconds = seconds-mins*60;
+            Console.WriteLine(string.Format("Done!\r Time Consumed:{0}m{1}s ",mins,seconds));
             SaveCentroids();
             SaveWordClusterId();
         }
@@ -172,13 +181,15 @@ namespace User.src
         private void SaveCentroids()
         {
             var writer = new LargeFileWriter(centroidInfoFile, FileMode.Create);
-            
-            foreach(var centroid in kmeans.Clusters.Centroids)
+
+            //foreach (var centroid in kmeans.Clusters.Centroids)
+            foreach (var centroid in kmeans.Centroids)
             {
                  foreach(var value in centroid)
                  {
                      writer.Write(string.Format("{0}\t",value));
                  }
+                 writer.Write("\r");
             }
             writer.Close();
 

@@ -27,7 +27,7 @@ namespace msra.nlp.tr
          *      Mention Shape
          *      Cluster ID of mention words     
          *      Mention length         
-         *      Mention ID                      :TODO
+         *      Mention ID                      
          *      Last token
          *      Last token pos tag
          *      Last token ID                   
@@ -36,7 +36,7 @@ namespace msra.nlp.tr
          *      Next token ID                   
          *      Parent in dependency tree(stanford corenlp)   
          *      Dictionary                      :TODO
-         *      Topic(Define topic)             :TODO
+         *      Topic(Define topic)             :TODO: I am going to work with document cluster
          * 
          */
         public Dictionary<int,int> ExtractFeature(String[] input)
@@ -111,6 +111,13 @@ namespace msra.nlp.tr
                 offset += DataCenter.GetPosTagTableSize() + 1;
             }
             // mention words
+            StringBuilder m = new StringBuilder();
+            foreach(var w in words)
+            {
+                m.Append(w.ToLower());
+            }
+            feature[offset] = DataCenter.GetMentionClusterID(m.ToString());
+            offset++;
             foreach(var w in words) // words surface
             {
                 var word = Generalizer.Generalize(w);
@@ -154,6 +161,8 @@ namespace msra.nlp.tr
             /**************Document Level****************/
             // topic
 
+            /**************External Level****************/
+            // dictionary
            return feature;
         }
 
