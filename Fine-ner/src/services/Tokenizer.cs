@@ -44,7 +44,7 @@ namespace msra.nlp.tr
             var props = new Properties();
             props.put("annotators", "tokenize");
             var dir = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(@"D:\Software Install\CoreNLP");
+            Directory.SetCurrentDirectory(@"E:\Users\v-mipeng\Software Install\Stanford NLP\stanford-corenlp-full-2015-04-20\");
             pipeline = new StanfordCoreNLP(props);
             Directory.SetCurrentDirectory(dir);
         }

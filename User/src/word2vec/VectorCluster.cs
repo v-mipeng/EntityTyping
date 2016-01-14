@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using pml.ml.cluster;
 
 namespace User.src
 {
@@ -70,6 +71,8 @@ namespace User.src
             int mins = seconds/60;
             seconds = seconds-mins*60;
             Console.WriteLine(string.Format("Done!\r Time Consumed:{0}m{1}s ",mins,seconds));
+            this.labels = kmeans.Compute(100,vectors);
+            Console.WriteLine("Done!");
             SaveCentroids();
             SaveWordClusterId();
         }
@@ -183,7 +186,7 @@ namespace User.src
             var writer = new LargeFileWriter(centroidInfoFile, FileMode.Create);
 
             //foreach (var centroid in kmeans.Clusters.Centroids)
-            foreach (var centroid in kmeans.Centroids)
+            foreach(var centroid in kmeans.Centroids)
             {
                  foreach(var value in centroid)
                  {

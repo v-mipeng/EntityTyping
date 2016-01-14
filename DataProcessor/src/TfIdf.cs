@@ -16,7 +16,8 @@ namespace msra.nlp.tr.dr
         readonly string vectorPath; // path of file to store the vector representation of document
         readonly string dfPath;     // path of file to store the df of corpus
         readonly string wordTablePath;  // path of file to store the word table of corpus
-        List<List<string>> documents = null;
+        //List<List<string>> documents = null;
+        int docNum = 0;
         Dictionary<string, int> df = null;
         Dictionary<string, int> wordTable = null;
 
@@ -40,18 +41,19 @@ namespace msra.nlp.tr.dr
 
         private void AnalyzeCorpus()
         {
-            documents = new List<List<string>>();
+            //documents = new List<List<string>>();
             df = new Dictionary<string, int>();
             wordTable = new Dictionary<string,int>();
             ReadOneDoc();
             HashSet<string> set = null;
-            int num = 0;
+
 
             while(this.doc != null)
             {
-                if(++num%1000==0)
+                this.docNum++;
+                if(this.docNum % 1000==0)
                 {
-                    Console.WriteLine(num);
+                    Console.WriteLine(this.docNum);
                 }
                 var document = Tokenizer.Tokenize(this.doc);
                 set = new HashSet<string>(document);
@@ -67,6 +69,7 @@ namespace msra.nlp.tr.dr
                         wordTable[word] = count;
                     }
                 }
+                ReadOneDoc();
             }
 
         }
@@ -112,6 +115,8 @@ namespace msra.nlp.tr.dr
                     writer.Write("\t"+value.first+":"+value.second);
                 }
                 writer.Write("\r");
+                ReadOneDoc();
+                docLabel++;
             }
             writer.Close();
         }
@@ -131,7 +136,7 @@ namespace msra.nlp.tr.dr
             List<Pair<int, double>> pairs = new List<Pair<int, double>>();
             foreach(var word in tf.Keys)
             {
-                var pair = new Pair<int,double>(wordTable[word],(1 + Math.Log(tf[word])) * Math.Log(documents.Count / df[word]));
+                var pair = new Pair<int,double>(wordTable[word],(1 + Math.Log(tf[word])) * Math.Log(this.docNum / df[word]));
                 pairs.Add(pair);
             }
             pairs.Sort(pairs[0].GetByFirstComparer());
@@ -162,7 +167,7 @@ namespace msra.nlp.tr.dr
             }
         }
        
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             TfIdf tfidf = new TfIdf(
                 @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train.txt",
