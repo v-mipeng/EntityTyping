@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -56,7 +56,7 @@
     <Reference Include="Accord.Statistics, Version=3.0.2.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=MSIL">
       <HintPath>..\packages\Accord.Statistics.3.0.2\lib\net45\Accord.Statistics.dll</HintPath>
       <Private>True</Private>
-    </Reference>  
+    </Reference>
     <Reference Include="Accord">
       <HintPath>..\packages\Accord.3.0.2\lib\net45\Accord.dll</HintPath>
     </Reference>
@@ -237,7 +237,7 @@
     <Compile Include="src\script\Embed\TrainDataPreprocess.cs" />
     <Compile Include="src\script\Script.cs" />
     <Compile Include="src\script\Statistic.cs" />
-    <Compile Include="src\share\DataCenter.cs" />
+    <Compile Include="src\services\DataCenter.cs" />
     <Compile Include="src\share\DefaultParameter.cs" />
     <Compile Include="src\share\GlobalParameter.cs" />
     <Compile Include="src\test\BayesTest.cs" />

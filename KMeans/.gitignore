@@ -1,5 +1,0 @@
-# ignore file for feature branch: exclude readme,output.
-/*
-!/src/
-!/.gitignore
-!/*.pyproj

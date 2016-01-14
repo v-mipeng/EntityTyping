@@ -167,7 +167,7 @@ namespace msra.nlp.tr.dr
             }
         }
        
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             TfIdf tfidf = new TfIdf(
                 @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train.txt",
