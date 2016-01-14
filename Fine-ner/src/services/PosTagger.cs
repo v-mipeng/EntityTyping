@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using com.sun.tools.jdi;
 using edu.stanford.nlp.pipeline;
 using edu.stanford.nlp.tagger.maxent;
@@ -52,7 +53,7 @@ namespace msra.nlp.tr
         }
         static void Initial(string modelFile = null)
         {
-            tagger = new MaxentTagger(modelFile ?? (string)GlobalParameter.Get("tagger_model_file"));
+            tagger = new MaxentTagger(modelFile ?? Path.Combine((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir),"edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger"));
         }
 
     }

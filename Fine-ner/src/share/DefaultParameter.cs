@@ -11,27 +11,26 @@ namespace msra.nlp.tr
     {
         public struct Field
         {
-            public const string word_table_file = "word_table_file";
-            public const string train_data_file = "train_data_file";
-            public const string develop_data_file = "develop_data_file";
-            public const string test_data_file = "test_data_file";
-            public const string train_feature_file = "train_feature_file";
-            public const string develop_feature_file = "develop_feature_file";
-            public const string test_feature_file = "test_feature_file";
-            public const string dic_file = "dic_file";
-            public const string dic_type_value_file = "dic_type_value_file";
-            public const string name_list_file = "name_list_file";
-            public const string preposition_list_file = "preposition_list_file";
-            public const string stem_map = "stem_map";
-            public const string model_file = "model_file";
-            public const string test_result_file = "result_file";
-            public const string tagger_model_file = "tagger_model_file";
-            public const string sentence_split_model_dir = "sentence_split_model_dir";
-            public const string method = "method";
-            public const string word_shape_table_file = "shape_table_file";
-            public const string posTag_table_file = "posTag_table_file";
-            public const string word_id_file = "word_id_file";
-            public const string mention_id_file = "mention_id_file";
+            public const string word_table_file             = "word_table_file";
+            public const string train_data_file             = "train_data_file";
+            public const string develop_data_file           = "develop_data_file";
+            public const string test_data_file              = "test_data_file";
+            public const string train_feature_file          = "train_feature_file";
+            public const string develop_feature_file        = "develop_feature_file";
+            public const string test_feature_file           = "test_feature_file";
+            public const string dic_file                    = "dic_file";
+            public const string dic_type_value_file         = "dic_type_value_file";
+            public const string name_list_file              = "name_list_file";
+            public const string preposition_list_file       = "preposition_list_file";
+            public const string stem_map                    = "stem_map";
+            public const string model_file                  = "model_file";
+            public const string test_result_file            = "result_file";
+            public const string stanford_model_dir          = "stanford_model_dir";
+            public const string method                      = "method";
+            public const string word_shape_table_file       = "shape_table_file";
+            public const string posTag_table_file           = "posTag_table_file";
+            public const string word_id_file                = "word_id_file";
+            public const string mention_id_file             = "mention_id_file";
 
 
         };
@@ -79,20 +78,19 @@ namespace msra.nlp.tr
         {
             parameters = new Dictionary<object, object>();
             string basedir = @"../../../Fine-ner/";
-            parameters[Field.sentence_split_model_dir]  = @"D:\Software Install\CoreNLP";
-            parameters[Field.tagger_model_file]         = @"E:/Users/v-mipeng/Codes/Java/ASE/nlp_pos/package/pos-tagger/english-left3words/english-left3words-distsim.tagger";
+            parameters[Field.stanford_model_dir]        = Path.Combine(basedir, @"input\stanford models\");
             parameters[Field.method]                    = Method;
-            parameters[Field.word_table_file]           = Path.Combine(basedir, @"input\tables\wordTable.txt");
-            parameters[Field.train_data_file]           = Path.Combine(basedir, @"input\train.txt");
-            parameters[Field.develop_data_file]         = Path.Combine(basedir, @"input\develop.txt");
-            parameters[Field.test_data_file]            = Path.Combine(basedir, @"input\test.txt");
+            parameters[Field.train_data_file]           = Path.Combine(basedir, @"input\satori\train.txt");
+            parameters[Field.develop_data_file]         = Path.Combine(basedir, @"input\satori\develop.txt");
+            parameters[Field.test_data_file]            = Path.Combine(basedir, @"input\satori\test.txt");
             parameters[Field.dic_file]                  = Path.Combine(basedir, @"input\dictionary\UIUC.txt");
             parameters[Field.dic_type_value_file]       = Path.Combine(basedir, @"input\dictionary\UIUC-Type-Value.txt");
+            parameters[Field.word_table_file]           = Path.Combine(basedir, @"input\tables\wordTable.txt");
             parameters[Field.stem_map]                  = Path.Combine(basedir, @"input\tables\stem-word-table.txt");
-            parameters[Field.word_shape_table_file]     = Path.Combine(basedir, @"input\shape-table.txt");
-            parameters[Field.posTag_table_file]         = Path.Combine(basedir, @"input\posTag-table.txt");
-            parameters[Field.word_id_file]              = Path.Combine(basedir, @"input\word table\wordID.txt");
-            parameters[Field.mention_id_file]           = Path.Combine(basedir, @"input\word table\mentionID.txt");
+            parameters[Field.word_shape_table_file]     = Path.Combine(basedir, @"input\tables\shape-table.txt");
+            parameters[Field.posTag_table_file]         = Path.Combine(basedir, @"input\tables\pos-tag-table.txt");
+            parameters[Field.word_id_file]              = Path.Combine(basedir, @"input\tables\wordID.txt");
+            parameters[Field.mention_id_file]           = Path.Combine(basedir, @"input\tables\mentionID.txt");
             parameters[Field.train_feature_file]        = Path.Combine(basedir, @"output\train\trainFeature.txt");
             parameters[Field.develop_feature_file]      = Path.Combine(basedir, @"output\satori\developFeature.txt");
             parameters[Field.test_feature_file]         = Path.Combine(basedir, @"output\satori\testFeature.txt");

@@ -157,7 +157,7 @@ namespace msra.nlp.tr
                 return null;
             }
             mention = mention.Trim();
-            var sentences = SentenceSplit.SplitSequence(context);
+            var sentences = SentenceSpliter.SplitSequence(context);
             var sentence = sentences.FirstOrDefault(item => item.Contains(mention));
             if (sentence == null)
             {
@@ -298,6 +298,20 @@ namespace msra.nlp.tr
             {
                 return -((IComparable<int>)dic[key1]).CompareTo(dic[key2]);
             }
+        }
+
+        static string[] types = { "people.person", "location.location", "organization.organization" };
+
+        static protected int GetTypeValue(string type)
+        {
+          for(int i = 0;i<types.Length;i++)
+          {
+              if(type.Equals(types[i]))
+              {
+                  return i;
+              }
+          }
+          return -1;
         }
     }
 }

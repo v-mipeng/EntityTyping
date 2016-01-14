@@ -12,12 +12,12 @@ using java.util;
 
 namespace msra.nlp.tr
 {
-    public class SentenceSplit
+    public class SentenceSpliter
     {
         static StanfordCoreNLP pipeline = null;
         private static object locker = new object();
 
-        private SentenceSplit()
+        private SentenceSpliter()
         {
         }
 
@@ -43,7 +43,7 @@ namespace msra.nlp.tr
             var props = new Properties();
             props.put("annotators", "tokenize, ssplit");
             var dir = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(modelDir ?? (string)GlobalParameter.Get("sentence_split_model_dir"));
+            Directory.SetCurrentDirectory(modelDir ?? (string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir));
             pipeline = new StanfordCoreNLP(props);
             Directory.SetCurrentDirectory(dir);
         }

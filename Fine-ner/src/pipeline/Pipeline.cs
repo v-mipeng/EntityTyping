@@ -351,13 +351,13 @@ namespace msra.nlp.tr
         {
             FileReader reader = new LargeFileReader(source);
             FileWriter writer = new LargeFileWriter();
-            const int numPerThread = 100000;
+            const int numPerThread = 10000;
             var directory = Path.GetDirectoryName(source);
             var name = Path.GetFileName(source);
             var ext = Path.GetExtension(source);
             // seperate source file into parts
             int part = 0;
-            var partFile = Path.Combine(directory, name + "-part" + part + "."+ext);
+            var partFile = Path.Combine(directory, name + "-part" + part +ext);
             var partFiles = new List<string>();
             // Create corresponding des files
             string desPartFile = null;
@@ -376,15 +376,16 @@ namespace msra.nlp.tr
               }
               else
               {
+                  writer.Close();
                   // start a child thread
-                  desPartFile = Path.Combine(directory, name + "-feature-part" + part + "." + ext);
+                  desPartFile = Path.Combine(directory, name + "-feature-part" + part + ext);
                   var threadClass = new SvmFeatureThread(partFile,desPartFile);
                   childThreads.Add(new Thread(threadClass.ThreadMain));
                   childThreads[childThreads.Count-1].Start();
                   desPartFiles.Add(desPartFile);
                   // create another part file
                   part++;
-                  partFile = Path.Combine(directory, name + "-part" + part + "." + ext);
+                  partFile = Path.Combine(directory, name + "-part" + part + ext);
                   writer.Open(partFile, FileMode.Create);
                   count = 0;
                   partFiles.Add(partFile);
@@ -392,11 +393,17 @@ namespace msra.nlp.tr
             }
             if(count >0)
             {
+                writer.Close();
                 desPartFile = Path.Combine(directory, name + "-feature-part" + part + ext);
                 var threadClass = new SvmFeatureThread(partFile, desPartFile);
                 childThreads.Add(new Thread(threadClass.ThreadMain));
                 childThreads[childThreads.Count - 1].Start();
                 desPartFiles.Add(desPartFile);
+            }
+            else
+            {
+                writer.Close();
+                File.Delete(partFile);
             }
             reader.Close();
             // Wait until all the threads complete work
@@ -437,7 +444,7 @@ namespace msra.nlp.tr
             {
                 var reader = new LargeFileReader(this.source);
                 FileWriter writer = new LargeFileWriter(this.des, FileMode.Create);
-                var count = 0;
+                var count = 1;
                 string line;
                 while ((line = reader.ReadLine())!=null)
                 {
@@ -448,11 +455,15 @@ namespace msra.nlp.tr
                     try
                     {
                         var feature = ExtractSvmFeature(extractor,line);
+                        if (feature.second == null)
+                        {
+                            continue;
+                        }
                         writer.Write(feature.first);
                         var dic = feature.second;
                         var keys = dic.Keys.ToList();
                         keys.Sort(); // sort ascendly
-                        foreach(var key in keys)
+                        foreach (var key in keys)
                         {
                             writer.Write("\t" + key + ":" + dic[key]);
                         }
@@ -460,7 +471,10 @@ namespace msra.nlp.tr
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine("=================error!===============");
+                        Console.WriteLine("\t" + e.Message);
+                        Console.WriteLine("\t" + e.StackTrace);
+                        Console.WriteLine("=================error!===============");
                     }
                 }
                 reader.Close();
@@ -473,7 +487,7 @@ namespace msra.nlp.tr
         /// </summary>
         /// <param name="line"></param>
         /// <returns></returns>
-        private static Pair<string,Dictionary<int,int>> ExtractSvmFeature(SVMFeature extractor, string line)
+        private static Pair<object,Dictionary<int,int>> ExtractSvmFeature(SVMFeature extractor, string line)
         {
             var array = line.Split('\t');
             return extractor.ExtractFeatureWithLable(array);
@@ -574,7 +588,10 @@ namespace msra.nlp.tr
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine("=================error!===============");
+                    Console.WriteLine("\t"+e.Message);
+                    Console.WriteLine("\t"+e.StackTrace);
+                    Console.WriteLine("=================error!===============");
                     continue;
                 }
                 

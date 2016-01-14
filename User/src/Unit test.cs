@@ -84,7 +84,7 @@ namespace User
             /************************************************************************/
             if (true)
             {
-                props.SetProperty("method", @"/ewt");             // /ef -s -train -dev
+                props.SetProperty("method", @"/ef -s -train -dev");
                 props.SetProperty("train_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\train.txt");
                 props.SetProperty("train_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\trainFeature.txt");
                 props.SetProperty("develop_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\develop.txt");

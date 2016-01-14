@@ -46,22 +46,25 @@ namespace msra.nlp.tr
 
         public static void Parse(IEnumerable<string> tokens)
         {
-            if (parser == null)
+            lock (locker)
             {
-                Initial();
-            }
-            var rawWords = Sentence.toCoreLabelList(tokens.ToArray());
-            var tree = parser.apply(rawWords);
-            var tlp = new PennTreebankLanguagePack();
-            var gsf = tlp.grammaticalStructureFactory();
-            var gs = gsf.newGrammaticalStructure(tree);
-            var tdl = gs.typedDependenciesCCprocessed();
-            dependencies.Clear();
-            foreach (TypedDependency item in (ArrayList)tdl)
-            {
-                // From item you can parse gov,reln,dep and token tags.
-                // You can view from debug 
-                dependencies.Add(item.ToString());
+                if (parser == null)
+                {
+                    Initial();
+                }
+                var rawWords = Sentence.toCoreLabelList(tokens.ToArray());
+                var tree = parser.apply(rawWords);
+                var tlp = new PennTreebankLanguagePack();
+                var gsf = tlp.grammaticalStructureFactory();
+                var gs = gsf.newGrammaticalStructure(tree);
+                var tdl = gs.typedDependenciesCCprocessed();
+                dependencies.Clear();
+                foreach (TypedDependency item in (ArrayList)tdl)
+                {
+                    // From item you can parse gov,reln,dep and token tags.
+                    // You can view from debug 
+                    dependencies.Add(item.ToString());
+                }
             }
         }
 

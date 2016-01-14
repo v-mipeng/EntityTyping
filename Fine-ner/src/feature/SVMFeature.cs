@@ -13,9 +13,9 @@ namespace msra.nlp.tr
     {
         public SVMFeature():base(){}
 
-        public Pair<string, Dictionary<int,int>> ExtractFeatureWithLable(String[] input)
+        public Pair<object, Dictionary<int,int>> ExtractFeatureWithLable(String[] input)
         {
-            return new Pair<string, Dictionary<int, int>>(input[1], ExtractFeature(new string[]{input[0], input[2]}));
+            return new Pair<object, Dictionary<int, int>>(GetTypeValue(input[1]), ExtractFeature(new string[]{input[0], input[2]}));
         }
 
         /*   Extract feature from the input, and the feature is clustered by field
@@ -50,6 +50,10 @@ namespace msra.nlp.tr
             var pairs = GetPosTags(mention, context);
             var pair = GetMentionRange(pairs, mention);
             
+            if(pair.first == -1)
+            {
+                return null;
+            }
             int offset = 0;
             /**************Word Level****************/
             // last word
@@ -114,7 +118,14 @@ namespace msra.nlp.tr
             StringBuilder m = new StringBuilder();
             foreach(var w in words)
             {
-                m.Append(w.ToLower());
+                if (m.Length == 0)
+                {
+                    m.Append(w.ToLower());
+                }
+                else
+                {
+                    m.Append("_" + w.ToLower());
+                }
             }
             feature[offset] = DataCenter.GetMentionClusterID(m.ToString());
             offset++;

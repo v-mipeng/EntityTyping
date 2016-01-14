@@ -209,7 +209,7 @@
     <Compile Include="src\feature\Feature.cs" />
     <Compile Include="src\feature\FeatureExtractor.cs" />
     <Compile Include="src\services\PosTagger.cs" />
-    <Compile Include="src\services\SentenceSplit.cs" />
+    <Compile Include="src\services\SentenceSpliter.cs" />
     <Compile Include="src\services\Stemmer.cs" />
     <Compile Include="src\feature\SVMFeature.cs" />
     <Compile Include="src\services\Tokenizer.cs" />
@@ -219,7 +219,7 @@
     <Compile Include="src\script\Embed\TrainDataPreprocess.cs" />
     <Compile Include="src\script\Script.cs" />
     <Compile Include="src\script\Statistic.cs" />
-    <Compile Include="src\share\DataCenter.cs" />
+    <Compile Include="src\services\DataCenter.cs" />
     <Compile Include="src\share\DefaultParameter.cs" />
     <Compile Include="src\share\GlobalParameter.cs" />
     <Compile Include="src\test\BayesTest.cs" />
