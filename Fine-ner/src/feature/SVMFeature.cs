@@ -11,12 +11,28 @@ namespace msra.nlp.tr
 {
     class SVMFeature  : Feature
     {
+        Dictionary<int, int> feature = new Dictionary<int, int>();
+        int offset = 0;
+
         public SVMFeature():base(){}
 
         public Pair<object, Dictionary<int,int>> ExtractFeatureWithLable(String[] input)
         {
             return new Pair<object, Dictionary<int, int>>(GetTypeValue(input[1]), ExtractFeature(new string[]{input[0], input[2]}));
         }
+
+        /// <summary>
+        /// Reture feature dimension
+        /// </summary>
+        public int FeatureDimension
+        {
+            get
+            {
+                return offset;
+            }
+            private set{}
+        }
+
 
         /*   Extract feature from the input, and the feature is clustered by field
          *   The input should contains two items:
@@ -34,7 +50,7 @@ namespace msra.nlp.tr
          *      Next token
          *      Next token pos tag
          *      Next token ID                   
-         *      Parent in dependency tree(stanford corenlp)   
+         *      Parent in dependency tree(stanford corenlp) : driver, action, adject modifier(TO USE)  
          *      Dictionary                      :TODO
          *      Topic(Define topic)             :TODO: I am going to work with document cluster
          * 
@@ -43,141 +59,252 @@ namespace msra.nlp.tr
         {
             var mention = input[0];
             var context = input[1];
-            int wordTableSize = DataCenter.GetWordTableSize();
-            var feature = new Dictionary<int,int>();
+            this.feature = new Dictionary<int, int>();
             String[] words = Tokenizer.Tokenize(mention).ToArray();
             // pos tags of mention words
             var pairs = GetPosTags(mention, context);
             var pair = GetMentionRange(pairs, mention);
-            
-            if(pair.first == -1)
+            if (pair.first == -1)
             {
                 return null;
             }
-            int offset = 0;
-            /**************Word Level****************/
-            // last word
-            var lastWord = GetLastToken(mention, context);
-            if (lastWord != null)
+            var contextTokens = new List<string>();
+            foreach(var p in pairs)
             {
-                // last word surface
-                var word = Generalizer.Generalize(lastWord);
-                feature[offset + DataCenter.GetWordIndex(word)] = 1;
-                offset += DataCenter.GetWordTableSize() + 1;
-                // Cluster id of last word
-                feature[offset] = DataCenter.GetWordClusterID(lastWord);
-                offset++;
-                // last word shape
-                var shape = GetWordShape(lastWord);
-                feature[offset + DataCenter.GetWordShapeIndex(shape)] = 1;
-                offset += DataCenter.GetWordShapeTableSize() + 1;
-                // last word pos tag
-                var index = 0;
-                index = GetLastWordIndex(pairs, lastWord, pair.first);
-                var posTag = pairs.ElementAt(index).second;
-                feature[offset + DataCenter.GetPosTagIndex(posTag)] = 1;
-                offset += DataCenter.GetPosTagTableSize() + 1;
+                contextTokens.Add(p.first);
             }
-            else
+            DependencyParser.Parse(contextTokens);
+            this.offset = 0;
+            #region last word
             {
-                offset += DataCenter.GetWordTableSize() + 1;
-                offset++;
-                offset += DataCenter.GetWordShapeTableSize() + 1;
-                offset += DataCenter.GetPosTagTableSize() + 1;
-            }
-            // next word
-            var nextWord = GetNextToken(mention, context);
-            if (nextWord != null)
-            {
-                // next word surface
-                var word = Generalizer.Generalize(nextWord);
-                feature[offset + DataCenter.GetWordIndex(word)] = 1;
-                offset += DataCenter.GetWordTableSize() + 1;
-                // Cluster id of last word
-                feature[offset] = DataCenter.GetWordClusterID(nextWord);
-                offset++;
-                // next word shape
-                var shape = GetWordShape(nextWord);
-                feature[offset + DataCenter.GetWordShapeIndex(shape)] = 1;
-                offset += DataCenter.GetWordShapeTableSize() + 1;
-                // next word pos tag
-                var index = 0;
-                index = GetLastWordIndex(pairs, nextWord, pair.second);
-                var posTag = pairs.ElementAt(index).second;
-                feature[offset + DataCenter.GetPosTagIndex(posTag)] = 1;
-                offset += DataCenter.GetPosTagTableSize() + 1;
-            }
-            else
-            {
-                offset += DataCenter.GetWordTableSize() + 1;
-                offset++;
-                offset += DataCenter.GetWordShapeTableSize() + 1;
-                offset += DataCenter.GetPosTagTableSize() + 1;
-            }
-            // mention words
-            StringBuilder m = new StringBuilder();
-            foreach(var w in words)
-            {
-                if (m.Length == 0)
+                var lastWord = GetLastToken(mention, context);  // TODO: make last word more accurate
+                if (lastWord != null)
                 {
-                    m.Append(w.ToLower());
+                    var index = -1;
+                    index = GetLastWordIndex(pairs, lastWord, pair.first);
+                   
+                    if (index != -1)
+                    {
+                        var posTag = pairs.ElementAt(index).second;
+                        AddWordFieldToFeature(lastWord, posTag);
+                    }
+                    else
+                    {
+                        AddWordFieldToFeature(lastWord, null);
+                    }
+                }
+
+            }
+            #endregion
+
+            #region next word
+            {
+                var nextWord = GetNextToken(mention, context);
+                if (nextWord != null)
+                {
+                    var index = -1;
+                    index = GetNextWordIndex(pairs, nextWord, pair.first);
+
+                    if (index != -1)
+                    {
+                        var posTag = pairs.ElementAt(index).second;
+                        AddWordFieldToFeature(nextWord, posTag);
+                    }
+                    else
+                    {
+                        AddWordFieldToFeature(nextWord, null);
+                    }
+                }
+            }
+            #endregion
+
+            #region  mention head
+            {
+                string head = null, posTag = null;
+                for (int i = pair.first; i <= pair.second; i++)
+                {
+                    if (pairs.ElementAt(i).second.StartsWith("N"))
+                    {
+                        // last noun
+                        head = pairs.ElementAt(i).first;
+                        posTag = pairs.ElementAt(i).second;
+                    }
+                    else if (pairs.ElementAt(i).second.Equals("IN") || pairs.ElementAt(i).second.Equals(","))
+                    {
+                        // before IN
+                        break;
+                    }
+                }
+                if (head == null)
+                {
+                    head = words[words.Length - 1];
+                    posTag = pairs.ElementAt(pair.second).second;
+                }
+                AddWordFieldToFeature(head, posTag);
+            }
+            #endregion
+
+            #region mention driver
+            {
+                int index = DependencyParser.GetDriver(pair.first, pair.second)-1;
+                if (index >= 0)
+                {
+                    var driver = pairs.ElementAt(index).first;
+                    var posTag = pairs.ElementAt(index).second;
+                    AddWordFieldToFeature(driver, posTag);
                 }
                 else
                 {
-                    m.Append("_" + w.ToLower());
+                    AddWordFieldToFeature(null, null);
                 }
             }
-            feature[offset] = DataCenter.GetMentionClusterID(m.ToString());
-            offset++;
-            foreach(var w in words) // words surface
+            #endregion
+
+            #region mention adjective modifer
             {
-                var word = Generalizer.Generalize(w);
-                var index = offset + DataCenter.GetWordIndex(word);
-                int value;
-                feature.TryGetValue(index, out value);
-                feature[index] = value + 1;
+                int index = DependencyParser.GetAdjModifier(pair.first, pair.second)-1;
+                if (index >= 0)
+                {
+                    var adjModifier = pairs.ElementAt(index).first;
+                    var posTag = pairs.ElementAt(index).second;
+                    AddWordFieldToFeature(adjModifier, posTag);
+                }
+                else
+                {
+                    AddWordFieldToFeature(null, null);
+                }
+
             }
-            offset += DataCenter.GetWordTableSize() + 1;
-            foreach (var w in words) // words' cluster id
+            #endregion
+
+            #region mention action
+            {
+                int index = DependencyParser.GetAction(pair.first, pair.second)-1;
+                if (index >= 0)
+                {
+                    var action = pairs.ElementAt(index).first;
+                    var posTag = pairs.ElementAt(index).second;
+                    AddWordFieldToFeature(action, posTag);
+                }
+                else
+                {
+                    AddWordFieldToFeature(null, null);
+                }
+            }
+            #endregion
+
+            #region mention words
+            {
+                foreach (var w in words) // words surface
+                {
+                    var word = Generalizer.Generalize(w);
+                    var index = offset + DataCenter.GetWordIndex(word);
+                    int value;
+                    feature.TryGetValue(index, out value);
+                    feature[index] = value + 1;
+                }
+                offset += DataCenter.GetWordTableSize() + 1;
+                foreach (var w in words) // words' cluster id
+                {
+
+                    var index = offset + DataCenter.GetWordClusterID(w);
+                    feature[index] = 1;
+                }
+                offset += DataCenter.GetClusterNumber() + 1;
+                foreach (var w in words) // words shapes
+                {
+                    var shape = GetWordShape(w);
+                    var index = offset + DataCenter.GetWordShapeIndex(shape);
+                    int value;
+                    feature.TryGetValue(index, out value);
+                    feature[index] = value + 1;
+                }
+                offset += DataCenter.GetWordShapeTableSize() + 1;
+                for (var i = pair.first; i <= pair.second; i++)   // words pos tags
+                {
+                    var posTag = pairs.ElementAt(i).second;
+                    var index = offset + DataCenter.GetPosTagIndex(posTag);
+                    int value;
+                    feature.TryGetValue(index, out value);
+                    feature[index] = value + 1;
+                }
+                offset += DataCenter.GetPosTagTableSize() + 1;
+            }
+            #endregion
+
+            #region mention length
+            {
+                feature[offset] = words.Length;
+                offset++;
+            }
+            #endregion
+
+            #region mention cluster id
+            {
+                StringBuilder m = new StringBuilder();
+                foreach (var w in words)
+                {
+                    if (m.Length == 0)
+                    {
+                        m.Append(w.ToLower());
+                    }
+                    else
+                    {
+                        m.Append("_" + w.ToLower());
+                    }
+                }
+                var index = DataCenter.GetMentionClusterID(m.ToString());
+                feature[offset + index] = 1;
+                offset += DataCenter.GetMentionClusterNumber()+1;
+            }
+            #endregion
+
+            #region TODO: topic
             {
 
-                var index = offset + DataCenter.GetWordClusterID(w);
-                feature[index] = 1;
             }
-            offset += DataCenter.GetClusterNumber() + 1;
-            foreach (var w in words) // words shapes
-            {
-                var shape = GetWordShape(w);
-                var index = offset + DataCenter.GetWordShapeIndex(shape);
-                int value;
-                feature.TryGetValue(index, out value);
-                feature[index] = value + 1;
-            }
-            offset += DataCenter.GetWordShapeTableSize() + 1;
-            for(var i=pair.first; i<=pair.second;i++)
-            {
-                var posTag = pairs.ElementAt(i).second;
-                var index = offset + DataCenter.GetPosTagIndex(posTag);
-                int value;
-                feature.TryGetValue(index, out value);
-                feature[index] = value + 1;
-            }
-            offset += DataCenter.GetPosTagTableSize() + 1;
-            /**************Mention Level****************/
-            // mention length
-            feature[offset] = words.Length;
-            offset++;
-            // mention cluster id
+            #endregion
 
-            /**************Document Level****************/
-            // topic
+            #region TODO: dictionary
+            {
 
-            /**************External Level****************/
-            // dictionary
-           return feature;
+            }
+            #endregion
+
+            return feature;
         }
 
-
+        private void AddWordFieldToFeature(string originalWord, string posTag)
+        {
+            if (originalWord != null)
+            {
+                // word surface
+                var word = Generalizer.Generalize(originalWord);
+                feature[offset + DataCenter.GetWordIndex(word)] = 1;
+                offset += DataCenter.GetWordTableSize() + 1;
+                // word Cluster id
+                var index = DataCenter.GetWordClusterID(originalWord);
+                feature[offset+index] = 1;
+                offset += DataCenter.GetClusterNumber()+1;
+                // word shape
+                var shape = GetWordShape(originalWord);
+                feature[offset + DataCenter.GetWordShapeIndex(shape)] = 1;
+                offset += DataCenter.GetWordShapeTableSize() + 1;
+                // word pos tag
+                if (posTag != null)
+                {
+                    feature[offset + DataCenter.GetPosTagIndex(posTag)] = 1;
+                }
+                offset += DataCenter.GetPosTagTableSize() + 1;
+            }
+            else
+            {
+                offset += DataCenter.GetWordTableSize() + 1;
+                offset += DataCenter.GetClusterNumber()+1;
+                offset += DataCenter.GetWordShapeTableSize() + 1;
+                offset += DataCenter.GetPosTagTableSize() + 1;
+            }
+        }
 
 
     }

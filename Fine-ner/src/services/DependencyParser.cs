@@ -32,8 +32,7 @@ namespace msra.nlp.tr
         private static LexicalizedParser parser = null;
         static void Initial()
         {
-            //parser = LexicalizedParser.loadModel(Path.Combine((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir),@"\edu\stanford\nlp\models\lexparser\englishPCFG.ser.gz"));
-            parser = LexicalizedParser.loadModel(@"..\..\input\edu\stanford\nlp\models\lexparser\englishPCFG.ser.gz");
+            parser = LexicalizedParser.loadModel(Path.Combine((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir), @"edu\stanford\nlp\models\lexparser\englishPCFG.ser.gz"));
         }
 
         /*Stem the given word with, return the stemmed word
@@ -82,7 +81,7 @@ namespace msra.nlp.tr
         /// <returns>
         ///     Expected Object index or -1 if not exist.
         /// </returns>
-        public static int GetLexicalHead(int begin, int end)
+        public static int GetAction(int begin, int end)
         {
             return GetInterestDep("nsubj", begin, end);
         }
@@ -128,7 +127,7 @@ namespace msra.nlp.tr
         /// <returns>
         ///     Expected Object index or -1 if not exist.
         /// </returns>
-        public static int GetDirectObj(int begin, int end)
+        public static int GetDriver(int begin, int end)
         {
             return GetInterestDep("dobj", begin, end);
         }
@@ -149,8 +148,8 @@ namespace msra.nlp.tr
             return -1;
         }
 
-        static Regex regex = new Regex(@"([^\(]*)\(([^-]*)-(\d*),([^-]*)-(\d*)\)");
-        static Tuple ParseDep(string dep)
+        private static Regex regex = new Regex(@"([^\(]*)\(([^-]*)-(\d*),([^-]*)-(\d*)\)"); // obj(obama-2, pick-4)
+        private static Tuple ParseDep(string dep)
         {
             Tuple tuple = new Tuple();
             Match match = regex.Match(dep);
@@ -247,7 +246,7 @@ namespace msra.nlp.tr
         public static void Main(string[] args)
         {
             DependencyParser.Parse("I want to see this wonderful movie");         //"FeiLin, who Barak H. Obama first picked as vice president, resigned."
-            int str = DependencyParser.GetLexicalHead(6, 6);
+            int str = DependencyParser.GetAction(6, 6);
             //DependencyParser.Parse("I want to go to England, America or Brizial.");
         }
     }

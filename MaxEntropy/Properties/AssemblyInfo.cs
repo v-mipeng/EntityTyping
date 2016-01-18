@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("KMeans")]
+[assembly: AssemblyTitle("MaxEntropy")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("KMeans")]
+[assembly: AssemblyProduct("MaxEntropy")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("e37cea83-cf29-4943-bdcc-be10de223faf")]
+[assembly: Guid("a8adc5e6-5cb8-43ad-9b0b-9c149ef61bd1")]
 
 // Version information for an assembly consists of the following four values:
 //

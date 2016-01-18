@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -201,6 +201,9 @@
       <HintPath>..\packages\MathNet.Numerics.3.9.0\lib\net40\MathNet.Numerics.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SharpEntropy">
+      <HintPath>..\packages\SharpEntropy.1.0.0\lib\SharpEntropy.dll</HintPath>
+    </Reference>
     <Reference Include="stanford-corenlp-3.5.2, Version=3.5.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Stanford.NLP.CoreNLP.3.5.2.1\lib\stanford-corenlp-3.5.2.dll</HintPath>
@@ -223,6 +226,7 @@
     <Compile Include="src\feature\EmbedFeature.cs" />
     <Compile Include="src\feature\Feature.cs" />
     <Compile Include="src\feature\FeatureExtractor.cs" />
+    <Compile Include="src\feature\MaxEntFeature.cs" />
     <Compile Include="src\services\PosTagger.cs" />
     <Compile Include="src\services\SentenceSpliter.cs" />
     <Compile Include="src\services\Stemmer.cs" />
@@ -239,6 +243,8 @@
     <Compile Include="src\share\GlobalParameter.cs" />
     <Compile Include="src\test\BayesTest.cs" />
     <Compile Include="src\train\BayesModel.cs" />
+    <Compile Include="src\train\MaxEntropyTrainer.cs" />
+    <Compile Include="src\train\Trainer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

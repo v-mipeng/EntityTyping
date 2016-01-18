@@ -76,7 +76,8 @@ namespace msra.nlp.tr
             {
                 if (array[i].StartsWith("/"))
                 {
-                     if (operation != null)
+                    //execute one operaton
+                    if (operation != null)
                     {
                         Invoke(operation, options);
                     }
@@ -85,6 +86,7 @@ namespace msra.nlp.tr
                     if (!IsValidOperation(operation))
                     {
                         Console.WriteLine(operation+" is not a valid operation!");
+                        // skip invalid operation
                         i++;
                         while (i<array.Length && !array[i].StartsWith("/"))
                         {
@@ -206,8 +208,6 @@ namespace msra.nlp.tr
             else if (options.Contains("s"))
             {
                 // extract features for svm model
-                // TODO: Add svm feature extraction
-                // extract features for bayes model
                 if (options.Contains("train") || options.Contains("all"))
                 {
                     ExtractSvmFeature((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
@@ -351,7 +351,7 @@ namespace msra.nlp.tr
         {
             FileReader reader = new LargeFileReader(source);
             FileWriter writer = new LargeFileWriter();
-            const int numPerThread = 10000;
+            const int numPerThread = 100000;
             var directory = Path.GetDirectoryName(source);
             var name = Path.GetFileName(source);
             var ext = Path.GetExtension(source);
@@ -460,6 +460,7 @@ namespace msra.nlp.tr
                             continue;
                         }
                         writer.Write(feature.first);
+                        writer.Write("\t" + extractor.FeatureDimension);
                         var dic = feature.second;
                         var keys = dic.Keys.ToList();
                         keys.Sort(); // sort ascendly

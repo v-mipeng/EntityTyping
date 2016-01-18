@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace msra.nlp.tr
 {
     public class Generalizer
     {
         private Generalizer() { }
+
+        private static Regex regex = new Regex(@"\d+");
 
         /// <summary>
         /// Generalize word:
@@ -30,26 +33,7 @@ namespace msra.nlp.tr
             }
             var word = DataCenter.GetStemmedWord(input.ToLower());
             // map number to 0 and compress number
-            var buffer = word.ToArray();
-            var newBuffer = new StringBuilder();
-            var c = (char)0;
-            for(int i = 0;i<buffer.Length;i++)
-            {
-                if (buffer[i] <= '9' && buffer[i] >= '0')
-                {
-                    if (c != '0')
-                    {
-                        newBuffer.Append('0');
-                        c = '0';
-                    }
-                }
-                else
-                {
-                    newBuffer.Append(buffer[i]);
-                    c = buffer[i];
-                }
-            }
-            return newBuffer.ToString();
+            return regex.Replace(word, "0");
         }
     }
 }

@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
-    /* The parameters within this class can be assigned by the user
-     * however, they are not rewritable once assigned.
-     */
+
+    /// <summary>
+    /// The parameters within this class can be assigned by the user
+    /// however, they are not rewritable once assigned.
+    /// This can also be initiated by config file.
+    /// </summary>
     class GlobalParameter
     {
         internal static Dictionary<object, object> parameters = new Dictionary<object, object>();

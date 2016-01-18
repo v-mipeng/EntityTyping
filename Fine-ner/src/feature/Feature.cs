@@ -12,8 +12,10 @@ using pml.type;
 
 namespace msra.nlp.tr
 {
-    internal abstract class Feature
+    internal class Feature
     {
+
+        protected Feature() { }
 
         /// <summary>
         ///     Stem word
@@ -86,48 +88,24 @@ namespace msra.nlp.tr
            Example:
                     John's mother is 30-year-old   -->  Aa-a    a   a   0-a-a                       
         */
+        static Regex lowerRegex = new Regex(@"[a-z]+");
+        static Regex upperRegex = new Regex(@"[A-Z]+");
+        static Regex digitalRegex = new Regex(@"\d+");
+
         public static string GetWordShape(string word)
         {
-            var array = word.ToCharArray();
-            for (var i = 0; i<array.Length;i++)
-            {
-                array[i] = MapChar(array[i]);
-            }
-            return CompressArray(array);
-        }
 
-        protected static char MapChar(char c)
-        {
-            if (c >= '0' && c <= '9')
+            if(word == null)
             {
-                return '0';
-            }
-            if (c >= 'A' && c <= 'Z')
-            {
-                return  'A';
-            }
-            else if (c >= 'a' && c <= 'z')
-            {
-                return  'a';
+                return null;
             }
             else
             {
-                return '-';
+                word = lowerRegex.Replace(word, "a");
+                word = upperRegex.Replace(word, "A");
+                word = digitalRegex.Replace(word, "0");
+                return word;
             }
-        }
-
-        public static string CompressArray(IEnumerable array)
-        {
-            if (array == null) return null;
-            var builder = new StringBuilder();
-            var obj = (char)0;
-
-            foreach (var item in array.Cast<char>().Where(item => obj == (char)0 || !item.Equals(obj)))
-            {
-                builder.Append(item);
-                obj = item;
-            }
-            return builder.ToString();
         }
 
         /// <summary>
@@ -213,7 +191,7 @@ namespace msra.nlp.tr
             }
             var start = builder.ToString().LastIndexOf(lastWord, StringComparison.Ordinal);
             var offset = 0;
-            var index = 0;
+            var index = -1;
             for (var i = 0; i <end; i++)
             {
                 if (offset == start)
@@ -300,7 +278,23 @@ namespace msra.nlp.tr
             }
         }
 
-        static string[] types = { "people.person", "location.location", "organization.organization" };
+        static string[] types = { 
+                                    "people.person", 
+                                    "location.location", 
+                                    "organization.organization" ,
+                                    "award.award",
+                                    "body.part",
+                                    "book.written_work",
+                                    "broadcast.content",
+                                    "chemicstry.chemistry",
+                                    "commerce.consumer_product",
+                                    "commerce.electronics_product",
+                                    "computer.software",
+                                    "food.food",
+                                    "language.language",
+                                    "music.music",
+                                    "time.event"
+                                };
 
         static protected int GetTypeValue(string type)
         {
