@@ -55,12 +55,15 @@ namespace msra.nlp.tr
          *      Topic(Define topic)             :TODO: I am going to work with document cluster
          * 
          */
-        public Dictionary<int,int> ExtractFeature(String[] input)
+        private Dictionary<int,int> ExtractFeature(String[] input)
         {
             var mention = input[0];
             var context = input[1];
             this.feature = new Dictionary<int, int>();
-            String[] words = Tokenizer.Tokenize(mention).ToArray();
+            var tokenizer = TokenizerPool.GetTokenizer();
+            String[] words = tokenizer.Tokenize(mention).ToArray();
+            TokenizerPool.ReturnTokenizer(tokenizer);
+            tokenizer = null;
             // pos tags of mention words
             var pairs = GetPosTags(mention, context);
             var pair = GetMentionRange(pairs, mention);
@@ -73,7 +76,9 @@ namespace msra.nlp.tr
             {
                 contextTokens.Add(p.first);
             }
-            DependencyParser.Parse(contextTokens);
+            // get a parser
+            var parser = ParserPool.GetParser();
+            parser.Parse(contextTokens);
             this.offset = 0;
             #region last word
             {
@@ -146,7 +151,7 @@ namespace msra.nlp.tr
 
             #region mention driver
             {
-                int index = DependencyParser.GetDriver(pair.first, pair.second)-1;
+                int index = parser.GetDriver(pair.first, pair.second)-1;
                 if (index >= 0)
                 {
                     var driver = pairs.ElementAt(index).first;
@@ -162,7 +167,7 @@ namespace msra.nlp.tr
 
             #region mention adjective modifer
             {
-                int index = DependencyParser.GetAdjModifier(pair.first, pair.second)-1;
+                int index = parser.GetAdjModifier(pair.first, pair.second)-1;
                 if (index >= 0)
                 {
                     var adjModifier = pairs.ElementAt(index).first;
@@ -179,7 +184,7 @@ namespace msra.nlp.tr
 
             #region mention action
             {
-                int index = DependencyParser.GetAction(pair.first, pair.second)-1;
+                int index = parser.GetAction(pair.first, pair.second)-1;
                 if (index >= 0)
                 {
                     var action = pairs.ElementAt(index).first;
@@ -192,6 +197,10 @@ namespace msra.nlp.tr
                 }
             }
             #endregion
+
+            ParserPool.ReturnParser(parser);
+            parser = null;
+
 
             #region mention words
             {

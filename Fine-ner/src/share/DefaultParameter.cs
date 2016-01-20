@@ -77,7 +77,7 @@ namespace msra.nlp.tr
         static void Initial()
         {
             parameters = new Dictionary<object, object>();
-            string basedir = @"..\..\..\Fine-ner\";
+            string basedir = @"..\..\..\..\Fine-ner";
             parameters[Field.stanford_model_dir]        = Path.Combine(basedir, @"input\stanford models");
             parameters[Field.method]                    = Method;
             parameters[Field.train_data_file]           = Path.Combine(basedir, @"input\satori\train.txt");

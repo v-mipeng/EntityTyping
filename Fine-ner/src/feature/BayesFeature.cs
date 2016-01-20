@@ -53,7 +53,10 @@ namespace msra.nlp.tr
 
         internal Dictionary<string, object> GetFeature(string mention, string context)
         {
-            context = GetSentenceWithMention(SentenceSpliter.SplitSequence(context), mention);
+            var sspliter = SSpliterPool.GetSSpliter();
+            context = GetSentenceWithMention(sspliter.SplitSequence(context), mention);
+            SSpliterPool.ReturnSSpliter(sspliter);
+            sspliter = null;
             var feature = new Dictionary<string, object>();
             var words = mention.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 

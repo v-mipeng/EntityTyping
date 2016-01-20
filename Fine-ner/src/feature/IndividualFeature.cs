@@ -7,7 +7,7 @@ using pml.type;
 
 namespace msra.nlp.tr
 {
-    class MaxEntFeature : Feature
+    class IndividualFeature : Feature
     {
         private List<string> feature = new List<string>();
 
@@ -42,6 +42,11 @@ namespace msra.nlp.tr
             "mentionActionTag",
             "mentionActionID",
             "mentionActionShape",
+            // mention words
+            "mentionSurfaces",
+            "mentionTags",
+            "mentionIDs",
+            "mentionShapes",
             // context document
             "documentID",
             // if name list contains
@@ -51,7 +56,7 @@ namespace msra.nlp.tr
             "mentionLength",
         };
 
-        public MaxEntFeature() : base() { }
+        public IndividualFeature() : base() { }
 
         /// <summary>
         ///      Get feature with label information for train and test
@@ -103,10 +108,6 @@ namespace msra.nlp.tr
             // pos tags of mention words
             var pairs = GetPosTags(mention, context);
             var pair = GetMentionRange(pairs, mention);
-            if (pair.first == -1)
-            {
-                return null;
-            }
             var contextTokens = new List<string>();
             foreach (var p in pairs)
             {
@@ -115,13 +116,17 @@ namespace msra.nlp.tr
             // get a parser
             var parser = ParserPool.GetParser();
             parser.Parse(contextTokens);
-          
+            if (pair.first == -1)
+            {
+                return null;
+            }
+
             #region last word
             {
                 var word = GetLastToken(mention, context);
                 var index = 0;
                 index = GetLastWordIndex(pairs, word, pair.first);
-                if (index != -1)
+                if (index > 0)
                 {
                     var posTag = pairs.ElementAt(index).second;
                     AddFieldToFeture(word, posTag);
@@ -138,7 +143,7 @@ namespace msra.nlp.tr
             {
                 var word = GetNextToken(mention, context);
                 var index = 0;
-                index = GetNextWordIndex(pairs, word, pair.second)-1;
+                index = GetNextWordIndex(pairs, word, pair.second);
                 if (index > 0)
                 {
                     var posTag = pairs.ElementAt(index).second;
@@ -180,7 +185,7 @@ namespace msra.nlp.tr
 
             #region mention driver
             {
-                int index = parser.GetDriver(pair.first, pair.second)-1;
+                int index = parser.GetDriver(pair.first, pair.second) -1;
                 if (index > 0)
                 {
                     var driver = pairs.ElementAt(index).first;
@@ -196,7 +201,7 @@ namespace msra.nlp.tr
 
             #region mention adjective modifer
             {
-                int index = parser.GetAdjModifier(pair.first, pair.second)-1;
+                int index = parser.GetAdjModifier(pair.first, pair.second) -1;
                 if (index > 0)
                 {
                     var adjModifier = pairs.ElementAt(index).first;
@@ -228,6 +233,67 @@ namespace msra.nlp.tr
 
             ParserPool.ReturnParser(parser);
             parser = null;
+
+            #region Mention Words
+            {
+                // mention surfaces
+                var mentionWords = new StringBuilder();
+                foreach(var word in words)
+                {
+                    if(mentionWords.Length == 0)
+                    {
+                        mentionWords.Append(Generalizer.Generalize(word));
+                    }
+                    else
+                    {
+                        mentionWords.Append("," + Generalizer.Generalize(word));
+                    }
+                }
+                feature.Add(mentionWords.ToString());
+                // mention tags
+                var mentionTags = mentionWords.Clear();     
+                for(var i = pair.first; i<= pair.second;i++)
+                {
+                    if (mentionTags.Length == 0)
+                    {
+                        mentionTags.Append(pairs.ElementAt(i).second);
+                    }
+                    else
+                    {
+                        mentionTags.Append("," + pairs.ElementAt(i).second);
+                    }
+                }
+                feature.Add(mentionTags.ToString());
+               // mention IDs
+                var mentionIDs = mentionTags.Clear();
+                foreach(var word in words)
+                {
+                    if (mentionIDs.Length == 0)
+                    {
+                        mentionIDs.Append(DataCenter.GetWordClusterID(word));
+                    }
+                    else
+                    {
+                        mentionIDs.Append("," + DataCenter.GetWordClusterID(word));
+                    }
+                }
+                feature.Add(mentionIDs.ToString());
+              // mention shapes
+                var mentionShapes = mentionIDs.Clear();
+                foreach (var word in words)
+                {
+                    if (mentionShapes.Length == 0)
+                    {
+                        mentionShapes.Append(GetWordShape(word));
+                    }
+                    else
+                    {
+                        mentionShapes.Append("," + GetWordShape(word));
+                    }
+                }
+                feature.Add(mentionShapes.ToString());
+            }
+            #endregion
 
             #region mention ID
             {

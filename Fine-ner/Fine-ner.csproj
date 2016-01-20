@@ -226,19 +226,24 @@
     <Compile Include="src\feature\EmbedFeature.cs" />
     <Compile Include="src\feature\Feature.cs" />
     <Compile Include="src\feature\FeatureExtractor.cs" />
+    <Compile Include="src\feature\IndividualFeature.cs" />
     <Compile Include="src\feature\MaxEntFeature.cs" />
+    <Compile Include="src\services\ParserPool.cs" />
     <Compile Include="src\services\PosTagger.cs" />
+    <Compile Include="src\services\PosTaggerPool.cs" />
     <Compile Include="src\services\SentenceSpliter.cs" />
+    <Compile Include="src\services\SSpliterPool.cs" />
     <Compile Include="src\services\Stemmer.cs" />
     <Compile Include="src\feature\SVMFeature.cs" />
+    <Compile Include="src\services\StemmerPool.cs" />
     <Compile Include="src\services\Tokenizer.cs" />
     <Compile Include="src\services\Generalizer.cs" />
     <Compile Include="src\services\DependencyParser.cs" />
     <Compile Include="src\pipeline\Pipeline.cs" />
-    <Compile Include="src\script\Embed\TrainDataPreprocess.cs" />
     <Compile Include="src\script\Script.cs" />
     <Compile Include="src\script\Statistic.cs" />
     <Compile Include="src\services\DataCenter.cs" />
+    <Compile Include="src\services\TokenizerPool.cs" />
     <Compile Include="src\share\DefaultParameter.cs" />
     <Compile Include="src\share\GlobalParameter.cs" />
     <Compile Include="src\test\BayesTest.cs" />
@@ -250,7 +255,9 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="src\data\" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\package-pml\Package-pml.csproj">
       <Project>{5617da2a-e03f-4e48-8150-d13fc0644c9c}</Project>

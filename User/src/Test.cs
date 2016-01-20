@@ -12,7 +12,7 @@ using java.util;
 using pml.collection.map;
 using pml.file.reader;
 using pml.file.writer;
-using Accord.MachineLearning;
+//using Accord.MachineLearning;
 using User.src;
 
 namespace msra.nlp.tr

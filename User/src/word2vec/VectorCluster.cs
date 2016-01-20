@@ -1,14 +1,13 @@
-﻿using Accord.MachineLearning;
-using pml.file.reader;
-using pml.file.writer;
-using pml.ml.cluster;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+//using Accord.MachineLearning;
+using pml.file.reader;
+using pml.file.writer;
 using pml.ml.cluster;
 
 namespace User.src

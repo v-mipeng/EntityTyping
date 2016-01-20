@@ -14,6 +14,7 @@ using System.IO;
 using pml.type;
 using edu.stanford.nlp.semgraph;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace msra.nlp.tr
 {
@@ -21,32 +22,74 @@ namespace msra.nlp.tr
     /// Parse a sentence with stanford parser.
     /// If you want to get the parse information, you should invoke Parse() function first.
     /// </summary>
-    class DependencyParser
+    public class DependencyParser
     {
 
-        private DependencyParser() { }
+        public DependencyParser() 
+        {
+            Initial();
+        }
 
-        private static List<string> dependencies = new List<string>();
+        #region ParserPool
 
-        private static object locker = new object();
-        private static LexicalizedParser parser = null;
-        static void Initial()
+        static List<LexicalizedParser> parsers = new List<LexicalizedParser>();
+        HashSet<int> availableParsers = new HashSet<int>();
+        int maxParserNum = 20;
+
+
+        public LexicalizedParser GetParser()
+        {
+            if (availableParsers.Count > 0)
+            {
+                return parsers[availableParsers.First()];
+            }
+            else if (parsers.Count < maxParserNum)
+            {
+                var parser = LexicalizedParser.loadModel(Path.Combine((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir), @"edu\stanford\nlp\models\lexparser\englishPCFG.ser.gz"));
+                parsers.Add(parser);
+                availableParsers.Add(parsers.Count - 1);
+                return parser;
+            }
+            else
+            {
+                return null; // the thread should sleep and check if new parser available
+            }
+        }
+
+        public void ReturnParser(LexicalizedParser parser)
+        {
+            for (var i = 0; i < parsers.Count; i++)
+            {
+                if (parser == parsers[i])
+                {
+                    availableParsers.Add(i);
+                    break;
+                }
+            }
+        }
+        #endregion
+
+        private List<string> dependencies = new List<string>();
+
+        private  LexicalizedParser parser = null;
+
+        void Initial()
         {
             parser = LexicalizedParser.loadModel(Path.Combine((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir), @"edu\stanford\nlp\models\lexparser\englishPCFG.ser.gz"));
         }
 
         /*Stem the given word with, return the stemmed word
          */
-        public static void Parse(string sentence)
+        public  void Parse(string sentence)
         {
-            var tokens = Tokenizer.Tokenize(sentence);
+            var tokenizer = TokenizerPool.GetTokenizer();
+            var tokens = tokenizer.Tokenize(sentence);
+            TokenizerPool.ReturnTokenizer(tokenizer);
             Parse(tokens);
         }
 
-        public static void Parse(IEnumerable<string> tokens)
+        public void Parse(IEnumerable<string> tokens)
         {
-            lock (locker)
-            {
                 if (parser == null)
                 {
                     Initial();
@@ -63,7 +106,6 @@ namespace msra.nlp.tr
                     // From item you can parse gov,reln,dep and token tags.
                     // You can view from debug 
                     dependencies.Add(item.ToString());
-                }
             }
         }
 
@@ -81,7 +123,7 @@ namespace msra.nlp.tr
         /// <returns>
         ///     Expected Object index or -1 if not exist.
         /// </returns>
-        public static int GetAction(int begin, int end)
+        public  int GetAction(int begin, int end)
         {
             return GetInterestDep("nsubj", begin, end);
         }
@@ -98,7 +140,7 @@ namespace msra.nlp.tr
         /// <returns>
         ///     Expected Object or "NULL" if not exist.
         /// </returns>
-        public static int GetAdjModifier(int begin, int end)
+        public  int GetAdjModifier(int begin, int end)
         {
             foreach (var dep in dependencies)
             {
@@ -127,12 +169,12 @@ namespace msra.nlp.tr
         /// <returns>
         ///     Expected Object index or -1 if not exist.
         /// </returns>
-        public static int GetDriver(int begin, int end)
+        public  int GetDriver(int begin, int end)
         {
             return GetInterestDep("dobj", begin, end);
         }
 
-        private static int GetInterestDep(string depType,int begin,int end)
+        private  int GetInterestDep(string depType,int begin,int end)
         {
             foreach (var dep in dependencies)
             {
@@ -148,8 +190,8 @@ namespace msra.nlp.tr
             return -1;
         }
 
-        private static Regex regex = new Regex(@"([^\(]*)\(([^-]*)-(\d*),([^-]*)-(\d*)\)"); // obj(obama-2, pick-4)
-        private static Tuple ParseDep(string dep)
+        private  Regex regex = new Regex(@"([^\(]*)\(([^-]*)-(\d*),([^-]*)-(\d*)\)"); // obj(obama-2, pick-4)
+        private  Tuple ParseDep(string dep)
         {
             Tuple tuple = new Tuple();
             Match match = regex.Match(dep);
@@ -242,12 +284,9 @@ namespace msra.nlp.tr
                 }
             }
         }
-
+        
         public static void Main(string[] args)
         {
-            DependencyParser.Parse("I want to see this wonderful movie");         //"FeiLin, who Barak H. Obama first picked as vice president, resigned."
-            int str = DependencyParser.GetAction(6, 6);
-            //DependencyParser.Parse("I want to go to England, America or Brizial.");
         }
     }
 

@@ -24,14 +24,11 @@ namespace msra.nlp.tr
          */ 
         public static int GetWordTableSize()
         {
-            lock (wordTableLocker)
-            {
                 if (word2index == null)
                 {
                     LoadWordTable();
                 }
                 return word2index.Count;
-            }
         }
 
         private static bool InsertToWordTable(Pair<String,int> pair)
@@ -58,45 +55,48 @@ namespace msra.nlp.tr
         /// <returns></returns>
         public static int GetWordIndex(String word)
         {
-            lock (wordTableLocker)
+            if (word2index == null)
             {
-                if (word2index == null)
-                {
-                    LoadWordTable();
-                }
-                int index;
-                try
-                {
-                    index = word2index[word];
-                    return index;
-                }
-                catch (Exception)
-                {
-                    return word2index.Count;
-                }
+                LoadWordTable();
+            }
+            int index;
+            try
+            {
+                index = word2index[word];
+                return index;
+            }
+            catch (Exception)
+            {
+                return word2index.Count;
             }
         }
 
         private static void LoadWordTable()
         {
-            FileReader reader = null;
-            reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_table_file));
-            String line;
-            word2index = new Dictionary<string, int>();
-
-            while ((line = reader.ReadLine()) != null)
+            lock (wordTableLocker)
             {
-                try
+                if (word2index == null)
                 {
-                    var count = word2index.Count;
-                    word2index[line] = count;
-                }
-                catch (Exception)
-                {
-                    continue;
+                    FileReader reader = null;
+                    reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_table_file));
+                    String line;
+                    word2index = new Dictionary<string, int>();
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        try
+                        {
+                            var count = word2index.Count;
+                            word2index[line] = count;
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+                    }
+                    reader.Close();
                 }
             }
-            reader.Close();
         }
 
         /************************************************************************/
@@ -109,14 +109,11 @@ namespace msra.nlp.tr
         */
         public static int GetWordShapeTableSize()
         {
-            lock (wordShapeLocker)
-            {
                 if (wordShape2index == null)
                 {
                     LoadWordShapeTable();
                 }
                 return wordShape2index.Count;
-            }
         }
 
 
@@ -127,8 +124,6 @@ namespace msra.nlp.tr
         /// <returns></returns>
         public static int GetWordShapeIndex(String shape)
         {
-            lock (wordShapeLocker)
-            {
                 if (wordShape2index == null)
                 {
                     LoadWordShapeTable();
@@ -141,29 +136,34 @@ namespace msra.nlp.tr
                 {
                     return wordShape2index.Count;
                 }
-            }
         }
 
         private static void LoadWordShapeTable()
         {
-            wordShape2index = new Dictionary<string, int>();
-
-            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_shape_table_file));
-            String line;
-
-            while ((line = reader.ReadLine()) != null)
+            lock (wordTableLocker)
             {
-                try
+                if (wordShape2index == null)
                 {
-                    var count = wordShape2index.Count;
-                    wordShape2index[line] = count;
-                }
-                catch (Exception)
-                {
-                    continue;
+                    wordShape2index = new Dictionary<string, int>();
+
+                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_shape_table_file));
+                    String line;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        try
+                        {
+                            var count = wordShape2index.Count;
+                            wordShape2index[line] = count;
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+                    }
+                    reader.Close();
                 }
             }
-            reader.Close();
         }
 
         /************************************************************************/
@@ -176,14 +176,11 @@ namespace msra.nlp.tr
         */
         public static int GetPosTagTableSize()
         {
-            lock (posTagLocker)
-            {
                 if (posTag2index == null)
                 {
                     LoadPosTagTable();
                 }
                 return posTag2index.Count;
-            }
         }
 
 
@@ -194,8 +191,6 @@ namespace msra.nlp.tr
         /// <returns></returns>
         public static int GetPosTagIndex(String posTag)
         {
-            lock (posTagLocker)
-            {
                 if (posTag2index == null)
                 {
                     LoadPosTagTable();
@@ -208,29 +203,34 @@ namespace msra.nlp.tr
                 {
                     return posTag2index.Count;
                 }
-            }
         }
 
         private static void LoadPosTagTable()
         {
-            posTag2index = new Dictionary<string, int>();
-
-            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.posTag_table_file));
-            String line;
-
-            while ((line = reader.ReadLine()) != null)
+            lock (posTagLocker)
             {
-                try
+                if (posTag2index == null)
                 {
-                    var count = posTag2index.Count;
-                    posTag2index[line] = count;
-                }
-                catch (Exception)
-                {
-                    continue;
+                    posTag2index = new Dictionary<string, int>();
+
+                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.posTag_table_file));
+                    String line;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        try
+                        {
+                            var count = posTag2index.Count;
+                            posTag2index[line] = count;
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+                    }
+                    reader.Close();
                 }
             }
-            reader.Close();
         }
 
         /************************************************************************/
@@ -242,43 +242,34 @@ namespace msra.nlp.tr
 
         public static  List<String> GetTypeInDic(String mention)
         {
-            lock (dicLocker)
-            {
                 if (dics == null)
                 {
                     LoadDictionary();
                 }
                 List<String> types;
                 return dics.TryGetValue(mention, out types) ? types : null;
-            }
         }
 
         /** Get the map of mention-->types
          */ 
         public static Dictionary<String, int> GetDicTyeMap()
         {
-            lock (dicLocker)
-            {
                 if (dicTypeMap == null)
                 {
                     LoadDictionary();
                 }
                 return dicTypeMap;
-            }
         }
 
         /*Get type number within dictionary
          */ 
         public static int GetDicTypeNum()
         {
-            lock (dicLocker)
-            {
                 if (dicTypeMap == null)
                 {
                     LoadDictionary();
                 }
                 return dicTypeMap.Count;
-            }
         }
 
         /*Get the mapped int value of mention type 
@@ -286,40 +277,43 @@ namespace msra.nlp.tr
          */ 
         public static int GetDicTypeValue(String type)
         {
-            lock (dicLocker)
-            {
                 if (dicTypeMap == null)
                 {
                     LoadDictionary();
                 }
                 int value;
                 return dicTypeMap.TryGetValue(type, out value) ? value : int.MinValue;
-            }
         }
 
         /*Read Dictionary from  file
          */ 
         private static void LoadDictionary()
         {
-            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dic_file));
-            String line;
-            List<String> list;
-            dics = new Dictionary<string, List<string>>();
-            dicTypeMap = new Dictionary<String, int>();
-            HashSet<String> set = new HashSet<String>();
+            lock (dicLocker)
+            {
+                if (dicTypeMap == null)
+                {
+                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dic_file));
+                    String line;
+                    List<String> list;
+                    dics = new Dictionary<string, List<string>>();
+                    dicTypeMap = new Dictionary<String, int>();
+                    HashSet<String> set = new HashSet<String>();
 
-            while((line = reader.ReadLine()) != null)
-            {
-                list = line.Split('\t').ToList();
-                List<String> strs = list.GetRange(1, list.Count - 1);
-                dics[list[0]] = strs;
-                strs.ForEach(x => set.Add(x));
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        list = line.Split('\t').ToList();
+                        List<String> strs = list.GetRange(1, list.Count - 1);
+                        dics[list[0]] = strs;
+                        strs.ForEach(x => set.Add(x));
+                    }
+                    foreach (var type in set)
+                    {
+                        dicTypeMap[type] = dicTypeMap.Count;
+                    }
+                    reader.Close();
+                }
             }
-            foreach(var type in set)
-            {
-                dicTypeMap[type] = dicTypeMap.Count;
-            }
-            reader.Close();
         }
 
         /************************************************************************/
@@ -418,8 +412,6 @@ namespace msra.nlp.tr
 
         public static string GetStemmedWord(string word)
         {
-            lock (stemmerLocker)
-            {
                 if (stemWordDic == null)
                 {
                     LoadStemMap();
@@ -427,33 +419,40 @@ namespace msra.nlp.tr
                 string stemmedWord;
                 if (!stemWordDic.TryGetValue(word, out stemmedWord))
                 {
-                    stemmedWord = Stemmer.Stem(word)[0];
+                    var stemmer = StemmerPool.GetStemmer();
+                    stemmedWord = stemmer.Stem(word)[0];
+                    StemmerPool.ReturnStemmer(stemmer);
                     stemWordDic[word] = stemmedWord;
                 }
                 return stemmedWord;
-            }
         }
 
         private static void LoadStemMap()
         {
-            stemWordDic = new Dictionary<string, string>();
-            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.stem_map));
-            string line;
-            string[] array;
-
-            while ((line = reader.ReadLine()) != null)
+            lock (stemmerLocker)
             {
-                array = line.Split('\t');
-                try
+                if (stemWordDic == null)
                 {
-                    stemWordDic[array[0]] = array[1];
-                }    
-                catch(Exception)
-                {
-                    continue;
+                    stemWordDic = new Dictionary<string, string>();
+                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.stem_map));
+                    string line;
+                    string[] array;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        array = line.Split('\t');
+                        try
+                        {
+                            stemWordDic[array[0]] = array[1];
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+                    }
+                    reader.Close();
                 }
             }
-            reader.Close();
         }
 
         public static void RefreshStemDic(string des =null)
@@ -491,8 +490,6 @@ namespace msra.nlp.tr
         /// <returns></returns>
         public static int GetWordClusterID(string word)
         {
-            lock (wordIDLocker)
-            {
                 if (wordIdDic == null)
                 {
                     LoadWordClusterID();
@@ -508,45 +505,47 @@ namespace msra.nlp.tr
                     id = wordClusterSize;
                 }
                 return id;
-            }
         }
 
         public static int GetClusterNumber()
         {
-            lock (wordIDLocker)
-            {
                 if (wordIdDic == null)
                 {
                     LoadWordClusterID();
                 }
                 return wordClusterSize;
-            }
         }
 
         private static void LoadWordClusterID()
         {
-            wordIdDic = new Dictionary<string, int>();
-            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_id_file));
-            string line;
-            string[] array;
-            HashSet<int> ids = new HashSet<int>();
-
-            while ((line = reader.ReadLine()) != null)
+            lock (wordIDLocker)
             {
-                array = line.Split('\t');
-                try
+                if (wordIdDic == null)
                 {
-                    var id = int.Parse(array[1]);
-                    ids.Add(id); 
-                    wordIdDic[array[0]] = id;
-                }
-                catch (Exception)
-                {
-                    continue;
+                    wordIdDic = new Dictionary<string, int>();
+                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_id_file));
+                    string line;
+                    string[] array;
+                    HashSet<int> ids = new HashSet<int>();
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        array = line.Split('\t');
+                        try
+                        {
+                            var id = int.Parse(array[1]);
+                            ids.Add(id);
+                            wordIdDic[array[0]] = id;
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+                    }
+                    reader.Close();
+                    wordClusterSize = ids.Count;
                 }
             }
-            reader.Close();
-            wordClusterSize = ids.Count;
         }
 
         /************************************************************************/
@@ -564,10 +563,10 @@ namespace msra.nlp.tr
         /// </summary>
         /// <param name="mention"></param>
         /// <returns></returns>
+        /// TODO: modify mention matching theory.
+        
         public static int GetMentionClusterID(string mention)
         {
-            lock (mentionIDLocker)
-            {
                 if (mentionIdDic == null)
                 {
                     LoadMentionClusterID();
@@ -583,45 +582,47 @@ namespace msra.nlp.tr
                     id = mentionClusterSize;
                 }
                 return id;
-            }
         }
 
         public static int GetMentionClusterNumber()
         {
-            lock (mentionIDLocker)
-            {
                 if (mentionIdDic == null)
                 {
                     LoadMentionClusterID();
                 }
                 return mentionClusterSize;
-            }
         }
 
         private static void LoadMentionClusterID()
         {
-            mentionIdDic = new Dictionary<string, int>();
-            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.mention_id_file));
-            string line;
-            string[] array;
-            HashSet<int> ids = new HashSet<int>();
-
-            while ((line = reader.ReadLine()) != null)
+            lock (mentionIDLocker)
             {
-                array = line.Split('\t');
-                try
+                if (mentionIdDic == null)
                 {
-                    var id = int.Parse(array[1]);
-                    ids.Add(id);
-                    mentionIdDic[array[0]] = id;
-                }
-                catch (Exception)
-                {
-                    continue;
+                    mentionIdDic = new Dictionary<string, int>();
+                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.mention_id_file));
+                    string line;
+                    string[] array;
+                    HashSet<int> ids = new HashSet<int>();
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        array = line.Split('\t');
+                        try
+                        {
+                            var id = int.Parse(array[1]);
+                            ids.Add(id);
+                            mentionIdDic[array[0]] = id;
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+                    }
+                    reader.Close();
+                    mentionClusterSize = ids.Count;
                 }
             }
-            reader.Close();
-            mentionClusterSize = ids.Count;
         }
        
         

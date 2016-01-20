@@ -14,13 +14,14 @@ namespace msra.nlp.tr
 {
     public class Stemmer
     {
-       static StanfordCoreNLP pipeline = null;
-        private static object locker = new object();
+       StanfordCoreNLP pipeline = null;
 
-        private Stemmer()
-        { }
+        public Stemmer()
+        {
+            Initial();
+        }
 
-        static void  Initial()
+        void  Initial()
         {
             // Create StanfordCoreNLP object properties, with POS tagging
             // (required for lemmatization), and lemmatization
@@ -29,17 +30,16 @@ namespace msra.nlp.tr
             props.put("annotators", "tokenize, ssplit, pos,lemma");
             var dir = Directory.GetCurrentDirectory();
             //Directory.SetCurrentDirectory(@"E:\Users\v-mipeng\Software Install\Stanford NLP\stanford-corenlp-full-2015-04-20\");
-            Directory.SetCurrentDirectory(@"D:\Software Install\CoreNLP");
+            Directory.SetCurrentDirectory((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir));
             pipeline = new StanfordCoreNLP(props);
             Directory.SetCurrentDirectory(dir);
         }
 
         /*Stem the given word with, return the stemmed word
          */ 
-        public static List<string> Stem(string word)
+        public List<string> Stem(string word)
         {
-            lock (locker)
-            {
+                
                 if (pipeline == null)
                 {
                     Initial();
@@ -70,6 +70,7 @@ namespace msra.nlp.tr
                 }
                 return lemmas;
             }
-        }
+
+
     }
 }

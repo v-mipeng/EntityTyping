@@ -16,17 +16,15 @@ namespace msra.nlp.tr
 {
     public class PosTagger
     {
-        private static MaxentTagger tagger = null;
-        private static object locker = new object();
+        private  MaxentTagger tagger = null;
 
-        private PosTagger()
+        public PosTagger()
         {
+            Initial();
         }
 
-        public static List<Pair<string, string>> TagString(string sequence)
+        public  List<Pair<string, string>> TagString(string sequence)
         {
-             lock (locker)
-             {
                  if (tagger == null)
                  {
                      Initial();
@@ -49,9 +47,9 @@ namespace msra.nlp.tr
                      }
                  }
                  return list;
-             }
         }
-        static void Initial(string modelFile = null)
+
+        void Initial(string modelFile = null)
         {
             tagger = new MaxentTagger(modelFile ?? Path.Combine((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir),"edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger"));
         }

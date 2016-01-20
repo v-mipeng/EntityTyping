@@ -14,31 +14,29 @@ namespace msra.nlp.tr
 {
     public class SentenceSpliter
     {
-        static StanfordCoreNLP pipeline = null;
+        StanfordCoreNLP pipeline = null;
         private static object locker = new object();
 
-        private SentenceSpliter()
+        public SentenceSpliter()
         {
+            Initial();
         }
 
-        public static List<string> SplitSequence(string sequence)
+        public  List<string> SplitSequence(string sequence)
         {
-            lock (locker)
+            if (pipeline == null)
             {
-                if (pipeline == null)
-                {
-                    Initial();
-                }
-                var document = new Annotation(sequence);
-                pipeline.annotate(document);
-                var senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
-                var sentences = (ArrayList) document.get(senObj.getClass());
-                return (from CoreMap sentence in sentences select sentence.ToString()).ToList();
+                Initial();
             }
-        } 
+            var document = new Annotation(sequence);
+            pipeline.annotate(document);
+            var senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
+            var sentences = (ArrayList)document.get(senObj.getClass());
+            return (from CoreMap sentence in sentences select sentence.ToString()).ToList();
+        }
 
 
-        static void Initial(string modelDir = null)
+        void Initial(string modelDir = null)
         {
             var props = new Properties();
             props.put("annotators", "tokenize, ssplit");

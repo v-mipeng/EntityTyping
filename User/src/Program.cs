@@ -239,7 +239,10 @@ namespace User
 
                 while ((line = reader.ReadLine()) != null)
                 {
-                    wordSet.Add(Stemmer.Stem(line.Split('\t')[0])[0]);
+                    //var stemmer = StemmerPool.GetStemmer();
+                    //wordSet.Add(stemmer.Stem(line.Split('\t')[0])[0]);
+                    //StemmerPool.ReturnStemmer(stemmer);
+                    //stemmer = null;
                 }
                 reader.Close();
                 writer.Open(wordTableFile);

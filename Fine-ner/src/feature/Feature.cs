@@ -135,13 +135,18 @@ namespace msra.nlp.tr
                 return null;
             }
             mention = mention.Trim();
-            var sentences = SentenceSpliter.SplitSequence(context);
+            var sspliter = SSpliterPool.GetSSpliter();
+            var sentences = sspliter.SplitSequence(context);
+            SSpliterPool.ReturnSSpliter(sspliter);
+            sspliter = null;
             var sentence = sentences.FirstOrDefault(item => item.Contains(mention));
             if (sentence == null)
             {
                 return null;
             }
-            var pairs = PosTagger.TagString(sentence);
+            var posTagger = PosTaggerPool.GetPosTagger();
+            var pairs = posTagger.TagString(sentence);
+            PosTaggerPool.ReturnPosTagger(posTagger);
             return pairs;
         }
 
@@ -168,7 +173,7 @@ namespace msra.nlp.tr
                     begin = i;
                 }
                 offset += pairs[i].first.Length;
-                if (begin != -1 && des == offset)
+                if (begin != -1 && des <= offset)
                 {
                     end = i;
                     break;
