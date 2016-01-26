@@ -28,14 +28,13 @@ namespace msra.nlp.tr
         ArrayList tokens = null;
         List<Pair<string,string>> posTags = null;
         private SemanticGraph dependencies = new SemanticGraph();
-        static edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation tokenObj = new edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation();
-        static edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
-        static edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation depObj = new edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation();
+        edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation tokenObj = new edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation();
+        edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
+        edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation depObj = new edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation();
         
 
         public DependencyParser()
         {
-            Initial();
         }
 
         void Initial()
@@ -45,13 +44,17 @@ namespace msra.nlp.tr
             props.setProperty("tokenizer.whitespace", "true");
             props.setProperty("ssplit.isOneSentence", "true");
             var dir = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(@"D:\Codes\C#\EntityTyping\Fine-ner\input\stanford models\");
+            Directory.SetCurrentDirectory((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir));
             pipeline = new StanfordCoreNLP(props);
             Directory.SetCurrentDirectory(dir);
         }
 
         public void Parse(string sentence)
         {
+            if(pipeline == null)
+            {
+                Initial();
+            }
             Annotation context = new Annotation(sentence);
             pipeline.annotate(context);
             this.tokens = (ArrayList)context.get(tokenObj.getClass());
@@ -89,22 +92,21 @@ namespace msra.nlp.tr
         {
             var tags = this.dependencies.vertexListSorted();
             posTags = new List<Pair<string, string>>(tags.size());
+            string[] array = new string[2];
             for (var i = 0; i < tags.size(); i++)
             {
-                var array = (tags.get(i).ToString()).Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                if (array.Length == 2)
+                var str = tags.get(i).ToString();
+                var index = str.LastIndexOf("/");
+                try
                 {
-                    posTags.Add(new Pair<string, string>(array[0], array[1]));
+                    array[0] = str.Substring(0, index);
+                    array[1] = str.Substring(index + 1);
+                     posTags.Add(new Pair<string, string>(array[0], array[1]));
                 }
-                else if (array.Length == 1)
+                catch (Exception)
                 {
-                    posTags.Add(new Pair<string, string>("/", array[0]));
+                    throw new Exception("Invalid pos tag : " + tags.get(i));
                 }
-                else
-                {
-                    throw new Exception("Invalid pos tag!");
-                }
-
             }
             return posTags;
         }

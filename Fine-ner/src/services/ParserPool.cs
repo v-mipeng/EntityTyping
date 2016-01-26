@@ -43,10 +43,13 @@ namespace msra.nlp.tr
                 else if (parsers.Count < maxParserNum)
                 {
 
-                    if (parsers.Count > 0)
-                    {
-                        Thread.Sleep(1000);
-                    }
+                    //if (parsers.Count > 0)
+                    //{
+                    //    Console.WriteLine(Thread.CurrentThread.Name + " sleep 1s");
+                    //    Thread.Sleep(1000);
+                    //}
+                    Console.WriteLine(Thread.CurrentThread.Name + " create a new parser!");
+                    Console.ReadKey();
                     if (availableParsers.Count == 0)
                     {
                         var parser = new DependencyParser();

@@ -23,17 +23,17 @@ namespace msra.nlp.tr
         }
 
         StanfordCoreNLP pipeline = null;
+        edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation tokenObj = new edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation();
 
         public  List<string> Tokenize(string sequence)
         {
-
                 if (pipeline == null)
                 {
                     Initial();
                 }
                 var document = new Annotation(sequence);
                 pipeline.annotate(document);
-                var tokenObj = new edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation();
+               
                 var tokens = (ArrayList)document.get(tokenObj.getClass());
                 return (from CoreMap token in tokens select token.ToString()).ToList();
         }

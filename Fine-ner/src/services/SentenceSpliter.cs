@@ -18,7 +18,6 @@ namespace msra.nlp.tr
         List<string[]> tokensBySentence = null;
         public SentenceSpliter()
         {
-            Initial();
         }
 
         public  List<string> SplitSequence(string sequence)

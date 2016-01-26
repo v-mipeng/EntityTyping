@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace msra.nlp.tr
 {
@@ -21,8 +22,15 @@ namespace msra.nlp.tr
 
         public override void ExtractFeature()
         {
+            int count = 0;
             while (reader.HasNext())
             {
+                //if (++count % 100 == 0)
+                //{
+                    count++;
+                    Console.Clear();
+                    Console.WriteLine("{0} has processed {1}", Thread.CurrentThread.Name, count);
+                //}
                 var instance = reader.GetNextInstance();
                 try
                 {

@@ -13,12 +13,11 @@ using System.IO;
 namespace msra.nlp.tr
 {
     public class Stemmer
-    {
+    {                                                                
        StanfordCoreNLP pipeline = null;
 
         public Stemmer()
         {
-            Initial();
         }
 
         void  Initial()
@@ -41,7 +40,6 @@ namespace msra.nlp.tr
          */ 
         public List<string> Stem(string word)
         {
-                
                 if (pipeline == null)
                 {
                     Initial();
