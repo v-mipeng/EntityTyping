@@ -55,10 +55,30 @@ namespace msra.nlp.tr
             }
         }
 
-        public static string GetSentenceWithMention(IEnumerable<string> sentences, string mention)
+        public static string GetSentenceCoverMention(IEnumerable<string> sentences, string mention)
         {
             return sentences.FirstOrDefault(sentence => sentence.Contains(mention));
         }
+
+        public string GetSentenceCoverMention(IEnumerable<string> sentences, IEnumerable<string> words)
+        {
+            var mention = new StringBuilder();
+            mention.Append(words.ElementAt(0));
+            for (var i = 1; i < words.Count(); i++)
+            {
+                mention.Append(" " + words.ElementAt(i));
+            }
+            var m = mention.ToString();
+            foreach (var sen in sentences)
+            {
+                if (sen.IndexOf(m) != -1)
+                {
+                    return sen;
+                }
+            }
+            return null;
+        }
+
 
         /* Get next token of the mention
          */
@@ -150,36 +170,40 @@ namespace msra.nlp.tr
             return pairs;
         }
 
-        protected Pair<int, int> GetMentionRange(IEnumerable<Pair<string, string>> ps, string mention)
+        protected Pair<int, int> GetIndexOfMention(IEnumerable<Pair<string, string>> ps, string mention)
         {
-            var pairs = ps.ToList();
-            mention = Regex.Replace(mention, @"\s", "");
-            var builder = new StringBuilder();
+            var words = mention.Split(' ');
+            return GetIndexOfMention(ps, words);
+        }
+
+        public Pair<int, int> GetIndexOfMention(IEnumerable<Pair<string, string>> pairs, IEnumerable<string> words)
+        {
+            var pair = new Pair<int, int>();
+            int begin = -1;
+            int end = -1;
+            int offset = 0;
             for (var i = 0; i < pairs.Count(); i++)
             {
-                builder.Append(pairs[i].first);
-            }
-            var sequence = builder.ToString();
-            var start = 0;
-            start = sequence.IndexOf(mention, StringComparison.Ordinal);
-            var des = start + mention.Length;
-            var offset = 0;
-            var begin = -1;
-            var end = -1;
-            for (var i = 0; i < pairs.Count; i++)
-            {
-                if (begin == -1 && offset == start)
+                if (pairs.ElementAt(i).first.Equals(words.ElementAt(offset)))
                 {
-                    begin = i;
+                    if (begin == -1)
+                    {
+                        begin = i;
+                    }
+                    if (offset == words.Count() - 1)
+                    {
+                        end = i;
+                        return new Pair<int, int>(begin, end);
+                    }
+                    offset++;
                 }
-                offset += pairs[i].first.Length;
-                if (begin != -1 && des <= offset)
+                else
                 {
-                    end = i;
-                    break;
+                    offset = 0;
+                    begin = -1;
                 }
             }
-            return new Pair<int, int>(begin, end);
+            return new Pair<int, int>(-1, -1);
         }
 
         protected int GetLastWordIndex(IEnumerable<Pair<string, string>> ps, string lastWord, int end)

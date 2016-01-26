@@ -11,18 +11,19 @@ namespace msra.nlp.tr
 {
     class SVMFeature  : Feature
     {
-        Dictionary<int, int> feature = new Dictionary<int, int>();
+        List<string> feature = new List<string>();
         int offset = 0;
 
         public SVMFeature():base(){}
 
         public Pair<object, Dictionary<int,int>> ExtractFeatureWithLable(String[] input)
         {
-            return new Pair<object, Dictionary<int, int>>(GetTypeValue(input[1]), ExtractFeature(new string[]{input[0], input[2]}));
+            return new Pair<object, Dictionary<int, int>>(GetTypeValue(input[1]), null);
         }
 
         /// <summary>
         /// Reture feature dimension
+        /// For sparse expression
         /// </summary>
         public int FeatureDimension
         {
@@ -30,7 +31,7 @@ namespace msra.nlp.tr
             {
                 return offset;
             }
-            private set{}
+            private set { }
         }
 
 
@@ -55,39 +56,39 @@ namespace msra.nlp.tr
          *      Topic(Define topic)             :TODO: I am going to work with document cluster
          * 
          */
-        private Dictionary<int,int> ExtractFeature(String[] input)
+        public List<string> ExtractFeature(Instance instance)
         {
-            var mention = input[0];
-            var context = input[1];
-            this.feature = new Dictionary<int, int>();
+            var mention = instance.Mention;
+            var context = instance.Context;
+            this.feature.Clear();
             var tokenizer = TokenizerPool.GetTokenizer();
-            String[] words = tokenizer.Tokenize(mention).ToArray();
+            var words = tokenizer.Tokenize(mention).ToArray();
+            var tokens = tokenizer.Tokenize(context).ToArray(); 
             TokenizerPool.ReturnTokenizer(tokenizer);
             tokenizer = null;
-            // pos tags of mention words
-            var pairs = GetPosTags(mention, context);
-            var pair = GetMentionRange(pairs, mention);
-            if (pair.first == -1)
-            {
-                return null;
-            }
-            var contextTokens = new List<string>();
-            foreach(var p in pairs)
-            {
-                contextTokens.Add(p.first);
-            }
+            // select the first sentence contains mention. This will reduce the parse cost.
+            var sspliter = SSpliterPool.GetSSpliter();
+            var sentences = sspliter.SplitSequence(tokens);
+            SSpliterPool.ReturnSSpliter(sspliter);
+            context = GetSentenceCoverMention(sentences, words);
             // get a parser
             var parser = ParserPool.GetParser();
-            parser.Parse(contextTokens);
-            this.offset = 0;
-            #region last word
+            parser.Parse(context);
+            var pairs = parser.GetPosTags();
+            var pair = GetIndexOfMention(pairs, words);
+            if (pair.first == -1)
             {
-                var lastWord = GetLastToken(mention, context);  // TODO: make last word more accurate
+                throw new Exception("Cannot find mention by token within context!");
+            }
+            this.offset = 0;
+            #region last word TODO: make last word more accurate
+            {
+                var lastWord = GetLastToken(mention, context);
                 if (lastWord != null)
                 {
                     var index = -1;
                     index = GetLastWordIndex(pairs, lastWord, pair.first);
-                   
+
                     if (index != -1)
                     {
                         var posTag = pairs.ElementAt(index).second;
@@ -151,7 +152,7 @@ namespace msra.nlp.tr
 
             #region mention driver
             {
-                int index = parser.GetDriver(pair.first, pair.second)-1;
+                int index = parser.GetDriver(pair.first, pair.second);
                 if (index >= 0)
                 {
                     var driver = pairs.ElementAt(index).first;
@@ -167,7 +168,7 @@ namespace msra.nlp.tr
 
             #region mention adjective modifer
             {
-                int index = parser.GetAdjModifier(pair.first, pair.second)-1;
+                int index = parser.GetAdjModifier(pair.first, pair.second);
                 if (index >= 0)
                 {
                     var adjModifier = pairs.ElementAt(index).first;
@@ -184,7 +185,7 @@ namespace msra.nlp.tr
 
             #region mention action
             {
-                int index = parser.GetAction(pair.first, pair.second)-1;
+                int index = parser.GetAction(pair.first, pair.second);
                 if (index >= 0)
                 {
                     var action = pairs.ElementAt(index).first;
@@ -204,51 +205,69 @@ namespace msra.nlp.tr
 
             #region mention words
             {
+                var dic = new Dictionary<int, int>();
+                int value = 0;
                 foreach (var w in words) // words surface
                 {
                     var word = Generalizer.Generalize(w);
                     var index = offset + DataCenter.GetWordIndex(word);
-                    int value;
-                    feature.TryGetValue(index, out value);
-                    feature[index] = value + 1;
+                    dic.TryGetValue(index, out value);
+                    dic[index] = value + 1;
+                }
+                foreach (var item in dic)
+                {
+                    feature.Add(item.Key + ":"+item.Value);
                 }
                 offset += DataCenter.GetWordTableSize() + 1;
+                dic.Clear();
                 foreach (var w in words) // words' cluster id
                 {
-
                     var index = offset + DataCenter.GetWordClusterID(w);
-                    feature[index] = 1;
+                    dic.TryGetValue(index, out value);
+                    dic[index] = value + 1;
+                }
+                foreach (var item in dic)
+                {
+                    feature.Add(item.Key + ":" + item.Value);
                 }
                 offset += DataCenter.GetClusterNumber() + 1;
+                dic.Clear();
                 foreach (var w in words) // words shapes
                 {
                     var shape = GetWordShape(w);
                     var index = offset + DataCenter.GetWordShapeIndex(shape);
-                    int value;
-                    feature.TryGetValue(index, out value);
-                    feature[index] = value + 1;
+                    dic.TryGetValue(index, out value);
+                    dic[index] =value + 1;
+                }
+                foreach (var item in dic)
+                {
+                    feature.Add(item.Key + ":" + item.Value);
                 }
                 offset += DataCenter.GetWordShapeTableSize() + 1;
+                dic.Clear();
                 for (var i = pair.first; i <= pair.second; i++)   // words pos tags
                 {
                     var posTag = pairs.ElementAt(i).second;
                     var index = offset + DataCenter.GetPosTagIndex(posTag);
-                    int value;
-                    feature.TryGetValue(index, out value);
-                    feature[index] = value + 1;
+                    dic.TryGetValue(index, out value);
+                    dic[index] = value + 1;
+                }
+                foreach (var item in dic)
+                {
+                    feature.Add(item.Key + ":" + item.Value);
                 }
                 offset += DataCenter.GetPosTagTableSize() + 1;
             }
             #endregion
 
-            #region mention length
+            #region mention length: 1,2,3,4 or longer than 5
             {
-                feature[offset] = words.Length;
-                offset++;
+                feature.Add((offset+words.Length-1)+":1");
+                offset += 5;
             }
             #endregion
 
-            #region mention cluster id
+            #region mention cluster id   TODO: do entity linking to match mention.
             {
                 StringBuilder m = new StringBuilder();
                 foreach (var w in words)
@@ -263,8 +282,8 @@ namespace msra.nlp.tr
                     }
                 }
                 var index = DataCenter.GetMentionClusterID(m.ToString());
-                feature[offset + index] = 1;
-                offset += DataCenter.GetMentionClusterNumber()+1;
+                feature.Add((offset + index)+":1");
+                offset += DataCenter.GetMentionClusterNumber() + 1;
             }
             #endregion
 
@@ -289,32 +308,31 @@ namespace msra.nlp.tr
             {
                 // word surface
                 var word = Generalizer.Generalize(originalWord);
-                feature[offset + DataCenter.GetWordIndex(word)] = 1;
+                feature.Add((offset + DataCenter.GetWordIndex(word))+":1");
                 offset += DataCenter.GetWordTableSize() + 1;
                 // word Cluster id
                 var index = DataCenter.GetWordClusterID(originalWord);
-                feature[offset+index] = 1;
-                offset += DataCenter.GetClusterNumber()+1;
+                feature.Add((offset + index)+":1");
+                offset += DataCenter.GetClusterNumber() + 1;
                 // word shape
                 var shape = GetWordShape(originalWord);
-                feature[offset + DataCenter.GetWordShapeIndex(shape)] = 1;
+                feature.Add((offset + DataCenter.GetWordShapeIndex(shape))+":1");
                 offset += DataCenter.GetWordShapeTableSize() + 1;
                 // word pos tag
                 if (posTag != null)
                 {
-                    feature[offset + DataCenter.GetPosTagIndex(posTag)] = 1;
+                    feature.Add((offset + DataCenter.GetPosTagIndex(posTag))+":1");
                 }
                 offset += DataCenter.GetPosTagTableSize() + 1;
             }
             else
             {
                 offset += DataCenter.GetWordTableSize() + 1;
-                offset += DataCenter.GetClusterNumber()+1;
+                offset += DataCenter.GetClusterNumber() + 1;
                 offset += DataCenter.GetWordShapeTableSize() + 1;
                 offset += DataCenter.GetPosTagTableSize() + 1;
             }
         }
-
 
     }
 }

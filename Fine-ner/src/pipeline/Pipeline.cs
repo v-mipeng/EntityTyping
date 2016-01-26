@@ -209,26 +209,32 @@ namespace msra.nlp.tr
                 // extract features for svm model
                 if (options.Contains("train") || options.Contains("all"))
                 {
-                    //ExtractSvmFeature((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
+                    
+                    //var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
                     //    (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
-                    ExtractSvmLikeFeature((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
+                    //extractor.ExtractFeature();
+                    var extractor = new ParallelIndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
+                       (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
+                    extractor.ExtractFeature();
                 }
                 if (options.Contains("dev") || options.Contains("all"))
                 {
-                    //ExtractSvmFeature((string) GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
-                    //    (string) GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
-                    ExtractSvmLikeFeature((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
+                    //var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
+                    //    (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
+                    //extractor.ExtractFeature();
+                    var extractor = new ParallelIndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
                         (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
+                    extractor.ExtractFeature();
                 }
                 if (options.Contains("test") || options.Contains("all"))
                 {
-                    //ExtractSvmFeature((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
+                    //var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
                     //    (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
-                    ExtractSvmLikeFeature((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
+                    //extractor.ExtractFeature();
+                    var extractor = new ParallelIndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
                         (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
+                    extractor.ExtractFeature();
                 }
-            
             }        
         }
 
@@ -355,307 +361,7 @@ namespace msra.nlp.tr
 
         #endregion
 
-        #region Extract SVM Like Feature
-        private static void ExtractSvmLikeFeature(string source, string des)
-        {
-            FileReader reader = new LargeFileReader(source);
-            FileWriter writer = new LargeFileWriter();
-            const int numPerThread = 100;
-            var directory = Path.GetDirectoryName(source);
-            var name = Path.GetFileNameWithoutExtension(source);
-            var ext = Path.GetExtension(source);
-            // seperate source file into parts
-            int part = 0;
-            var partFile = Path.Combine(directory, name + "-part" + part + ext);
-            var partFiles = new List<string>();
-            // Create corresponding des files
-            string desPartFile = null;
-            var desPartFiles = new List<string>();
-            var childThreads = new List<Thread>();
-            partFiles.Add(partFile);
-            writer.Open(partFile, FileMode.Create);
-            string line;
-            int count = 0;
 
-            while ((line = reader.ReadLine()) != null)
-            {
-                if (++count < numPerThread)
-                {
-                    writer.WriteLine(line);
-                }
-                else
-                {
-                    writer.Close();
-                    // start a child thread
-                    desPartFile = Path.Combine(directory, name + "-feature-part" + part + ext);
-                    var threadClass = new SvmLikeFeatureThread(partFile, desPartFile);
-                    childThreads.Add(new Thread(threadClass.ThreadMain));
-                    childThreads[childThreads.Count - 1].Start();
-                    desPartFiles.Add(desPartFile);
-                    // create another part file
-                    part++;
-                    partFile = Path.Combine(directory, name + "-part" + part + ext);
-                    writer.Open(partFile, FileMode.Create);
-                    count = 0;
-                    partFiles.Add(partFile);
-                }
-            }
-            if (count > 0)
-            {
-                writer.Close();
-                desPartFile = Path.Combine(directory, name + "-feature-part" + part + ext);
-                var threadClass = new SvmLikeFeatureThread(partFile, desPartFile);
-                childThreads.Add(new Thread(threadClass.ThreadMain));
-                childThreads[childThreads.Count - 1].Start();
-                desPartFiles.Add(desPartFile);
-            }
-            else
-            {
-                writer.Close();
-                File.Delete(partFile);
-            }
-            reader.Close();
-            // Wait until all the threads complete work
-            for (var i = 0; i < childThreads.Count; i++)
-            {
-                childThreads[i].Join();
-            }
-            // combine features extracted by different threads
-            writer.Open(des, FileMode.Create);
-            foreach(var field in IndividualFeature.fields)
-            {
-                writer.Write(field+"\t");
-            }
-            foreach (var f in desPartFiles)
-            {
-                string text = File.ReadAllText(f);
-                writer.Write(text);
-                File.Delete(f);
-            }
-            writer.Close();
-            // delete temp part files
-            foreach (var f in partFiles)
-            {
-                File.Delete(f);
-            }
-        }
-
-        private class SvmLikeFeatureThread
-        {
-            readonly string source = null;
-            readonly string des = null;
-            readonly IndividualFeature extractor = null;
-
-            public SvmLikeFeatureThread(string source, string des)
-            {
-                this.source = source;
-                this.des = des;
-                extractor = new IndividualFeature();
-            }
-
-            public void ThreadMain()
-            {
-                var reader = new LargeFileReader(this.source);
-                FileWriter writer = new LargeFileWriter(this.des, FileMode.Create);
-                var count = 1;
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    if ((++count) % 1000 == 0)
-                    {
-                        Console.Clear();
-                        Console.WriteLine(Thread.CurrentThread.Name + " has processed " + count);
-                    }
-                    try
-                    {
-                        var array = line.Split('\t');
-                        var feature = extractor.GetFeature(array[0], array[2]);
-                        if (feature == null)
-                        {
-                            continue;
-                        }
-                        writer.Write(line);
-                        foreach (var item in feature)
-                        {
-                            writer.Write("\t" + item);
-                        }
-                        writer.Write("\r");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("=================error!===============");
-                        Console.WriteLine("\t" + e.Message);
-                        Console.WriteLine(e.StackTrace);
-                        Console.WriteLine("=================error!===============");
-                    }
-                }
-                reader.Close();
-                writer.Close();
-            }
-        }
-
-        /// <summary>
-        ///     Extract features for svm model
-        /// </summary>
-        /// <param name="line"></param>
-        /// <returns></returns>
-        private static Pair<object, Dictionary<int, int>> ExtractSvmLikeFeature(SVMFeature extractor, string line)
-        {
-            var array = line.Split('\t');
-            return extractor.ExtractFeatureWithLable(array);
-        }
-
-        #endregion
-
-        #region Extract SVM Feature
-        private static void ExtractSvmFeature(string source, string des)
-        {
-            FileReader reader = new LargeFileReader(source);
-            FileWriter writer = new LargeFileWriter();
-            const int numPerThread = 100;
-            var directory = Path.GetDirectoryName(source);
-            var name = Path.GetFileNameWithoutExtension(source);
-            var ext = Path.GetExtension(source);
-            // seperate source file into parts
-            int part = 0;
-            var partFile = Path.Combine(directory, name + "-part" + part +ext);
-            var partFiles = new List<string>();
-            // Create corresponding des files
-            string desPartFile = null;
-            var desPartFiles = new List<string>();
-            var childThreads = new List<Thread>();
-            partFiles.Add(partFile);
-            writer.Open(partFile, FileMode.Create);
-            string line;
-            int count = 0;
-
-            while((line = reader.ReadLine())!=null)
-            {
-              if(++count<numPerThread)
-              {
-                  writer.WriteLine(line);
-              }
-              else
-              {
-                  writer.Close();
-                  // start a child thread
-                  desPartFile = Path.Combine(directory, name + "-feature-part" + part + ext);
-                  var threadClass = new SvmFeatureThread(partFile,desPartFile);
-                  childThreads.Add(new Thread(threadClass.ThreadMain));
-                  childThreads[childThreads.Count-1].Start();
-                  desPartFiles.Add(desPartFile);
-                  // create another part file
-                  part++;
-                  partFile = Path.Combine(directory, name + "-part" + part + ext);
-                  writer.Open(partFile, FileMode.Create);
-                  count = 0;
-                  partFiles.Add(partFile);
-              }
-            }
-            if(count >0)
-            {
-                writer.Close();
-                desPartFile = Path.Combine(directory, name + "-feature-part" + part + ext);
-                var threadClass = new SvmFeatureThread(partFile, desPartFile);
-                childThreads.Add(new Thread(threadClass.ThreadMain));
-                childThreads[childThreads.Count - 1].Start();
-                desPartFiles.Add(desPartFile);
-            }
-            else
-            {
-                writer.Close();
-                File.Delete(partFile);
-            }
-            reader.Close();
-            // Wait until all the threads complete work
-            for (var i = 0; i < childThreads.Count; i++)
-            {
-                childThreads[i].Join();
-            }
-            // combine features extracted by different threads
-            writer.Open(des, FileMode.Create);
-            foreach (var f in desPartFiles)
-            {
-                string text = File.ReadAllText(f);
-                writer.Write(text);
-                File.Delete(f);
-            }
-            writer.Close();
-            // delete temp part files
-            foreach(var f in partFiles)
-            {
-                File.Delete(f);
-            }
-        }
-
-        private class SvmFeatureThread
-        {
-            readonly string source = null;
-            readonly string des = null;
-            readonly SVMFeature extractor = null;
-
-            public SvmFeatureThread(string source, string des)
-            {
-                this.source = source;
-                this.des = des;
-                extractor = new SVMFeature();
-            }
-
-            public void ThreadMain()
-            {
-                var reader = new LargeFileReader(this.source);
-                FileWriter writer = new LargeFileWriter(this.des, FileMode.Create);
-                var count = 1;
-                string line;
-                while ((line = reader.ReadLine())!=null)
-                {
-                    if ((++count)%1000 == 0)
-                    {
-                        Console.WriteLine(Thread.CurrentThread.Name+" has processed "+count);
-                    }
-                    try
-                    {
-                        var feature = ExtractSvmFeature(extractor,line);
-                        if (feature.second == null)
-                        {
-                            continue;
-                        }
-                        writer.Write(feature.first);
-                        writer.Write("\t" + extractor.FeatureDimension);
-                        var dic = feature.second;
-                        var keys = dic.Keys.ToList();
-                        keys.Sort(); // sort ascendly
-                        foreach (var key in keys)
-                        {
-                            writer.Write("\t" + key + ":" + dic[key]);
-                        }
-                        writer.Write("\r");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("=================error!===============");
-                        Console.WriteLine("\t" + e.Message);
-                        Console.WriteLine("\t" + e.StackTrace);
-                        Console.WriteLine("=================error!===============");
-                    }
-                }
-                reader.Close();
-                writer.Close();
-            }
-        }
-
-        /// <summary>
-        ///     Extract features for svm model
-        /// </summary>
-        /// <param name="line"></param>
-        /// <returns></returns>
-        private static Pair<object,Dictionary<int,int>> ExtractSvmFeature(SVMFeature extractor, string line)
-        {
-            var array = line.Split('\t');
-            return extractor.ExtractFeatureWithLable(array);
-        }
-
-        #endregion
 
         #endregion
 

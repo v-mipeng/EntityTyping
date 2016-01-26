@@ -8,92 +8,58 @@ namespace msra.nlp.tr
 {
     class Instance
     {
-    	protected  Mention mention = null;
-	    protected Context context = null;
+        protected string mention = null;
 
-	public void addFeature(int idx, double val) {
-		getFeatureIndex().add(idx);
-		featureValue.add(val);
-	}
+        protected Label label = null;
 
-	public boolean containsIndex(int id) {
-		return getFeatureIndex().contains(id);
-	}
+        protected string context = null;
 
-	public TIntList getFeatureIndex() {
-		return featureIndex;
-	}
 
-	public TDoubleList getFeatureValue() {
-		return featureValue;
-	}
+        public Instance(string mention, string context) 
+        {
+            this.mention = mention;
+            this.context = context;
+        }
 
-	public int getIndex(int idx) {
-		if (idx > -1 && idx < getFeatureIndex().size()) {
-			return getFeatureIndex().get(idx);
-		} else {
-			return -1;
-		}
-	}
+        public Instance(string mention, Label label, string context): this(mention, context)
+        {
+            this.label = label;
+        }
+        public Instance(string mention, string label, string context) : this(mention, context)
+        {
+            this.label = new Label(label);
+        }
 
-	public double getValue(int idx) {
-		if (idx > -1 && idx < getFeatureIndex().size()) {
-			return featureValue.get(idx);
-		} else {
-			return 0;
-		}
-	}
+        public string Mention
+        {
+            get
+            {
+                return mention;
+            }
+            private set { }
+        }
 
-	public int length() {
-		return getFeatureIndex().size();
-	}
+        public Label Label
+        {
+            get
+            {
+                return label;
+            }
+            private set { }
+        }
 
-	public void removeAt(int idx) {
-		if (idx > -1 && idx < getFeatureIndex().size()) {
-			getFeatureIndex().removeAt(idx);
-			featureValue.removeAt(idx);
-		}
-	}
+        public string Context
+        {
+            get
+            {
+                return context;
+            }
+            private set { }
+        }
 
-	public void setFeatureIndex(TIntList featureIndex) {
-		this.featureIndex = featureIndex;
-	}
-
-	public void setFeatureValue(TDoubleList featureValue) {
-		this.featureValue = featureValue;
-	}
-
-	public void setIndex(int i, Integer integer) {
-		if (i > -1 && i < getFeatureIndex().size()) {
-			getFeatureIndex().set(i, integer);
-		}
-	}
-
-	public void setLabel(Label l) {
-		label = l;
-	}
-
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(label);
-		for (int i = 0; i < getFeatureIndex().size(); i++) {
-			sb.append(" " + (getFeatureIndex().get(i)) + ":"
-					+ featureValue.get(i));
-		}
-		return sb.toString();
-	}
-
-	public String toString(Model m) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(label);
-		for (int i = 0; i < getFeatureIndex().size(); i++) {
-			sb.append(" "
-					+ m.featureFactory.allFeatures
-							.get(getFeatureIndex().get(i)).name + ":"
-					+ featureValue.get(i));
-		}
-		return sb.toString();
-	}
+        public override string ToString()
+        {
+            return string.Format("{0}\t{1}\t{2}", mention,label,context);
+        }
     }
 }

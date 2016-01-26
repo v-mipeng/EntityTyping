@@ -8,7 +8,9 @@ namespace msra.nlp.tr
 {
     class Event
     {
-        private Feature feature = null;
+        // feature of event
+        private object feature = null;
+
         private Label label = null;
 
         public Event() { }
@@ -18,9 +20,9 @@ namespace msra.nlp.tr
             
         }
 
-        public Event(Feature feature) : this(null, feature) { }
+        public Event(object feature) : this(null, feature) { }
 
-        public Event(Label label, Feature feature)
+        public Event(Label label, object feature)
         {
             this.label = label;
             this.feature = feature;
@@ -38,7 +40,7 @@ namespace msra.nlp.tr
             }
         }
 
-        public Feature Feature
+        public object Feature
         {
             get
             {

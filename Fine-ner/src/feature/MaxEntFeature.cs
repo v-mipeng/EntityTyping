@@ -102,7 +102,7 @@ namespace msra.nlp.tr
             TokenizerPool.ReturnTokenizer(tokenizer);
             // pos tags of mention words
             var pairs = GetPosTags(mention, context);
-            var pair = GetMentionRange(pairs, mention);
+            var pair = GetIndexOfMention(pairs, mention);
             if (pair.first == -1)
             {
                 return null;

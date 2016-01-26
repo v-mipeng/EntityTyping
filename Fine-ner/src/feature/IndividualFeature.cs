@@ -10,45 +10,54 @@ namespace msra.nlp.tr
     class IndividualFeature : Feature
     {
         private List<string> feature = new List<string>();
+        int offset = 0;
+
 
         public static string[] fields = new string[]{
             // last word
             "lastWord",
+            "lastStemWord",
             "lastWordTag",
             "lastWordID",
             "lastWordShape",
             // next word
             "nextWord",
+            "nextStemWord",
             "nextWordTag",
             "nextWordID",
             "nextWordShape",
             // mention head
             "mentionHead",
+            "mentionStemHead",
             "mentionHeadTag",
             "mentionHeadID",
             "mentionHeadShape",
             // mention driver
             "mentionDriver",
+            "mentionStemDriver",
             "mentionDriverTag",
             "mentionDriverID",
             "mentionDriverShape",
             // mention adjective modifier
             "mentionAdjModifier",
+            "mentionStemAdjModifier",
             "mentionAdjModifierTag",
             "mentionAdjModifierID",
             "mentionAdjModifierShape",
             // mention action
             "mentionAction",
+            "mentionStemAction",
             "mentionActionTag",
             "mentionActionID",
             "mentionActionShape",
             // mention words
             "mentionSurfaces",
+            "mentionStemSurfaces",
             "mentionTags",
             "mentionIDs",
             "mentionShapes",
             // context document
-            "documentID",
+            //"documentID",
             // if name list contains
             
             // mention level
@@ -67,14 +76,14 @@ namespace msra.nlp.tr
         /// <returns>
         ///      A  pair with pair.first the label and pair.second the feature.
         /// </returns>
-        internal Pair<string, List<string>> GetFeatureWithLabel(string[] input)
+        internal Pair<string, List<string>> ExtractFeatureWithLabel(string[] input)
         {
             if (input.Length < 3)
             {
                 throw new Exception("Invalid input in GetFeatureWithLabel(string[] input) function with input:\r" +
                                     string.Join(",", input));
             }
-            return new Pair<string, List<string>>(input[1], GetFeature(input[0], input[2]));
+            return null;
         }
 
         /*   Extract feature from the input, and the feature is clustered by field
@@ -98,141 +107,177 @@ namespace msra.nlp.tr
          *      Topic(Define topic)             :TODO: I am going to work with document cluster
          * 
          */
-        internal List<string> GetFeature(string mention, string context)
+        public List<string> ExtractFeature(Instance instance)
         {
-            int wordTableSize = DataCenter.GetWordTableSize();
-            feature.Clear();
+            var mention = instance.Mention;
+            var context = instance.Context;
+            this.feature.Clear();
+            string[] words = null;
+            string[] tokens = null;
             var tokenizer = TokenizerPool.GetTokenizer();
-            String[] words = tokenizer.Tokenize(mention).ToArray();
-            TokenizerPool.ReturnTokenizer(tokenizer);
-            // pos tags of mention words
-            var pairs = GetPosTags(mention, context);
-            var pair = GetMentionRange(pairs, mention);
-            var contextTokens = new List<string>();
-            foreach (var p in pairs)
+            try
             {
-                contextTokens.Add(p.first);
+                words = tokenizer.Tokenize(mention).ToArray();
+                tokens = tokenizer.Tokenize(context).ToArray();
+                TokenizerPool.ReturnTokenizer(tokenizer);
+                tokenizer = null;
             }
+            catch(Exception e)
+            {
+                TokenizerPool.ReturnTokenizer(tokenizer);
+                throw e;
+            }
+            // select the first sentence contains mention. This will reduce the parse cost.
+            List<string> sentences = null;
+            var sspliter = SSpliterPool.GetSSpliter();
+            try
+            {
+                sentences = sspliter.SplitSequence(tokens);
+                SSpliterPool.ReturnSSpliter(sspliter);
+            }
+            catch(Exception e)
+            {
+                SSpliterPool.ReturnSSpliter(sspliter);
+                throw e;
+            }
+            context = GetSentenceCoverMention(sentences, words);
             // get a parser
             var parser = ParserPool.GetParser();
-            parser.Parse(contextTokens);
-            if (pair.first == -1)
+            List<Pair<string, string>> pairs = null;
+            Pair<int, int> pair = null;
+            try
             {
-                return null;
-            }
+                parser.Parse(context);
 
-            #region last word
-            {
-                var word = GetLastToken(mention, context);
-                var index = 0;
-                index = GetLastWordIndex(pairs, word, pair.first);
-                if (index > 0)
+                pairs = parser.GetPosTags();
+                pair = GetIndexOfMention(pairs, words);
+                if (pair.first == -1)
                 {
-                    var posTag = pairs.ElementAt(index).second;
-                    AddFieldToFeture(word, posTag);
+                    throw new Exception("Cannot find mention by token within context!");
                 }
-                else
-                {
-                    AddFieldToFeture(word, null);
+                this.offset = 0;
 
-                }
-            }
-            #endregion
-
-            #region next word
-            {
-                var word = GetNextToken(mention, context);
-                var index = 0;
-                index = GetNextWordIndex(pairs, word, pair.second);
-                if (index > 0)
+                #region last word
                 {
-                    var posTag = pairs.ElementAt(index).second;
-                    AddFieldToFeture(word, posTag);
-                }
-                else
-                {
-                    AddFieldToFeture(word, null);
-                }
-
-            }
-            #endregion
-
-            #region mention head
-            {
-                string head = null, posTag = null;
-                for (int i = pair.first; i <= pair.second; i++)
-                {
-                    if (pairs.ElementAt(i).second.StartsWith("N"))
+                    var index = pair.first - 1;
+                    if (index > 0)
                     {
-                        // last noun
-                        head = pairs.ElementAt(i).first;
-                        posTag = pairs.ElementAt(i).second;
+                        var word = pairs.ElementAt(index).first;
+                        var posTag = pairs.ElementAt(index).second;
+                        AddFieldToFeture(word, posTag);
                     }
-                    else if (pairs.ElementAt(i).second.Equals("IN") || pairs.ElementAt(i).second.Equals(","))
+                    else
                     {
-                        // before IN
-                        break;
+                        AddFieldToFeture(null, null);
+
                     }
                 }
-                if (head == null)
-                {
-                    head = words[words.Length - 1];
-                    posTag = pairs.ElementAt(pair.second).second;
-                }
-                AddFieldToFeture(head, posTag);
-            }
-            #endregion
+                #endregion
 
-            #region mention driver
+                #region next word
+                {
+                    var index = pair.second + 1;
+                    if (index < pairs.Count)
+                    {
+                        var word = pairs.ElementAt(index).first;
+                        var posTag = pairs.ElementAt(index).second;
+                        AddFieldToFeture(word, posTag);
+                    }
+                    else
+                    {
+                        AddFieldToFeture(null, null);
+                    }
+
+                }
+                #endregion
+
+                #region mention head
+                {
+                    string head = null, posTag = null;
+                    for (int i = pair.first; i <= pair.second; i++)
+                    {
+                        if (pairs.ElementAt(i).second.StartsWith("N"))
+                        {
+                            // last noun
+                            head = pairs.ElementAt(i).first;
+                            posTag = pairs.ElementAt(i).second;
+                        }
+                        else if (pairs.ElementAt(i).second.Equals("IN") || pairs.ElementAt(i).second.Equals(","))
+                        {
+                            // before IN
+                            break;
+                        }
+                    }
+                    if (head == null)
+                    {
+                        head = words[words.Length - 1];
+                        posTag = pairs.ElementAt(pair.second).second;
+                    }
+                    AddFieldToFeture(head, posTag);
+                }
+                #endregion
+
+                #region mention driver
+                {
+                    int index = parser.GetDriver(pair.first, pair.second);
+                    if (index > 0)
+                    {
+                        var driver = pairs.ElementAt(index).first;
+                        var posTag = pairs.ElementAt(index).second;
+                        AddFieldToFeture(driver, posTag);
+                    }
+                    else
+                    {
+                        AddFieldToFeture(null, null);
+                    }
+                }
+                #endregion
+
+                #region mention adjective modifer
+                {
+                    int index = parser.GetAdjModifier(pair.first, pair.second);
+                    if (index > 0)
+                    {
+                        var adjModifier = pairs.ElementAt(index).first;
+                        var posTag = pairs.ElementAt(index).second;
+                        AddFieldToFeture(adjModifier, posTag);
+                    }
+                    else
+                    {
+                        AddFieldToFeture(null, null);
+                    }
+                }
+                #endregion
+
+                #region mention action
+                {
+                    int index = parser.GetAction(pair.first, pair.second);
+                    if (index > 0)
+                    {
+                        var action = pairs.ElementAt(index).first;
+                        var posTag = pairs.ElementAt(index).second;
+                        AddFieldToFeture(action, posTag);
+                    }
+                    else
+                    {
+                        AddFieldToFeture(null, null);
+                    }
+                }
+                #endregion
+
+                ParserPool.ReturnParser(parser);
+                parser = null;
+            }
+            catch(Exception e)
             {
-                int index = parser.GetDriver(pair.first, pair.second) -1;
-                if (index > 0)
+                if (parser != null)
                 {
-                    var driver = pairs.ElementAt(index).first;
-                    var posTag = pairs.ElementAt(index).second;
-                    AddFieldToFeture(driver, posTag);
+                    ParserPool.ReturnParser(parser);
+                    parser = null;
                 }
-                else
-                {
-                    AddFieldToFeture(null, null);
-                }
+                throw e;
             }
-            #endregion
 
-            #region mention adjective modifer
-            {
-                int index = parser.GetAdjModifier(pair.first, pair.second) -1;
-                if (index > 0)
-                {
-                    var adjModifier = pairs.ElementAt(index).first;
-                    var posTag = pairs.ElementAt(index).second;
-                    AddFieldToFeture(adjModifier, posTag);
-                }
-                else
-                {
-                    AddFieldToFeture(null, null);
-                }
-            }
-            #endregion
-
-            #region mention action
-            {
-                int index = parser.GetAction(pair.first, pair.second) -1;
-                if (index > 0)
-                {
-                    var action = pairs.ElementAt(index).first;
-                    var posTag = pairs.ElementAt(index).second;
-                    AddFieldToFeture(action, posTag);
-                }
-                else
-                {
-                    AddFieldToFeture(null, null);
-                }
-            }
-            #endregion
-
-            ParserPool.ReturnParser(parser);
-            parser = null;
 
             #region Mention Words
             {
@@ -249,6 +294,9 @@ namespace msra.nlp.tr
                         mentionWords.Append("," + Generalizer.Generalize(word));
                     }
                 }
+                // add mention surface
+                feature.Add(string.Join(",", words));
+                // add stemmed mention surface
                 feature.Add(mentionWords.ToString());
                 // mention tags
                 var mentionTags = mentionWords.Clear();     
@@ -345,11 +393,12 @@ namespace msra.nlp.tr
                 ID = DataCenter.GetWordClusterID(word).ToString();
                 // next word shape
                 shape = GetWordShape(word);
-                AddToFeature(generalsurface, posTag ?? "NULL", ID, shape);
+                // pos tag
+                AddToFeature(word, generalsurface, posTag ?? "NULL", ID, shape);
             }
             else
             {
-                AddToFeature("NULL", "NULL", DataCenter.GetClusterNumber().ToString(), "NULL");
+                AddToFeature("NULL","NULL", "NULL", DataCenter.GetClusterNumber().ToString(), "NULL");
             }
         }
 

@@ -13,9 +13,8 @@ namespace msra.nlp.tr
 {
     class DataCenter
     {
-        /************************************************************************/
-        /* Word surface table                                                                     */
-        /************************************************************************/
+        #region Word Surface Table
+
         /*The word table of the train data
          */ 
         static Dictionary<String, int> word2index = null;
@@ -99,9 +98,9 @@ namespace msra.nlp.tr
             }
         }
 
-        /************************************************************************/
-        /* Word shpae table                                                                     */
-        /************************************************************************/
+        #endregion
+
+        #region Word Shpae Table
 
         static Dictionary<string, int> wordShape2index = null;
         static object wordShapeLocker = new object();
@@ -166,10 +165,9 @@ namespace msra.nlp.tr
             }
         }
 
-        /************************************************************************/
-        /* Pos tag table                                                                     */
-        /************************************************************************/
+        #endregion
 
+        #region Pos Tag Table
         static Dictionary<string, int> posTag2index = null;
         static object posTagLocker = new object();
         /*Get size of the word table
@@ -233,9 +231,10 @@ namespace msra.nlp.tr
             }
         }
 
-        /************************************************************************/
-        /* Dictionary like UIUC data                                                                     */
-        /************************************************************************/
+        #endregion
+
+        #region Dictionary Like UIUC
+
         private static Dictionary<String, int> dicTypeMap = null;
         private static Dictionary<String, List<String>> dics = null;
         static object dicLocker = new object();
@@ -316,21 +315,22 @@ namespace msra.nlp.tr
             }
         }
 
-        /************************************************************************/
-        /* Dictionary like people name list                                                                     */
-        /************************************************************************/
+        #endregion
+
+        #region Dictionary like people name list
+
         private static HashSet<String> fullNameSet = null;
         private static HashSet<String> partNameSet = null;
 
         /*Is the mention match an item within the name list entirely
-         */ 
-        public static   bool IsFullNameMatch(String name)
+         */
+        public static bool IsFullNameMatch(String name)
         {
-            if(fullNameSet == null)
+            if (fullNameSet == null)
             {
                 LoadNameSet();
             }
-            if(fullNameSet.Contains(name))
+            if (fullNameSet.Contains(name))
             {
                 return true;
             }
@@ -338,7 +338,7 @@ namespace msra.nlp.tr
         }
 
         /*Is the mention only part of a name within the name list
-         */ 
+         */
         public static bool IsPartNameMatch(String name)
         {
             if (fullNameSet == null)
@@ -353,7 +353,7 @@ namespace msra.nlp.tr
         }
 
         /*Read name list from file
-         */ 
+         */
         private static void LoadNameSet()
         {
             fullNameSet = new HashSet<string>();
@@ -362,11 +362,11 @@ namespace msra.nlp.tr
             String line;
             String[] array;
 
-            while((line = reader.ReadLine())!=null)
+            while ((line = reader.ReadLine()) != null)
             {
                 array = line.Split(' ');
                 fullNameSet.Add(line);
-                foreach(var x in array)
+                foreach (var x in array)
                 {
                     partNameSet.Add(x);
                 }
@@ -376,20 +376,20 @@ namespace msra.nlp.tr
 
         /*Proposition list
          */
-       static  HashSet<String> prepositions = null;
+        static HashSet<String> prepositions = null;
 
         public static bool IsPreposition(String word)
-       {
-            if(prepositions == null)
+        {
+            if (prepositions == null)
             {
                 LoadPreposition();
             }
-            if(prepositions.Contains(word))
+            if (prepositions.Contains(word))
             {
                 return true;
             }
             return false;
-       }
+        }
 
         private static void LoadPreposition()
         {
@@ -397,15 +397,16 @@ namespace msra.nlp.tr
             FileReader reader = new LargeFileReader();
             String line;
 
-            while((line = reader.ReadLine())!=null)
+            while ((line = reader.ReadLine()) != null)
             {
                 prepositions.Add(line);
             }
         }
 
-        /************************************************************************/
-        /* Stem data and object                                                                     */
-        /************************************************************************/
+        #endregion
+
+        #region Stemmed Word Table
+
         private static object stemmerLocker = new object();
 
         private static Dictionary<string, string> stemWordDic = null; 
@@ -475,9 +476,10 @@ namespace msra.nlp.tr
             }
         }
 
-        /************************************************************************/
-        /* Word cluster ID                                                                     */
-        /************************************************************************/
+        #endregion
+
+        #region Word Cluster ID
+
         static Dictionary<string, int> wordIdDic = null;
         static int wordClusterSize = 0;
         static object wordIDLocker = new object();
@@ -548,10 +550,9 @@ namespace msra.nlp.tr
             }
         }
 
-        /************************************************************************/
-        /* Mention cluster ID                                                                     */
-        /************************************************************************/
-      
+        #endregion
+
+        #region Mention Cluster ID
         static Dictionary<string, int> mentionIdDic = null;
         static int mentionClusterSize = 0;
         static object mentionIDLocker = new object();
@@ -624,9 +625,9 @@ namespace msra.nlp.tr
                 }
             }
         }
-       
-        
-        
+
+        #endregion
+
         private DataCenter() { }
     }
 }

@@ -54,7 +54,7 @@ namespace msra.nlp.tr
         internal Dictionary<string, object> GetFeature(string mention, string context)
         {
             var sspliter = SSpliterPool.GetSSpliter();
-            context = GetSentenceWithMention(sspliter.SplitSequence(context), mention);
+            context = GetSentenceCoverMention(sspliter.SplitSequence(context), mention);
             SSpliterPool.ReturnSSpliter(sspliter);
             sspliter = null;
             var feature = new Dictionary<string, object>();
@@ -88,7 +88,7 @@ namespace msra.nlp.tr
             feature[Field.mentionWordShapes] = list;
             // pos tags of mention words
             var pairs = GetPosTags(mention, context);
-            var pair = GetMentionRange(pairs, mention);
+            var pair = GetIndexOfMention(pairs, mention);
             list = new List<string>();
             for (var i = pair.first; i <= pair.second; i++)
             {

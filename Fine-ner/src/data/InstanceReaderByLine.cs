@@ -7,18 +7,21 @@ using pml.file.reader;
 
 namespace msra.nlp.tr
 {
-    class EventReaderByLine : EventReader
+    class InstanceReaderByLine : InstanceReader
     {
-
+        // instance reader        
         FileReader reader = null;
-        Event nextEvent = null;
+        // next instance
+        Instance nextInstance = null;
+        // check if there is error in reading instance
         Exception exception = null;
-        public EventReaderByLine(string filePath)
+
+        public InstanceReaderByLine(string filePath)
         {
             reader = new LargeFileReader(filePath);
             try
             {
-                nextEvent = ReadEvent();
+                nextInstance = ReadInstance();
             }
             catch (Exception e)
             {
@@ -31,7 +34,7 @@ namespace msra.nlp.tr
             reader = new LargeFileReader(filePath);
             try
             {
-                nextEvent = ReadEvent();
+                nextInstance = ReadInstance();
             }
             catch (Exception e)
             {
@@ -41,10 +44,17 @@ namespace msra.nlp.tr
 
         /// <summary>
         ///  Read Event from file by line. So file format should be:
-        ///    Label   TAB   feature1    TAB    feature2   TAB...
-        /// </summary>
+        ///    Mention [TAB] Type [TAB]  Context
+        ///  Check if reaching file end with HashNext() function.
         /// <returns></returns>
-        public Event GetNextEvent()
+        /// <exception>
+        ///     If the format of a line is wrong or file reaches end.
+        /// </exception>
+        /// </summary>
+        /// <returns>
+        /// An Instance
+        /// </returns>
+        public Instance GetNextInstance()
         {
             if (exception != null)
             {
@@ -52,28 +62,27 @@ namespace msra.nlp.tr
                 exception = null;
                 throw e;
             }
-            if (this.nextEvent == null)
+            if (this.nextInstance == null)
             {
-                throw new Exception("There is no more event in the file!");
+                throw new Exception("There is no more instance in the file!");
             }
-            var env = nextEvent;
+            var ins = nextInstance;
             try
             {
-                nextEvent = ReadEvent();
+                nextInstance = ReadInstance();
             }
             catch (Exception e)
             {
                 exception = e;
             }
-            return env;
+            return ins;
         }
 
         /// <summary>
-        /// Read a event by line.
-        /// The line should seperated by TAB with the first item being label and others being features
+        /// Read a instance by line
         /// </summary>
         /// <returns></returns>
-        private Event ReadEvent()
+        private Instance ReadInstance()
         {
             var line = reader.ReadLine();
             if (line == null)
@@ -81,31 +90,26 @@ namespace msra.nlp.tr
                 return null;
             }
             var array = line.Split('\t');
-            if (array.Length < 2)
+            if (array.Length != 3)
             {
-                throw new Exception("Line format is wrong! Line cannot be seperated by TAB");
+                throw new Exception("Line format is wrong! Line seperated by tab results in" + array.Length + " elements.");
             }
-            var feature = new List<string>();
-            for (var i = 1; i < array.Length; i++)
-            {
-                feature.Add(array[i]);
-            }
-            return new Event(new Label(array[0]), feature);
+            return new Instance(array[0], array[1], array[2]);
         }
 
-        /// <summary>
-        /// Return if there is event having not been read in the file
-        /// </summary>
-        /// <returns></returns>
         public bool HasNext()
         {
-            if (nextEvent != null)
+            if (nextInstance != null)
             {
                 return true;
             }
             return false;
         }
 
+        /// <summary>
+        /// Close instance reader
+        /// </summary>
+        /// <returns></returns>
         public bool Close()
         {
             try
@@ -113,7 +117,7 @@ namespace msra.nlp.tr
                 reader.Close();
                 return true;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return false;
             }

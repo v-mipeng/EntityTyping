@@ -265,329 +265,329 @@ namespace msra.nlp.tr
             return buffer.ToString();
         }
         
-        public static string StatisticRoundTokenInformation(String sourceFile)
-        {
-            FileReader reader = new LargeFileReader(sourceFile);
-            FeatureExtractor extractor = new FeatureExtractor();
-            // type-->(word-->times)
-            Dictionary<string, Dictionary<string, int>> lastTokenNumByType = new Dictionary<string, Dictionary<string, int>>();
-            Dictionary<string, Dictionary<string, int>> nextTokenNumByType = new Dictionary<string, Dictionary<string, int>>();
-            Dictionary<string, int> dic = null ;
+        //public static string StatisticRoundTokenInformation(String sourceFile)
+        //{
+        //    FileReader reader = new LargeFileReader(sourceFile);
+        //    FeatureExtractor extractor = new FeatureExtractor();
+        //    // type-->(word-->times)
+        //    Dictionary<string, Dictionary<string, int>> lastTokenNumByType = new Dictionary<string, Dictionary<string, int>>();
+        //    Dictionary<string, Dictionary<string, int>> nextTokenNumByType = new Dictionary<string, Dictionary<string, int>>();
+        //    Dictionary<string, int> dic = null ;
 
-            string line;
-            string lastToken;
-            string nextToken;
-            string type;
-            String[] array;
-            int count = 0;
+        //    string line;
+        //    string lastToken;
+        //    string nextToken;
+        //    string type;
+        //    String[] array;
+        //    int count = 0;
 
-            while ((line = reader.ReadLine()) != null)
-            {
-                if((++count) % 1000 ==0)
-                {
-                    Console.WriteLine(count);
-                }
-                try
-                {
-                    array = line.Split('\t');
-                    type = array[1];
-                    // get last token
-                    lastToken = extractor.GetLastToken(array[2], array[0]).ToLower();
-                    if (lastToken == null)
-                    {
-                        lastToken = "null";
-                    }
-                    else
-                    {
-                        lastToken = DataCenter.GetStemmedWord(lastToken);
-                    }
-                    // get next token
-                    nextToken = extractor.GetNextToken(array[2], array[0]).ToLower();
-                    if (nextToken == null)
-                    {
-                        nextToken = "null";
-                    }
-                    else
-                    {
-                        nextToken = DataCenter.GetStemmedWord(nextToken);
-                    }
-                    // deal last token
-                    lastTokenNumByType.TryGetValue(type, out dic);
-                    if (dic == null)
-                    {
-                        dic = new Dictionary<string, int>();
-                    }
-                    try
-                    {
-                        dic[lastToken] += 1;
-                    }
-                    catch (Exception)
-                    {
-                        dic[lastToken] = 1;
-                    }
-                    lastTokenNumByType[type] = dic;
-                    // deal next token
-                    nextTokenNumByType.TryGetValue(type, out dic);
-                    if (dic == null)
-                    {
-                        dic = new Dictionary<string, int>();
-                    }
-                    try
-                    {
-                        dic[nextToken] += 1;
-                    }
-                    catch (Exception)
-                    {
-                        dic[nextToken] = 1;
-                    }
-                    nextTokenNumByType[type] = dic;
-                }
-                catch(Exception)
-                {
-                    continue; 
-                }
-            }
-            reader.Close();
-            StringBuilder buffer = new StringBuilder();
-            // report last token information
-            buffer.Append("last token report: word:(per times|loc times|org times)\r");
-            List<Pair<string, int>> list = new List<Pair<string, int>>();
-            Comparer<Pair<string, int>> comparer = new Pair<string,int>().GetBySecondReverseComparer();
-            foreach(String item in lastTokenNumByType["people.person"].Keys )
-            {
-                Pair<string, int> pair = new Pair<string, int>(item, lastTokenNumByType["people.person"][item]);
-                list.Add(pair);
-            }
-            list.Sort(comparer);
-            count = 0;
-            int locNum;
-            int orgNum;
-            foreach (Pair<string,int> item in list)
-            {
-                count++;
-                try
-                {
-                    locNum = lastTokenNumByType["location.location"][item.first];
-                }
-                catch (Exception)
-                {
-                    locNum = 0;
-                }
-                try
-                {
-                    orgNum = lastTokenNumByType["organization.organization"][item.first];
-                }
-                catch (Exception)
-                {
-                    orgNum = 0;
-                }
-                buffer.Append("\t" + item.first + ":(" + item.second + "|" + locNum + "|" + orgNum + ")");
-                if (count % 5 == 0)
-                {
-                    buffer.Append("\r");
-                }
-            }
-            buffer.Append("\r");
-            // report next token information
-            buffer.Append("next token report:  word:(per times|loc times|org times)\r");
-            list.Clear();
-            foreach (String item in nextTokenNumByType["people.person"].Keys)
-            {
-                Pair<string, int> pair = new Pair<string, int>(item, nextTokenNumByType["people.person"][item]);
-                list.Add(pair);
-            }
-            list.Sort(comparer);
-             count = 0;
-            foreach (Pair<string, int> item in list)
-            {
-                count++;
-                try
-                {
-                    locNum = nextTokenNumByType["location.location"][item.first];
-                }
-                catch (Exception)
-                {
-                    locNum = 0;
-                }
-                try
-                {
-                    orgNum = nextTokenNumByType["organization.organization"][item.first];
-                }
-                catch (Exception)
-                {
-                    orgNum = 0;
-                }
-                buffer.Append("\t" + item.first + ":(" + item.second + "|" + locNum + "|" + orgNum + ")");
-                if (count % 5 == 0)
-                {
-                    buffer.Append("\r");
-                }
-            }
-            return buffer.ToString();
-        }
+        //    while ((line = reader.ReadLine()) != null)
+        //    {
+        //        if((++count) % 1000 ==0)
+        //        {
+        //            Console.WriteLine(count);
+        //        }
+        //        try
+        //        {
+        //            array = line.Split('\t');
+        //            type = array[1];
+        //            // get last token
+        //            lastToken = extractor.GetLastToken(array[2], array[0]).ToLower();
+        //            if (lastToken == null)
+        //            {
+        //                lastToken = "null";
+        //            }
+        //            else
+        //            {
+        //                lastToken = DataCenter.GetStemmedWord(lastToken);
+        //            }
+        //            // get next token
+        //            nextToken = extractor.GetNextToken(array[2], array[0]).ToLower();
+        //            if (nextToken == null)
+        //            {
+        //                nextToken = "null";
+        //            }
+        //            else
+        //            {
+        //                nextToken = DataCenter.GetStemmedWord(nextToken);
+        //            }
+        //            // deal last token
+        //            lastTokenNumByType.TryGetValue(type, out dic);
+        //            if (dic == null)
+        //            {
+        //                dic = new Dictionary<string, int>();
+        //            }
+        //            try
+        //            {
+        //                dic[lastToken] += 1;
+        //            }
+        //            catch (Exception)
+        //            {
+        //                dic[lastToken] = 1;
+        //            }
+        //            lastTokenNumByType[type] = dic;
+        //            // deal next token
+        //            nextTokenNumByType.TryGetValue(type, out dic);
+        //            if (dic == null)
+        //            {
+        //                dic = new Dictionary<string, int>();
+        //            }
+        //            try
+        //            {
+        //                dic[nextToken] += 1;
+        //            }
+        //            catch (Exception)
+        //            {
+        //                dic[nextToken] = 1;
+        //            }
+        //            nextTokenNumByType[type] = dic;
+        //        }
+        //        catch(Exception)
+        //        {
+        //            continue; 
+        //        }
+        //    }
+        //    reader.Close();
+        //    StringBuilder buffer = new StringBuilder();
+        //    // report last token information
+        //    buffer.Append("last token report: word:(per times|loc times|org times)\r");
+        //    List<Pair<string, int>> list = new List<Pair<string, int>>();
+        //    Comparer<Pair<string, int>> comparer = new Pair<string,int>().GetBySecondReverseComparer();
+        //    foreach(String item in lastTokenNumByType["people.person"].Keys )
+        //    {
+        //        Pair<string, int> pair = new Pair<string, int>(item, lastTokenNumByType["people.person"][item]);
+        //        list.Add(pair);
+        //    }
+        //    list.Sort(comparer);
+        //    count = 0;
+        //    int locNum;
+        //    int orgNum;
+        //    foreach (Pair<string,int> item in list)
+        //    {
+        //        count++;
+        //        try
+        //        {
+        //            locNum = lastTokenNumByType["location.location"][item.first];
+        //        }
+        //        catch (Exception)
+        //        {
+        //            locNum = 0;
+        //        }
+        //        try
+        //        {
+        //            orgNum = lastTokenNumByType["organization.organization"][item.first];
+        //        }
+        //        catch (Exception)
+        //        {
+        //            orgNum = 0;
+        //        }
+        //        buffer.Append("\t" + item.first + ":(" + item.second + "|" + locNum + "|" + orgNum + ")");
+        //        if (count % 5 == 0)
+        //        {
+        //            buffer.Append("\r");
+        //        }
+        //    }
+        //    buffer.Append("\r");
+        //    // report next token information
+        //    buffer.Append("next token report:  word:(per times|loc times|org times)\r");
+        //    list.Clear();
+        //    foreach (String item in nextTokenNumByType["people.person"].Keys)
+        //    {
+        //        Pair<string, int> pair = new Pair<string, int>(item, nextTokenNumByType["people.person"][item]);
+        //        list.Add(pair);
+        //    }
+        //    list.Sort(comparer);
+        //     count = 0;
+        //    foreach (Pair<string, int> item in list)
+        //    {
+        //        count++;
+        //        try
+        //        {
+        //            locNum = nextTokenNumByType["location.location"][item.first];
+        //        }
+        //        catch (Exception)
+        //        {
+        //            locNum = 0;
+        //        }
+        //        try
+        //        {
+        //            orgNum = nextTokenNumByType["organization.organization"][item.first];
+        //        }
+        //        catch (Exception)
+        //        {
+        //            orgNum = 0;
+        //        }
+        //        buffer.Append("\t" + item.first + ":(" + item.second + "|" + locNum + "|" + orgNum + ")");
+        //        if (count % 5 == 0)
+        //        {
+        //            buffer.Append("\r");
+        //        }
+        //    }
+        //    return buffer.ToString();
+        //}
    
-        public static string StatisticWithinTokenInfomation(String sourceFile)
-        {
-            FileReader reader = new LargeFileReader(sourceFile);
-            FeatureExtractor extractor = new FeatureExtractor();
-            // type-->(word-->times)
-            Dictionary<string, Dictionary<string, int>> firstTokenNumByType = new Dictionary<string, Dictionary<string, int>>();
-            Dictionary<string, Dictionary<string, int>> finalTokenNumByType = new Dictionary<string, Dictionary<string, int>>();
-            Dictionary<string, int> dic = null ;
+        //public static string StatisticWithinTokenInfomation(String sourceFile)
+        //{
+        //    FileReader reader = new LargeFileReader(sourceFile);
+        //    FeatureExtractor extractor = new FeatureExtractor();
+        //    // type-->(word-->times)
+        //    Dictionary<string, Dictionary<string, int>> firstTokenNumByType = new Dictionary<string, Dictionary<string, int>>();
+        //    Dictionary<string, Dictionary<string, int>> finalTokenNumByType = new Dictionary<string, Dictionary<string, int>>();
+        //    Dictionary<string, int> dic = null ;
 
-            string line;
-            string firstToken;
-            string finalToken;
-            string type;
-            String[] array;
-            string[] wordArray;
-            int count = 0;
+        //    string line;
+        //    string firstToken;
+        //    string finalToken;
+        //    string type;
+        //    String[] array;
+        //    string[] wordArray;
+        //    int count = 0;
 
-            while ((line = reader.ReadLine()) != null)
-            {
-                if ((++count) % 1000 == 0)
-                {
-                    Console.WriteLine(count);
-                }
-                try
-                {
-                    array = line.Split('\t');
-                    type = array[1];
-                    wordArray = array[0].Split('\t');
-                    // get first token
-                    firstToken = wordArray[0].ToLower();
-                    if (firstToken == null)
-                    {
-                        firstToken = "null";
-                    }
-                    else
-                    {
-                        firstToken = DataCenter.GetStemmedWord(firstToken);
-                    }
-                    // get final token
-                    finalToken = wordArray[wordArray.Length - 1].ToLower();
-                    if (finalToken == null)
-                    {
-                        finalToken = "null";
-                    }
-                    else
-                    {
-                        finalToken = DataCenter.GetStemmedWord(finalToken);
-                    }
-                    // deal first token
-                    firstTokenNumByType.TryGetValue(type, out dic);
-                    if (dic == null)
-                    {
-                        dic = new Dictionary<string, int>();
-                    }
-                    try
-                    {
-                        dic[firstToken] += 1;
-                    }
-                    catch (Exception)
-                    {
-                        dic[firstToken] = 1;
-                    }
-                    firstTokenNumByType[type] = dic;
-                    // deal final token
-                    finalTokenNumByType.TryGetValue(type, out dic);
-                    if (dic == null)
-                    {
-                        dic = new Dictionary<string, int>();
-                    }
-                    try
-                    {
-                        dic[finalToken] += 1;
-                    }
-                    catch (Exception)
-                    {
-                        dic[finalToken] = 1;
-                    }
-                    finalTokenNumByType[type] = dic;
-                }
-                catch(Exception)
-                {
-                    continue; 
-                }
-            }
-            reader.Close();
-            StringBuilder buffer = new StringBuilder();
-            // report first token information
-            buffer.Append("first token report: word:(per times|loc times|org times)\r");
-            List<Pair<string, int>> list = new List<Pair<string, int>>();
-            Comparer<Pair<string, int>> comparer = new Pair<string,int>().GetBySecondReverseComparer();
-            foreach(String item in firstTokenNumByType["people.person"].Keys )
-            {
-                Pair<string, int> pair = new Pair<string, int>(item, firstTokenNumByType["people.person"][item]);
-                list.Add(pair);
-            }
-            list.Sort(comparer);
-            count = 0;
-            int locNum;
-            int orgNum;
-            foreach (Pair<string,int> item in list)
-            {
-                count++;
-                try
-                {
-                    locNum = firstTokenNumByType["location.location"][item.first];
-                }
-                catch (Exception)
-                {
-                    locNum = 0;
-                }
-                try
-                {
-                    orgNum = firstTokenNumByType["organization.organization"][item.first];
-                }
-                catch (Exception)
-                {
-                    orgNum = 0;
-                }
-                buffer.Append("\t" + item.first + ":(" + item.second + "|" + locNum + "|" + orgNum + ")");
-                if (count % 5 == 0)
-                {
-                    buffer.Append("\r");
-                }
-            }
-            buffer.Append("\r");
-            // report final token information
-            buffer.Append("final token report:  word:(per times|loc times|org times)\r");
-            list.Clear();
-            foreach (String item in finalTokenNumByType["people.person"].Keys)
-            {
-                Pair<string, int> pair = new Pair<string, int>(item, finalTokenNumByType["people.person"][item]);
-                list.Add(pair);
-            }
-            list.Sort(comparer);
-             count = 0;
-            foreach (Pair<string, int> item in list)
-            {
-                count++;
-                try
-                {
-                    locNum = finalTokenNumByType["location.location"][item.first];
-                }
-                catch (Exception)
-                {
-                    locNum = 0;
-                }
-                try
-                {
-                    orgNum = finalTokenNumByType["organization.organization"][item.first];
-                }
-                catch (Exception)
-                {
-                    orgNum = 0;
-                }
-                buffer.Append("\t" + item.first + ":(" + item.second + "|" + locNum + "|" + orgNum + ")");
-                if (count % 5 == 0)
-                {
-                    buffer.Append("\r");
-                }
-            }
-            return buffer.ToString();
-            }
+        //    while ((line = reader.ReadLine()) != null)
+        //    {
+        //        if ((++count) % 1000 == 0)
+        //        {
+        //            Console.WriteLine(count);
+        //        }
+        //        try
+        //        {
+        //            array = line.Split('\t');
+        //            type = array[1];
+        //            wordArray = array[0].Split('\t');
+        //            // get first token
+        //            firstToken = wordArray[0].ToLower();
+        //            if (firstToken == null)
+        //            {
+        //                firstToken = "null";
+        //            }
+        //            else
+        //            {
+        //                firstToken = DataCenter.GetStemmedWord(firstToken);
+        //            }
+        //            // get final token
+        //            finalToken = wordArray[wordArray.Length - 1].ToLower();
+        //            if (finalToken == null)
+        //            {
+        //                finalToken = "null";
+        //            }
+        //            else
+        //            {
+        //                finalToken = DataCenter.GetStemmedWord(finalToken);
+        //            }
+        //            // deal first token
+        //            firstTokenNumByType.TryGetValue(type, out dic);
+        //            if (dic == null)
+        //            {
+        //                dic = new Dictionary<string, int>();
+        //            }
+        //            try
+        //            {
+        //                dic[firstToken] += 1;
+        //            }
+        //            catch (Exception)
+        //            {
+        //                dic[firstToken] = 1;
+        //            }
+        //            firstTokenNumByType[type] = dic;
+        //            // deal final token
+        //            finalTokenNumByType.TryGetValue(type, out dic);
+        //            if (dic == null)
+        //            {
+        //                dic = new Dictionary<string, int>();
+        //            }
+        //            try
+        //            {
+        //                dic[finalToken] += 1;
+        //            }
+        //            catch (Exception)
+        //            {
+        //                dic[finalToken] = 1;
+        //            }
+        //            finalTokenNumByType[type] = dic;
+        //        }
+        //        catch(Exception)
+        //        {
+        //            continue; 
+        //        }
+        //    }
+        //    reader.Close();
+        //    StringBuilder buffer = new StringBuilder();
+        //    // report first token information
+        //    buffer.Append("first token report: word:(per times|loc times|org times)\r");
+        //    List<Pair<string, int>> list = new List<Pair<string, int>>();
+        //    Comparer<Pair<string, int>> comparer = new Pair<string,int>().GetBySecondReverseComparer();
+        //    foreach(String item in firstTokenNumByType["people.person"].Keys )
+        //    {
+        //        Pair<string, int> pair = new Pair<string, int>(item, firstTokenNumByType["people.person"][item]);
+        //        list.Add(pair);
+        //    }
+        //    list.Sort(comparer);
+        //    count = 0;
+        //    int locNum;
+        //    int orgNum;
+        //    foreach (Pair<string,int> item in list)
+        //    {
+        //        count++;
+        //        try
+        //        {
+        //            locNum = firstTokenNumByType["location.location"][item.first];
+        //        }
+        //        catch (Exception)
+        //        {
+        //            locNum = 0;
+        //        }
+        //        try
+        //        {
+        //            orgNum = firstTokenNumByType["organization.organization"][item.first];
+        //        }
+        //        catch (Exception)
+        //        {
+        //            orgNum = 0;
+        //        }
+        //        buffer.Append("\t" + item.first + ":(" + item.second + "|" + locNum + "|" + orgNum + ")");
+        //        if (count % 5 == 0)
+        //        {
+        //            buffer.Append("\r");
+        //        }
+        //    }
+        //    buffer.Append("\r");
+        //    // report final token information
+        //    buffer.Append("final token report:  word:(per times|loc times|org times)\r");
+        //    list.Clear();
+        //    foreach (String item in finalTokenNumByType["people.person"].Keys)
+        //    {
+        //        Pair<string, int> pair = new Pair<string, int>(item, finalTokenNumByType["people.person"][item]);
+        //        list.Add(pair);
+        //    }
+        //    list.Sort(comparer);
+        //     count = 0;
+        //    foreach (Pair<string, int> item in list)
+        //    {
+        //        count++;
+        //        try
+        //        {
+        //            locNum = finalTokenNumByType["location.location"][item.first];
+        //        }
+        //        catch (Exception)
+        //        {
+        //            locNum = 0;
+        //        }
+        //        try
+        //        {
+        //            orgNum = finalTokenNumByType["organization.organization"][item.first];
+        //        }
+        //        catch (Exception)
+        //        {
+        //            orgNum = 0;
+        //        }
+        //        buffer.Append("\t" + item.first + ":(" + item.second + "|" + locNum + "|" + orgNum + ")");
+        //        if (count % 5 == 0)
+        //        {
+        //            buffer.Append("\r");
+        //        }
+        //    }
+        //    return buffer.ToString();
+        //    }
         
         public static void Refresh()
         {

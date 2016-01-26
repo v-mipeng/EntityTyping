@@ -3,18 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using pml.file.reader;
-
 
 namespace msra.nlp.tr
 {
-    interface EventReader
+    interface InstanceWriter
     {
-        void Open(string filePath);
-
-        Event GetNextEvent();
-
-        bool HasNext();
+        void WriteInstance(Instance instance);
 
         bool Close();
     }

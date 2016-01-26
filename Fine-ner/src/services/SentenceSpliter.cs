@@ -15,8 +15,7 @@ namespace msra.nlp.tr
     public class SentenceSpliter
     {
         StanfordCoreNLP pipeline = null;
-        private static object locker = new object();
-
+        List<string[]> tokensBySentence = null;
         public SentenceSpliter()
         {
             Initial();
@@ -32,14 +31,34 @@ namespace msra.nlp.tr
             pipeline.annotate(document);
             var senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
             var sentences = (ArrayList)document.get(senObj.getClass());
-            return (from CoreMap sentence in sentences select sentence.ToString()).ToList();
+            tokensBySentence = new List<string[]>();
+            for (var i = 0; i < sentences.size();i++ )
+            {
+                var sen = sentences.get(i);
+
+            }
+                return (from CoreMap sentence in sentences select sentence.ToString()).ToList();
+            
+        }
+
+        public List<string> SplitSequence(IEnumerable<string> tokens)
+        {
+            var sequence = new StringBuilder();
+            sequence.Append(tokens.ElementAt(0));
+            for(var i =1;i<tokens.Count();i++)
+            {
+                sequence.Append(" "+tokens.ElementAt(i));
+            }
+            return SplitSequence(sequence.ToString());
         }
 
 
         void Initial(string modelDir = null)
         {
             var props = new Properties();
-            props.put("annotators", "tokenize, ssplit");
+            props.put("annotators", "tokenize,ssplit");
+            props.put("tokenizer.whitespace", "true");
+
             var dir = Directory.GetCurrentDirectory();
             Directory.SetCurrentDirectory(modelDir ?? (string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir));
             pipeline = new StanfordCoreNLP(props);

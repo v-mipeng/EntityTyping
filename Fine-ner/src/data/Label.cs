@@ -8,12 +8,18 @@ namespace msra.nlp.tr
 {
     class Label
     {
-        string stringLabel = null;
-        int intLabel = -1;
+        private string stringLabel = null;
+
+        private int intLabel = -1;
 
         public Label(string label)
         {
             this.stringLabel = label;
+        }
+
+        public Label(Label label)
+        {
+            this.stringLabel = label.StringLabel;
         }
 
         public int IntLabel
@@ -49,5 +55,10 @@ namespace msra.nlp.tr
             }
         }
 
+        
+        public override string ToString()
+        {
+            return stringLabel; 
+        }
     }
 }

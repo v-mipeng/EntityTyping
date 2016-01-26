@@ -222,12 +222,29 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\data\Event.cs" />
+    <Compile Include="src\data\EventReaderByLine.cs" />
+    <Compile Include="src\data\EventWriter.cs" />
+    <Compile Include="src\data\EventReader.cs" />
+    <Compile Include="src\data\Instance.cs" />
+    <Compile Include="src\data\InstanceReaderByLine.cs" />
+    <Compile Include="src\data\InstanceWriter.cs" />
+    <Compile Include="src\data\InstanceReader.cs" />
+    <Compile Include="src\data\EventWriterByLine.cs" />
+    <Compile Include="src\data\InstanceWriterByLine.cs" />
+    <Compile Include="src\data\Label.cs" />
     <Compile Include="src\feature\BayesFeature.cs" />
     <Compile Include="src\feature\EmbedFeature.cs" />
     <Compile Include="src\feature\Feature.cs" />
     <Compile Include="src\feature\FeatureExtractor.cs" />
     <Compile Include="src\feature\IndividualFeature.cs" />
     <Compile Include="src\feature\MaxEntFeature.cs" />
+    <Compile Include="src\pipeline\FeatureExtractor.cs" />
+    <Compile Include="src\pipeline\IndivisualFeatureExtractor.cs" />
+    <Compile Include="src\pipeline\ParallelFeatureExtractor.cs" />
+    <Compile Include="src\pipeline\ParallelIndividualFeatureExtractor.cs" />
+    <Compile Include="src\pipeline\ParallelSVMFeatureExtractor.cs" />
+    <Compile Include="src\pipeline\SVMFeatureExtractor.cs" />
     <Compile Include="src\services\ParserPool.cs" />
     <Compile Include="src\services\PosTagger.cs" />
     <Compile Include="src\services\PosTaggerPool.cs" />
@@ -255,9 +272,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\data\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\package-pml\Package-pml.csproj">
       <Project>{5617da2a-e03f-4e48-8150-d13fc0644c9c}</Project>

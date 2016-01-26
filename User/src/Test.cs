@@ -1,123 +1,202 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using edu.stanford.nlp.dcoref;
 using edu.stanford.nlp.ling;
 using edu.stanford.nlp.pipeline;
+using edu.stanford.nlp.parser.lexparser;
+using edu.stanford.nlp.trees;
+using edu.stanford.nlp;
 using edu.stanford.nlp.util;
 using java.util;
-using pml.collection.map;
-using pml.file.reader;
-using pml.file.writer;
-//using Accord.MachineLearning;
-using User.src;
+using System.IO;
+using pml.type;
+using edu.stanford.nlp.semgraph;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace msra.nlp.tr
 {
-    public class SentenceSplit
+    /// <summary>
+    /// Parse a sentence with stanford parser.
+    /// If you want to get the parse information, you should invoke Parse() function first.
+    /// </summary>
+    public class DependencyParser
     {
-         
-        //static StanfordCoreNLP pipeline = null;
+        StanfordCoreNLP pipeline = null;
+        ArrayList tokens = null;
+        List<Pair<string, string>> posTags = null;
+        private SemanticGraph dependencies = new SemanticGraph();
+        static edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation tokenObj = new edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation();
+        static edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
+        static edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation depObj = new edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation();
 
-        //public static List<string> SplitSequence(string sequence)
-        //{
-        //    if (pipeline == null)
-        //    {
-        //        Initial();
-        //    }
-        //    var document = new Annotation(sequence);
-        //    pipeline.annotate(document);
-        //    var senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
-        //    var sentences = (ArrayList)document.get(senObj.getClass());
-        //    return (from CoreMap sentence in sentences select sentence.ToString()).ToList();
-        //}
 
-        //public static List<string> Tokenize(string sequence)
-        //{
-        //    if (pipeline == null)
-        //    {
-        //        Initial();
-        //    }
-        //    var document = new Annotation(sequence);
-        //    pipeline.annotate(document);
-        //    var tokenObj = new edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation();
-        //    var tokens = (ArrayList)document.get(tokenObj.getClass());
-        //    return (from CoreMap token in tokens select token.ToString()).ToList();
-        //}
+        public DependencyParser()
+        {
+            Initial();
+        }
+
+        void Initial()
+        {
+            var props = new Properties();
+            props.put("annotators", "tokenize,ssplit, pos,depparse");
+            props.setProperty("tokenizer.whitespace", "true");
+            props.setProperty("ssplit.isOneSentence", "true");
+            var dir = Directory.GetCurrentDirectory();
+            Directory.SetCurrentDirectory(@"D:\Codes\C#\EntityTyping\Fine-ner\input\stanford models\");
+            pipeline = new StanfordCoreNLP(props);
+            Directory.SetCurrentDirectory(dir);
+        }
+
+        public void Parse(string sentence)
+        {
+            Annotation context = new Annotation(sentence);
+            pipeline.annotate(context);
+            this.tokens = (ArrayList)context.get(tokenObj.getClass());
+            var sentences = (ArrayList)context.get(senObj.getClass());
+            foreach (CoreMap sen in sentences)
+            {
+                this.dependencies = (SemanticGraph)sen.get(depObj.getClass());
+                break;
+            }
+        }
+
+        public void Parse(IEnumerable<string> tokens)
+        {
+            var sentence = new StringBuilder();
+            sentence.Append(tokens.ElementAt(0));
+            for (var i = 1; i < tokens.Count(); i++)
+            {
+                sentence.Append(tokens.ElementAt(i));
+            }
+            Parse(sentence.ToString());
+        }
+
+        public string GetWord(int index)
+        {
+            return (string)tokens.get(index);
+        }
+
+        /// <summary>
+        /// Reture the pos tags of words within the parsed sentence.
+        /// </summary>
+        /// <returns>
+        /// A list of word,posTag pairs.
+        /// </returns>
+        public List<Pair<string, string>> GetPosTags()
+        {
+            var tags = this.dependencies.vertexListSorted();
+            posTags = new List<Pair<string, string>>(tags.size());
+            for (var i = 0; i < tags.size(); i++)
+            {
+                var array = (tags.get(i).ToString()).Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                if (array.Length == 2)
+                {
+                    posTags.Add(new Pair<string, string>(array[0], array[1]));
+                }
+                else if (array.Length == 1)
+                {
+                    posTags.Add(new Pair<string, string>("/", array[0]));
+                }
+                else
+                {
+                    throw new Exception("Invalid pos tag!");
+                }
+
+            }
+            return posTags;
+        }
+
+        /// <summary>
+        /// Get the lexical head of mention
+        /// <example>
+        /// I like the movie. 
+        /// For "I" this function will return "like"
+        /// </example>
+        /// </summary>
+        /// <param name="begin"></param>
+        /// The index of the first word of mention
+        /// <param name="end"></param>
+        /// The index of the last word of the mention
+        /// <returns>
+        ///     Expected Object index or -1 if not exist.
+        /// </returns>
+        public int GetAction(int begin, int end)
+        {
+            return GetInterestDep("nsubj", begin, end);
+        }
+
+        /// <summary>
+        /// Get the adjective modifier of the mention
+        /// Example:
+        ///        I like this wonderful movie.
+        /// For "movie" this function will return the index of "wonderful" begining with 0.
+        /// </summary>
+        /// <param name="begin"></param>
+        /// The index of the first word of mention
+        /// <param name="end"></param>
+        /// The index of the last word of the mention
+        /// <returns>
+        ///     Expected Object or "NULL" if not exist.
+        /// </returns>
+        public int GetAdjModifier(int begin, int end)
+        {
+            foreach (SemanticGraphEdge dep in this.dependencies.edgeListSorted().toArray())
+            {
+                if (dep.getRelation().toString().Equals("amod"))
+                {
+                    if (dep.getGovernor().index() >= begin + 1 && dep.getGovernor().index() <= end + 1)
+                    {
+                        return dep.getDependent().index() - 1;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Get verb of which the mention is the object
+        /// Example:
+        ///     I see the movie
+        /// for "movie" this function will return the index of "see" begining with 0
+        /// </summary>
+        /// <param name="begin"></param>
+        /// The index of the first word of mention begining with 0
+        /// <param name="end"></param>
+        /// The index of the last word of the mention begining with 0
+        /// <returns>
+        ///     Expected Object index or -1 if not exist.
+        /// </returns>
+        public int GetDriver(int begin, int end)
+        {
+            return GetInterestDep("dobj", begin, end);
+        }
+
+        private int GetInterestDep(string depType, int begin, int end)
+        {
+
+            foreach (SemanticGraphEdge dep in this.dependencies.edgeListSorted().toArray())
+            {
+                if (dep.getRelation().toString().Equals(depType))
+                {
+                    if (dep.getDependent().index() >= begin + 1 && dep.getDependent().index() <= end + 1)
+                    {
+                        return dep.getGovernor().index() - 1;
+                    }
+                }
+            }
+            return -1;
+        }
 
         public static void Mains(string[] args)
         {
-           // //Console.WriteLine(SplitSequence("I like Beijing. I went there yesterday!"));                                                                                             
-           //var tokens = Tokenize("I like china, which standing at southeast.");
-
-           //var output = Generalizer.Generalize("1092-2322");
-           //output = Generalizer.Generalize("Chinese2012");
-           //Console.WriteLine(output);
-           //Console.Read();
-            var cluster = new VectorCluster(@"E:\Users\v-wengji\Google-word2vec\freebase-mention-vectors.txt",
-                @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\word table\phrase-centroids.txt",
-                @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\word table\phraseID.txt");
-            cluster.Cluster(100);
+            DependencyParser parser = new DependencyParser();
+            parser.Parse("I like Beijing.");
+            int index = parser.GetDriver(2, 2);
+            parser.GetPosTags();
         }
-        //static void Initial(string modelDir = null)
-        //{
-        //    var props = new Properties();
-        //    props.put("annotators", "tokenize");
-        //    var dir = Directory.GetCurrentDirectory();
-        //    Directory.SetCurrentDirectory(@"D:\Software Install\CoreNLP");
-        //    pipeline = new StanfordCoreNLP(props);
-        //    Directory.SetCurrentDirectory(dir);
-        //}
-
-        ////static void Temp()
-        ////{
-        ////    FileReader reader = new LargeFileReader(@"E:\Users\v-mipeng\Temp\temp\entity.txt");
-        ////    string line;
-        ////    var dic = new Dictionary<string, int>();
-        ////    var keys = new List<string>();
-
-        ////    while ((line = reader.ReadLine()) != null)
-        ////    {
-        ////        var array = line.Split('\t');
-        ////        keys.Add(array[0]);
-        ////    }
-        ////    reader.Open(@"E:\Users\v-mipeng\Temp\temp\count-num-by-mention.txt");
-        ////    while ((line = reader.ReadLine()) != null)
-        ////    {
-        ////        var array = line.Split('\t');
-        ////        dic[array[0]] = int.Parse(array[1]);
-        ////    }
-        ////    reader.Close();
-        ////    var writer = new LargeFileWriter(@"E:\Users\v-mipeng\Temp\temp\count-num-by-mention.txt");
-
-        ////    foreach (var key in keys)
-        ////    {
-        ////        writer.Write(key);
-        ////        try
-        ////        {
-        ////            var value = dic[key];
-        ////            writer.WriteLine("\t" + value);
-        ////        }
-        ////        catch (Exception)
-        ////        {
-        ////            writer.WriteLine("\t"+0);
-        ////        }
-        ////    }
-        ////    writer.Close();
-        ////}
-
-        //public static void Mains(string[] args)
-        //{
-        //    //Console.WriteLine(SplitSequence("I like Beijing. I went there yesterday!"));
-        //   var tokens = Tokenize("I like china, which standing at southeast.");
-
-        //   var output = Generalizer.Generalize("1092-2322");
-        //   output = Generalizer.Generalize("Chinese2012");
-        //   Console.WriteLine(output);
-        //   Console.Read();
-        //}
     }
+
 }

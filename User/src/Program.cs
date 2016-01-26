@@ -71,7 +71,7 @@ namespace User
             //writer.WriteLine("Name list coverage by type is :\r " + report);
             // statistic item number by type
             //writer.WriteLine("Item number by type:\r" + Statistic.StatisticItemNumberByType(basedir + @"\train\train.txt"));
-            writer.WriteLine(Statistic.StatisticRoundTokenInformation(basedir + @"\train\train.txt"));
+            //writer.WriteLine(Statistic.StatisticRoundTokenInformation(basedir + @"\train\train.txt"));
             //writer.WriteLine(Statistic.StatisticWithinTokenInfomation(basedir + @"\train\train.txt"));
             writer.Close();                                         
         }

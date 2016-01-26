@@ -70,7 +70,7 @@ namespace User
             //writer.WriteLine("Name list coverage by type is :\r " + report);
             // statistic item number by type
             //writer.WriteLine("Item number by type:\r" + Statistic.StatisticItemNumberByType(basedir + @"\train\train.txt"));
-            writer.WriteLine(Statistic.StatisticRoundTokenInformation(basedir + @"\train\train.txt"));
+            //writer.WriteLine(Statistic.StatisticRoundTokenInformation(basedir + @"\train\train.txt"));
             //writer.WriteLine(Statistic.StatisticWithinTokenInfomation(basedir + @"\train\train.txt"));
             writer.Close();
         }
@@ -84,7 +84,7 @@ namespace User
             /************************************************************************/
             if (true)
             {
-                props.SetProperty("method", @"/ef -s -train -dev");
+                props.SetProperty("method", @"/ef -s -train");
                 props.SetProperty("train_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\train-copy.txt");
                 props.SetProperty("train_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\trainFeature.txt");
                 props.SetProperty("develop_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\develop.txt");
