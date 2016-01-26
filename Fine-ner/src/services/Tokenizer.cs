@@ -27,15 +27,19 @@ namespace msra.nlp.tr
 
         public  List<string> Tokenize(string sequence)
         {
-                if (pipeline == null)
-                {
-                    Initial();
-                }
-                var document = new Annotation(sequence);
-                pipeline.annotate(document);
-               
-                var tokens = (ArrayList)document.get(tokenObj.getClass());
-                return (from CoreMap token in tokens select token.ToString()).ToList();
+            if(sequence == null)
+            {
+                throw new Exception("Sequence should not be null for tokenizer.");
+            }
+            if (pipeline == null)
+            {
+                Initial();
+            }
+            var document = new Annotation(sequence);
+            pipeline.annotate(document);
+
+            var tokens = (ArrayList)document.get(tokenObj.getClass());
+            return (from CoreMap token in tokens select token.ToString()).ToList();
         }
 
         private  void Initial(string modelDir = null)

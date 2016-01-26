@@ -32,24 +32,28 @@ namespace msra.nlp.tr
         /// <returns></returns>
         public static DependencyParser GetParser()
         {
-            lock(locker)
+            lock (locker)
             {
                 if (availableParsers.Count > 0)
                 {
-                    var index = availableParsers.First();
-                    availableParsers.Remove(index);
-                    return parsers[index];
+                    try
+                    {
+                        var index = availableParsers.First();
+                        availableParsers.Remove(index);
+                        return parsers[index];
+                    }
+                    catch(Exception e)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Parsers pool is empty!");
+                        Console.WriteLine(availableParsers.Count);
+                        Console.WriteLine(e.Message);
+                        Console.ReadKey();
+                        throw e;
+                    }
                 }
                 else if (parsers.Count < maxParserNum)
                 {
-
-                    //if (parsers.Count > 0)
-                    //{
-                    //    Console.WriteLine(Thread.CurrentThread.Name + " sleep 1s");
-                    //    Thread.Sleep(1000);
-                    //}
-                    Console.WriteLine(Thread.CurrentThread.Name + " create a new parser!");
-                    Console.ReadKey();
                     if (availableParsers.Count == 0)
                     {
                         var parser = new DependencyParser();

@@ -34,10 +34,10 @@ namespace msra.nlp.tr
                 else if (taggers.Count < maxTaggerNum)
                 {
                     // wait 1 second
-                    if (taggers.Count > 0)
-                    {
-                        Thread.Sleep(1000);
-                    }
+                    //if (taggers.Count > 0)
+                    //{
+                    //    Thread.Sleep(1000);
+                    //}
                     if (availableTaggers.Count == 0)
                     {
                         var tagger = new PosTagger();

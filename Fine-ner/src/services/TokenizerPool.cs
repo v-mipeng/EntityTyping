@@ -31,11 +31,6 @@ namespace msra.nlp.tr
                 }
                 else if (tokenizers.Count < maxTokenizerNum)
                 {
-                    // wait 1 second
-                    if (tokenizers.Count > 0)
-                    {
-                        Thread.Sleep(1000);
-                    }
                     if (availableTokenizers.Count == 0)
                     {
                         var tokenizer = new Tokenizer();

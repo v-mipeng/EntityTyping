@@ -138,14 +138,28 @@ namespace msra.nlp.tr
             catch(Exception e)
             {
                 SSpliterPool.ReturnSSpliter(sspliter);
+                Console.Clear();
+                Console.WriteLine("Error in sentence spliter.");
                 throw e;
             }
             context = GetSentenceCoverMention(sentences, words);
+            if(context == null)
+            {
+                throw new Exception("Cannot find mention by token within context!");
+            }
             // get a parser
-            var parser = ParserPool.GetParser();
+            DependencyParser parser = null;
+            try
+            {
+                parser = ParserPool.GetParser();
+            }
+            catch(Exception )
+            {
+                throw new Exception("Cannot get a parser!");
+            }
             List<Pair<string, string>> pairs = null;
             Pair<int, int> pair = null;
-            try
+            try                  
             {
                 parser.Parse(context);
 

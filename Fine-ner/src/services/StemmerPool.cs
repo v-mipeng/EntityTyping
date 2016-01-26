@@ -31,11 +31,6 @@ namespace msra.nlp.tr
                 }
                 else if (stemmers.Count < maxStemmerNum)
                 {
-                    // wait 1 second
-                    if (stemmers.Count > 0)
-                    {
-                        Thread.Sleep(1000);
-                    }
                     if (availableStemmers.Count == 0)
                     {
                         var stemmer = new Stemmer();

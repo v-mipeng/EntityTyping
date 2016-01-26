@@ -184,7 +184,9 @@ namespace msra.nlp.tr
             int offset = 0;
             for (var i = 0; i < pairs.Count(); i++)
             {
-                if (pairs.ElementAt(i).first.Equals(words.ElementAt(offset)))
+                if(pairs.ElementAt(i).first.Equals(words.ElementAt(offset)) || 
+                    (offset == 0 && pairs.ElementAt(i).first.Contains(words.ElementAt(offset))) ||
+                    (offset == words.Count()-1 && pairs.ElementAt(i).first.Contains(words.ElementAt(offset))))
                 {
                     if (begin == -1)
                     {

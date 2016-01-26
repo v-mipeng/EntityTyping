@@ -31,10 +31,10 @@ namespace msra.nlp.tr
                 else if (sspliters.Count < maxSSpliterNum)
                 {
                     // wait 1 second
-                    if (sspliters.Count > 0)
-                    {
-                        Thread.Sleep(1000);
-                    }
+                    //if (sspliters.Count > 0)
+                    //{
+                    //    Thread.Sleep(1000);
+                    //}
                     if (availableSSpliters.Count == 0)
                     {
                         var sspliter = new SentenceSpliter();
