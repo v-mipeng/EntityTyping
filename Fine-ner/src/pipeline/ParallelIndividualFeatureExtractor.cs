@@ -38,6 +38,7 @@ namespace msra.nlp.tr
             {
                 var threadClass = new IndividualFeatureExtractor(sourceFiles[i], desFiles[i]);
                 var thread = new Thread(threadClass.ExtractFeature);
+                thread.Name = "Thread " + i;
                 threads.Add(thread);
                 thread.Start();
                 Console.Clear();

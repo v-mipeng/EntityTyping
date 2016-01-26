@@ -20,7 +20,6 @@ namespace msra.nlp.tr
 
         public PosTagger()
         {
-            Initial();
         }
 
         public  List<Pair<string, string>> TagString(string sequence)
