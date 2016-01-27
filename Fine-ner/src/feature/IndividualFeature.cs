@@ -393,6 +393,19 @@ namespace msra.nlp.tr
                 // TODO
             }
             #endregion
+
+            #region Other System
+
+            #region Stanford NER
+            {
+                var ner = StanfordNerPool.GetStanfordNer();
+                ner.FindNer(context);
+                var type = ner.GetNerType(mention);
+                feature.Add(type);
+            }
+            #endregion
+
+            #endregion
             return feature;
         }
 

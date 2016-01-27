@@ -245,11 +245,14 @@
     <Compile Include="src\pipeline\ParallelIndividualFeatureExtractor.cs" />
     <Compile Include="src\pipeline\ParallelSVMFeatureExtractor.cs" />
     <Compile Include="src\pipeline\SVMFeatureExtractor.cs" />
+    <Compile Include="src\services\Ner.cs" />
     <Compile Include="src\services\ParserPool.cs" />
     <Compile Include="src\services\PosTagger.cs" />
     <Compile Include="src\services\PosTaggerPool.cs" />
     <Compile Include="src\services\SentenceSpliter.cs" />
     <Compile Include="src\services\SSpliterPool.cs" />
+    <Compile Include="src\services\StanfordNer.cs" />
+    <Compile Include="src\services\StanfordNerPool.cs" />
     <Compile Include="src\services\Stemmer.cs" />
     <Compile Include="src\feature\SVMFeature.cs" />
     <Compile Include="src\services\StemmerPool.cs" />

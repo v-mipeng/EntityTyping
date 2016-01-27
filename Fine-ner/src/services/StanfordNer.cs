@@ -8,12 +8,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
-    class StanfordNer
+    class StanfordNer : Ner
     {
         StanfordCoreNLP pipeline = null;
         List<Pair<string, string>> nerPairs = null;
@@ -45,9 +45,9 @@ namespace msra.nlp.tr
 
         /*Stem the given word with, return the stemmed word
          */
-        public List<Pair<string,string>> FindNer(string context)
+        public void FindNer(string context)
         {
-            if(context == null)
+            if (context == null)
             {
                 throw new Exception("Input should not be null for finding NER!");
             }
@@ -62,7 +62,7 @@ namespace msra.nlp.tr
             var ners = (edu.stanford.nlp.util.CoreMap)annotation.get(nerObj.getClass());
             var sentences = (ArrayList)annotation.get(new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation().getClass());
             nerPairs = new List<Pair<string, string>>();
-            foreach(CoreMap sentence in sentences)
+            foreach (CoreMap sentence in sentences)
             {
                 var prevNerToken = "O";
                 var currNerToken = "O";
@@ -114,7 +114,7 @@ namespace msra.nlp.tr
                     }
                     prevNerToken = currNerToken;
                 }
-                if(!prevNerToken.Equals("O") && buffer.Length >0)
+                if (!prevNerToken.Equals("O") && buffer.Length > 0)
                 {
                     if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION"))
                     {
@@ -125,7 +125,12 @@ namespace msra.nlp.tr
             return nerPairs;
         }
 
-        Regex regex = new Regex(@"\s"); 
+        public  List<Pair<string, string>> GetEntities()
+        {
+            return nerPairs;
+        }
+
+        Regex regex = new Regex(@"\s");
 
         /// <summary>
         /// Get the ner type of mention after invoking FindNer() function
@@ -136,32 +141,20 @@ namespace msra.nlp.tr
         /// </returns>
         public string GetNerType(string mention)
         {
-            if(mention == null)
+            if (mention == null)
             {
                 throw new Exception("Mention should not be null for finding ner type");
             }
             mention = regex.Replace(mention, "").ToLower();
-            foreach(var pair in nerPairs)
+            foreach (var pair in nerPairs)
             {
                 var str1 = regex.Replace(pair.first, "").ToLower();
-                if(str1.Contains(mention) || mention.Contains(str1))
+                if (str1.Contains(mention) || mention.Contains(str1))
                 {
-                    return pair.second;  
+                    return pair.second;
                 }
             }
             return "UNKNOW";
         }
-
-        public static void Main(string[] args)
-        {
-            var ner = new StanfordNer();
-            var ners = ner.FindNer("I like Beijing!");
-            var type = ner.GetNerType("Beijing");
-            //HashSet<int> set = new HashSet<int>();
-            //set.Add(1);
-            //set.Remove(1);
-
-        }
-
     }
 }
