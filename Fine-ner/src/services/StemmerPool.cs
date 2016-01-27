@@ -12,7 +12,7 @@ namespace msra.nlp.tr
 
         static List<Stemmer> stemmers = new List<Stemmer>();
         static HashSet<int> availableStemmers = new HashSet<int>();
-        readonly static int maxStemmerNum = 20;
+        readonly static int maxStemmerNum = 100;
         static object locker = new object();
 
         /// <summary>
@@ -23,32 +23,34 @@ namespace msra.nlp.tr
         {
             lock (locker)
             {
-                if (availableStemmers.Count > 0)
+                lock(availableStemmers)
                 {
-                    var index = availableStemmers.First();
-                    availableStemmers.Remove(index);
-                    return stemmers[index];
-                }
-                else if (stemmers.Count < maxStemmerNum)
-                {
-                    if (availableStemmers.Count == 0)
-                    {
-                        var stemmer = new Stemmer();
-                        stemmers.Add(stemmer);
-                        return stemmer;
-                    }
-                    else
+                    if (availableStemmers.Count > 0)
                     {
                         var index = availableStemmers.First();
                         availableStemmers.Remove(index);
                         return stemmers[index];
                     }
+                    else if (stemmers.Count < maxStemmerNum)
+                    {
+                        if (availableStemmers.Count == 0)
+                        {
+                            var stemmer = new Stemmer();
+                            stemmers.Add(stemmer);
+                            return stemmer;
+                        }
+                        else
+                        {
+                            var index = availableStemmers.First();
+                            availableStemmers.Remove(index);
+                            return stemmers[index];
+                        }
+                    }
                 }
-                else
                 {
                     while (availableStemmers.Count == 0)
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(10);
                     }
                     var index = availableStemmers.First();
                     availableStemmers.Remove(index);
@@ -67,7 +69,10 @@ namespace msra.nlp.tr
             {
                 if (stemmer == stemmers[i])
                 {
-                    availableStemmers.Add(i);
+                    lock(availableStemmers)
+                    {
+                        availableStemmers.Add(i);
+                    }
                     break;
                 }
             }

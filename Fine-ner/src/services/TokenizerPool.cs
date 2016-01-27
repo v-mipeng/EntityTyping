@@ -12,7 +12,7 @@ namespace msra.nlp.tr
 
         static List<Tokenizer> tokenizers = new List<Tokenizer>();
         static HashSet<int> availableTokenizers = new HashSet<int>();
-        readonly static int maxTokenizerNum = 20;
+        readonly static int maxTokenizerNum = 100;
         static object locker = new object();
 
         /// <summary>
@@ -23,32 +23,34 @@ namespace msra.nlp.tr
         {
             lock (locker)
             {
-                if (availableTokenizers.Count > 0)
+                lock (availableTokenizers)
                 {
-                    var index = availableTokenizers.First();
-                    availableTokenizers.Remove(index);
-                    return tokenizers[index];
-                }
-                else if (tokenizers.Count < maxTokenizerNum)
-                {
-                    if (availableTokenizers.Count == 0)
-                    {
-                        var tokenizer = new Tokenizer();
-                        tokenizers.Add(tokenizer);
-                        return tokenizer;
-                    }
-                    else
+                    if (availableTokenizers.Count > 0)
                     {
                         var index = availableTokenizers.First();
                         availableTokenizers.Remove(index);
                         return tokenizers[index];
                     }
+                    else if (tokenizers.Count < maxTokenizerNum)
+                    {
+                        if (availableTokenizers.Count == 0)
+                        {
+                            var tokenizer = new Tokenizer();
+                            tokenizers.Add(tokenizer);
+                            return tokenizer;
+                        }
+                        else
+                        {
+                            var index = availableTokenizers.First();
+                            availableTokenizers.Remove(index);
+                            return tokenizers[index];
+                        }
+                    }
                 }
-                else
                 {
                     while (availableTokenizers.Count == 0)
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(10);
                     }
                     var index = availableTokenizers.First();
                     availableTokenizers.Remove(index);
@@ -67,7 +69,10 @@ namespace msra.nlp.tr
             {
                 if (tokenizer == tokenizers[i])
                 {
-                    availableTokenizers.Add(i);
+                    lock(availableTokenizers)
+                    {
+                        availableTokenizers.Add(i);
+                    }
                     break;
                 }
             }

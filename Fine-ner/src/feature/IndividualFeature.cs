@@ -59,11 +59,11 @@ namespace msra.nlp.tr
         //    // context document
         //    //"documentID",
         //    // if name list contains
-            
         //    // mention level
         //    "mentionID",
         //    "mentionLength",
         //};
+
 
         public IndividualFeature() : base() { }
 
@@ -112,13 +112,29 @@ namespace msra.nlp.tr
             var mention = instance.Mention;
             var context = instance.Context;
             this.feature.Clear();
-            string[] words = null;
-            string[] tokens = null;
+            List<string> words = new List<string>();
+            List<string> tokens = new List<string>();
             var tokenizer = TokenizerPool.GetTokenizer();
             try
             {
-                words = tokenizer.Tokenize(mention).ToArray();
-                tokens = tokenizer.Tokenize(context).ToArray();
+                var ws = tokenizer.Tokenize(mention);
+                for (var i = 0; i <ws.Count; i++)
+                {
+                    if (ws[i].Equals(".") && i > 0 && ws[i - 1].EndsWith("."))
+                    {
+                        continue;
+                    }
+                    words.Add(ws[i]);
+                }
+               var  ts = tokenizer.Tokenize(context);
+                for( var i = 0; i<ts.Count ;i++)
+                {
+                     if(ts[i].Equals(".") && i>0 && ts[i-1].EndsWith("."))
+                    {
+                        continue;
+                    }
+                    tokens.Add(ts[i]);
+                }
                 TokenizerPool.ReturnTokenizer(tokenizer);
                 tokenizer = null;
             }
@@ -224,7 +240,7 @@ namespace msra.nlp.tr
                     }
                     if (head == null)
                     {
-                        head = words[words.Length - 1];
+                        head = words[words.Count - 1];
                         posTag = pairs.ElementAt(pair.second).second;
                     }
                     AddFieldToFeture(head, posTag);
@@ -377,7 +393,7 @@ namespace msra.nlp.tr
 
             #region mention length
             {
-                feature.Add(words.Length.ToString());
+                feature.Add(words.Count.ToString());
             }
             #endregion
 
@@ -394,6 +410,7 @@ namespace msra.nlp.tr
             }
             #endregion
 
+<<<<<<< HEAD
 
             return feature;
         }
@@ -424,6 +441,13 @@ namespace msra.nlp.tr
             {
                 feature.Add(AddFeature(e, field));
             }
+=======
+            #region   Sentence
+            {
+                feature.Add(context);
+            }
+            #endregion
+>>>>>>> c1790b4b9746aef8f166bd7cbd8713eeecc29db6
             return feature;
         }
 

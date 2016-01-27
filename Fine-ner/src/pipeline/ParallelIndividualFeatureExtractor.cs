@@ -16,21 +16,34 @@ namespace msra.nlp.tr
         List<string> sourceFiles = null;
         List<string> desFiles = null;
         // define number each thread to deal with
-        static int numPerThread = 500;
+        static int numPerThread = 50000;
 
 
-        public ParallelIndividualFeatureExtractor(string sourceFilePath, string desFilePath)
+        public ParallelIndividualFeatureExtractor(string source, string des)
         {
-            this.source = sourceFilePath;
-            this.des = desFilePath;
+            this.source = source;
+            this.des = des;
+            var attr = File.GetAttributes(source);
+            if(attr.HasFlag(FileAttributes.Directory))
+            {
+                this.sourceFiles = Directory.GetFiles(source, "*.txt").ToList();
+                this.desFiles = new List<string>();
+                foreach (var file in sourceFiles)
+                {
+                    this.desFiles.Add(Path.Combine(des, Path.GetFileName(file)));
+                }
+            }
         }
 
 
         public override void ExtractFeature()
         {
-            var pair = SplitData(source, des, numPerThread);
-            sourceFiles = pair.first;
-            desFiles = pair.second;
+            if (this.sourceFiles == null)
+            {
+                var pair = SplitData(source, des, numPerThread);
+                sourceFiles = pair.first;
+                desFiles = pair.second;
+            }
             var ThreadClasses = new List<IndividualFeature>(sourceFiles.Count);
             var threads = new List<Thread>(sourceFiles.Count);
 
@@ -49,23 +62,8 @@ namespace msra.nlp.tr
             {
                 threads[i].Join();
             }
-            // combine features extracted by different threads
-            var writer = new LargeFileWriter(this.des, FileMode.Create);
-            foreach (var f in this.desFiles)
-            {
-                string text = File.ReadAllText(f);
-                writer.Write(text);
-                File.Delete(f);
-            }
-            writer.Close();
-            // delete temp part files
-            foreach (var f in this.sourceFiles)
-            {
-                File.Delete(f);
-            }
         }
 
-  
 
     }
 }

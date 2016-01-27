@@ -36,7 +36,14 @@ namespace msra.nlp.tr
 
             while (reader.HasNext())
             {
-                instance = reader.GetNextInstance();
+                try
+                {
+                    instance = reader.GetNextInstance();
+                }
+                catch(Exception)
+                {
+                    continue;
+                }
                 if (++count < numPerThread)
                 {
                     writer.WriteInstance(instance);

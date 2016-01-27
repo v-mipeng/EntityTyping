@@ -66,18 +66,19 @@ namespace msra.nlp.tr
         /// <param name="sentences"></param>
         /// <param name="words"></param>
         /// <returns></returns>
+        Regex regex3 = new Regex(@"\s");
         public string GetSentenceCoverMention(IEnumerable<string> sentences, IEnumerable<string> words)
         {
             var mention = new StringBuilder();
-            mention.Append(words.ElementAt(0));
-            for (var i = 1; i < words.Count(); i++)
+            for (var i = 0; i < words.Count(); i++)
             {
-                mention.Append(" " + words.ElementAt(i));
+                mention.Append(words.ElementAt(i));
             }
             var m = mention.ToString();
             foreach (var sen in sentences)
             {
-                if (sen.IndexOf(m) != -1)
+                var sentence = regex3.Replace(sen, "");
+                if (sentence.IndexOf(m) != -1)
                 {
                     return sen;
                 }
@@ -184,33 +185,64 @@ namespace msra.nlp.tr
 
         public Pair<int, int> GetIndexOfMention(IEnumerable<Pair<string, string>> pairs, IEnumerable<string> words)
         {
-            var pair = new Pair<int, int>();
-            int begin = -1;
-            int end = -1;
-            int offset = 0;
-            for (var i = 0; i < pairs.Count(); i++)
+            var c = new StringBuilder();
+            foreach(var p in pairs)
             {
-                if(pairs.ElementAt(i).first.Equals(words.ElementAt(offset)) || 
-                    (offset == 0 && pairs.ElementAt(i).first.Contains(words.ElementAt(offset))) ||
-                    (offset == words.Count()-1 && pairs.ElementAt(i).first.Contains(words.ElementAt(offset))))
+                c.Append(p.first);
+            }
+            var context = c.ToString();
+            var m = new StringBuilder();
+            foreach(var w in words)
+            {
+                m.Append(w);
+            }
+            var mention = m.ToString();
+            var first = context.IndexOf(mention)+1;
+            var last = first + mention.Length -1;
+            var begin = -1;
+            var end = -1;
+            var offset = 0;
+            for(var i = 0;i<pairs.Count();i++)
+            {
+                 if(offset <= first && (offset+pairs.ElementAt(i).first.Length) >= first)
                 {
-                    if (begin == -1)
-                    {
-                        begin = i;
-                    }
-                    if (offset == words.Count() - 1)
-                    {
-                        end = i;
-                        return new Pair<int, int>(begin, end);
-                    }
-                    offset++;
+                    begin = i;
                 }
-                else
+                offset += pairs.ElementAt(i).first.Length;
+                if (offset >= last)
                 {
-                    offset = 0;
-                    begin = -1;
+                    end = i;
+                    return new Pair<int, int>(begin, end);
                 }
             }
+            //var pair = new Pair<int, int>();
+            //int begin = -1;
+            //int end = -1;
+            //int offset = 0;
+            //for (var i = 0; i < pairs.Count(); i++)
+            //{
+            //    if(pairs.ElementAt(i).first.Equals(words.ElementAt(offset)) || 
+            //        (offset == 0 && pairs.ElementAt(i).first.EndsWith(words.ElementAt(offset))) ||
+            //        (offset == words.Count()-1 && pairs.ElementAt(i).first.StartsWith(words.ElementAt(offset))))
+            //    {
+            //        if (begin == -1)
+            //        {
+            //            begin = i;
+            //        }
+            //        if (offset == words.Count() - 1)
+            //        {
+            //            end = i;
+            //            return new Pair<int, int>(begin, end);
+            //        }
+            //        offset++;
+            //    }
+            //    else
+            //    {
+            //        i = i - offset;
+            //        offset = 0;
+            //        begin = -1;
+            //    }
+            //}
             return new Pair<int, int>(-1, -1);
         }
 

@@ -85,8 +85,8 @@ namespace User
             if (true)
             {
                 props.SetProperty("method", @"/ef -s -train");
-                props.SetProperty("train_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\train-copy.txt");
-                props.SetProperty("train_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\trainFeature.txt");
+                props.SetProperty("train_data_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train\");
+                props.SetProperty("train_feature_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\train\");
                 props.SetProperty("develop_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\develop.txt");
                 props.SetProperty("develop_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\developFeature.txt");
                
