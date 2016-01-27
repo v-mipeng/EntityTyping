@@ -26,6 +26,10 @@ namespace msra.nlp.tr
             {
                 Initial();
             }
+            if (sequence == null)
+            {
+                throw new Exception("Sequence should not be null for sentence splitting!");
+            }
             var document = new Annotation(sequence);
             pipeline.annotate(document);
             var senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
@@ -42,6 +46,10 @@ namespace msra.nlp.tr
 
         public List<string> SplitSequence(IEnumerable<string> tokens)
         {
+            if(tokens == null)
+            {
+                throw new Exception("Tokens should not be null for sentence splitting!");
+            }
             var sequence = new StringBuilder();
             sequence.Append(tokens.ElementAt(0));
             for(var i =1;i<tokens.Count();i++)

@@ -90,11 +90,18 @@ namespace msra.nlp.tr
                 return null;
             }
             var array = line.Split('\t');
-            if (array.Length != 3)
+            if (array.Length == 3)
+            {
+                return new Instance(array[0], array[1], array[2]);
+            }
+            if (array.Length == 4)
+            {
+                return new Instance(array[0], array[2], array[3]);
+            }
+            else
             {
                 throw new Exception("Line format is wrong! Line seperated by tab results in" + array.Length + " elements.");
             }
-            return new Instance(array[0], array[1], array[2]);
         }
 
         public bool HasNext()

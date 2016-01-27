@@ -23,7 +23,7 @@ namespace msra.nlp.tr
 
         static List<DependencyParser> parsers = new List<DependencyParser>();
         static HashSet<int> availableParsers = new HashSet<int>();
-        readonly static int maxParserNum = 20;
+        readonly static int maxParserNum = 100;
         static object locker = new object();
 
         /// <summary>
@@ -34,44 +34,45 @@ namespace msra.nlp.tr
         {
             lock (locker)
             {
-                if (availableParsers.Count > 0)
+                lock (availableParsers)
                 {
-                    try
+                    if (availableParsers.Count > 0)
                     {
-                        var index = availableParsers.First();
-                        availableParsers.Remove(index);
-                        return parsers[index];
+                        try
+                        {
+                            var index = availableParsers.First();
+                            availableParsers.Remove(index);
+                            return parsers[index];
+                        }
+                        catch (Exception e)
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Parsers pool is empty!");
+                            Console.WriteLine(availableParsers.Count);
+                            Console.WriteLine(e.Message);
+                            throw e;
+                        }
                     }
-                    catch(Exception e)
+                    else if (parsers.Count < maxParserNum)
                     {
-                        Console.Clear();
-                        Console.WriteLine("Parsers pool is empty!");
-                        Console.WriteLine(availableParsers.Count);
-                        Console.WriteLine(e.Message);
-                        Console.ReadKey();
-                        throw e;
+                        if (availableParsers.Count == 0)
+                        {
+                            var parser = new DependencyParser();
+                            parsers.Add(parser);
+                            return parser;
+                        }
+                        else
+                        {
+                            var index = availableParsers.First();
+                            availableParsers.Remove(index);
+                            return parsers[index];
+                        }
                     }
                 }
-                else if (parsers.Count < maxParserNum)
                 {
-                    if (availableParsers.Count == 0)
+                    while (availableParsers.Count == 0)
                     {
-                        var parser = new DependencyParser();
-                        parsers.Add(parser);
-                        return parser;
-                    }
-                    else
-                    {
-                        var index = availableParsers.First();
-                        availableParsers.Remove(index);
-                        return parsers[index];
-                    }
-                }
-                else
-                {
-                    while(availableParsers.Count == 0)
-                    {
-                        Thread.Sleep(100);
+                        Thread.Sleep(10);
                     }
                     var index = availableParsers.First();
                     availableParsers.Remove(index);
@@ -90,7 +91,10 @@ namespace msra.nlp.tr
             {
                 if (parser == parsers[i])
                 {
-                    availableParsers.Add(i);
+                    lock(availableParsers)
+                    {
+                        availableParsers.Add(i);
+                    }
                     break;
                 }
             }

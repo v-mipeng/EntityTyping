@@ -14,7 +14,7 @@ namespace msra.nlp.tr
     {
         static List<PosTagger> taggers = new List<PosTagger>();
         static HashSet<int> availableTaggers = new HashSet<int>();
-        readonly static int maxTaggerNum = 20;
+        readonly static int maxTaggerNum = 100;
         static object locker = new object();
 
         /// <summary>
@@ -33,11 +33,7 @@ namespace msra.nlp.tr
                 }
                 else if (taggers.Count < maxTaggerNum)
                 {
-                    // wait 1 second
-                    //if (taggers.Count > 0)
-                    //{
-                    //    Thread.Sleep(1000);
-                    //}
+
                     if (availableTaggers.Count == 0)
                     {
                         var tagger = new PosTagger();
@@ -55,7 +51,7 @@ namespace msra.nlp.tr
                 {
                     while (availableTaggers.Count == 0)
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(10);
                     }
                     var index = availableTaggers.First();
                     availableTaggers.Remove(index);

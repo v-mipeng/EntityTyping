@@ -11,7 +11,7 @@ namespace msra.nlp.tr
     {
         static List<SentenceSpliter> sspliters = new List<SentenceSpliter>();
         static HashSet<int> availableSSpliters = new HashSet<int>();
-        readonly static int maxSSpliterNum = 20;
+        readonly static int maxSSpliterNum = 100;
         static object locker = new object();
 
         /// <summary>
@@ -22,37 +22,35 @@ namespace msra.nlp.tr
         {
             lock (locker)
             {
-                if (availableSSpliters.Count > 0)
+                lock(availableSSpliters)
                 {
-                    var index = availableSSpliters.First();
-                    availableSSpliters.Remove(index);
-                    return sspliters[index];
-                }
-                else if (sspliters.Count < maxSSpliterNum)
-                {
-                    // wait 1 second
-                    //if (sspliters.Count > 0)
-                    //{
-                    //    Thread.Sleep(1000);
-                    //}
-                    if (availableSSpliters.Count == 0)
-                    {
-                        var sspliter = new SentenceSpliter();
-                        sspliters.Add(sspliter);
-                        return sspliter;
-                    }
-                    else
+                    if (availableSSpliters.Count > 0)
                     {
                         var index = availableSSpliters.First();
                         availableSSpliters.Remove(index);
                         return sspliters[index];
                     }
+                    else if (sspliters.Count < maxSSpliterNum)
+                    {
+
+                        if (availableSSpliters.Count == 0)
+                        {
+                            var sspliter = new SentenceSpliter();
+                            sspliters.Add(sspliter);
+                            return sspliter;
+                        }
+                        else
+                        {
+                            var index = availableSSpliters.First();
+                            availableSSpliters.Remove(index);
+                            return sspliters[index];
+                        }
+                    }
                 }
-                else
                 {
                     while (availableSSpliters.Count == 0)
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(10);
                     }
                     var index = availableSSpliters.First();
                     availableSSpliters.Remove(index);
@@ -71,7 +69,10 @@ namespace msra.nlp.tr
             {
                 if (sspliter == sspliters[i])
                 {
-                    availableSSpliters.Add(i);
+                    lock(availableSSpliters)
+                    {
+                        availableSSpliters.Add(i);
+                    }
                     break;
                 }
             }
