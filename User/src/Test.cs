@@ -152,14 +152,61 @@ namespace msra.nlp.tr
             return "UNKNOW";
         }
 
+        public enum Field
+        {
+            // last word
+            lastWord,
+            lastWordStemmed,
+            lastWordTag,
+            lastWordID,
+            lastWordShape,
+            // next word
+            nextWord,
+            nextWordStemmed,
+            nextWordTag,
+            nextWordID,
+            nextWordShape,
+            // mention head
+            mentionHead,
+            mentionHeadStemmed,
+            mentionHeadTag,
+            mentionHeadID,
+            mentionHeadShape,
+            // mention driver
+            mentionDriver,
+            mentionDriverStemmed,
+            mentionDriverTag,
+            mentionDriverID,
+            mentionDriverShape,
+            // mention adjective modifier
+            mentionAdjModifier,
+            mentionAdjModifierStemmed,
+            mentionAdjModifierTag,
+            mentionAdjModifierID,
+            mentionAdjModifierShape,
+            // mention action
+            mentionAction,
+            mentionActionStemmed,
+            mentionActionTag,
+            mentionActionID,
+            mentionActionShape,
+            // mention words
+            mentionSurfaces,
+            mentionSurfacesStemmed,
+            mentionTags,
+            mentionIDs,
+            mentionShapes,
+            // context document
+            //documentID,
+            // if name list contains
+
+            // mention level
+            mentionID,
+            mentionLength,
+        }
         public static void Main(string[] args)
         {
-            var ner = new StanfordNer();
-            var ners = ner.FindNer("I like Beijing!");
-            var type = ner.GetNerType("Beijing");
-            //HashSet<int> set = new HashSet<int>();
-            //set.Add(1);
-            //set.Remove(1);
+            Console.WriteLine((int)Field.lastWord);
 
         }
 

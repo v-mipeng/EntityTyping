@@ -10,7 +10,9 @@ namespace msra.nlp.tr
     interface Ner
     {
 
-        List<Pair<string, string>> FindNer(string context);
+        void FindNer(string context);
+
+        List<Pair<string, string>>  GetEntities();
 
         string GetNerType(string mention);
 

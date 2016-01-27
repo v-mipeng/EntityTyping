@@ -29,9 +29,9 @@ namespace msra.nlp.tr
                  var instance = reader.GetNextInstance();
                  try
                  {
-                     var feature = extractor.ExtractFeature(instance);
-                     var e = new Event(instance.Label, feature);
-                     writer.WriteEvent(e);
+                     //var feature = extractor.ExtractFeature(instance);
+                     //var e = new Event(instance.Label, feature);
+                     //writer.WriteEvent(e);
                  }
                  catch(Exception e)
                  {

@@ -9,7 +9,62 @@ namespace msra.nlp.tr
     class Event
     {
         // feature of event
-        private object feature = null;
+        public enum Field
+        {
+            // last word
+            lastWord,
+            lastWordStemmed,
+            lastWordTag,
+            lastWordID,
+            lastWordShape,
+            // next word
+            nextWord,
+            nextWordStemmed,
+            nextWordTag,
+            nextWordID,
+            nextWordShape,
+            // mention head
+            mentionHead,
+            mentionHeadStemmed,
+            mentionHeadTag,
+            mentionHeadID,
+            mentionHeadShape,
+            // mention driver
+            mentionDriver,
+            mentionDriverStemmed,
+            mentionDriverTag,
+            mentionDriverID,
+            mentionDriverShape,
+            // mention adjective modifier
+            mentionAdjModifier,
+            mentionAdjModifierStemmed,
+            mentionAdjModifierTag,
+            mentionAdjModifierID,
+            mentionAdjModifierShape,
+            // mention action
+            mentionAction,
+            mentionActionStemmed,
+            mentionActionTag,
+            mentionActionID,
+            mentionActionShape,
+            // mention words
+            mentionSurfaces,
+            mentionSurfacesStemmed,
+            mentionTags,
+            mentionIDs,
+            mentionShapes,
+            // context document
+            //documentID,
+            // if name list contains
+
+            // mention level
+            mentionID,
+            mentionLength,
+            // mention context
+            sentenceContext
+        }
+
+        private IEnumerable<string> feature = null;
 
         private Label label = null;
 
@@ -20,9 +75,9 @@ namespace msra.nlp.tr
             
         }
 
-        public Event(object feature) : this(null, feature) { }
+        public Event(IEnumerable<string> feature) : this(null, feature) { }
 
-        public Event(Label label, object feature)
+        public Event(Label label, IEnumerable<string> feature)
         {
             this.label = label;
             this.feature = feature;
@@ -40,7 +95,7 @@ namespace msra.nlp.tr
             }
         }
 
-        public object Feature
+        public IEnumerable<string> Feature
         {
             get
             {

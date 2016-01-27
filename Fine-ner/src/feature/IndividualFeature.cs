@@ -13,57 +13,57 @@ namespace msra.nlp.tr
         int offset = 0;
 
 
-        public static string[] fields = new string[]{
-            // last word
-            "lastWord",
-            "lastStemWord",
-            "lastWordTag",
-            "lastWordID",
-            "lastWordShape",
-            // next word
-            "nextWord",
-            "nextStemWord",
-            "nextWordTag",
-            "nextWordID",
-            "nextWordShape",
-            // mention head
-            "mentionHead",
-            "mentionStemHead",
-            "mentionHeadTag",
-            "mentionHeadID",
-            "mentionHeadShape",
-            // mention driver
-            "mentionDriver",
-            "mentionStemDriver",
-            "mentionDriverTag",
-            "mentionDriverID",
-            "mentionDriverShape",
-            // mention adjective modifier
-            "mentionAdjModifier",
-            "mentionStemAdjModifier",
-            "mentionAdjModifierTag",
-            "mentionAdjModifierID",
-            "mentionAdjModifierShape",
-            // mention action
-            "mentionAction",
-            "mentionStemAction",
-            "mentionActionTag",
-            "mentionActionID",
-            "mentionActionShape",
-            // mention words
-            "mentionSurfaces",
-            "mentionStemSurfaces",
-            "mentionTags",
-            "mentionIDs",
-            "mentionShapes",
-            // context document
-            //"documentID",
-            // if name list contains
+        //public static string[] fields = new string[]{
+        //    // last word
+        //    "lastWord",
+        //    "lastStemWord",
+        //    "lastWordTag",
+        //    "lastWordID",
+        //    "lastWordShape",
+        //    // next word
+        //    "nextWord",
+        //    "nextStemWord",
+        //    "nextWordTag",
+        //    "nextWordID",
+        //    "nextWordShape",
+        //    // mention head
+        //    "mentionHead",
+        //    "mentionStemHead",
+        //    "mentionHeadTag",
+        //    "mentionHeadID",
+        //    "mentionHeadShape",
+        //    // mention driver
+        //    "mentionDriver",
+        //    "mentionStemDriver",
+        //    "mentionDriverTag",
+        //    "mentionDriverID",
+        //    "mentionDriverShape",
+        //    // mention adjective modifier
+        //    "mentionAdjModifier",
+        //    "mentionStemAdjModifier",
+        //    "mentionAdjModifierTag",
+        //    "mentionAdjModifierID",
+        //    "mentionAdjModifierShape",
+        //    // mention action
+        //    "mentionAction",
+        //    "mentionStemAction",
+        //    "mentionActionTag",
+        //    "mentionActionID",
+        //    "mentionActionShape",
+        //    // mention words
+        //    "mentionSurfaces",
+        //    "mentionStemSurfaces",
+        //    "mentionTags",
+        //    "mentionIDs",
+        //    "mentionShapes",
+        //    // context document
+        //    //"documentID",
+        //    // if name list contains
             
-            // mention level
-            "mentionID",
-            "mentionLength",
-        };
+        //    // mention level
+        //    "mentionID",
+        //    "mentionLength",
+        //};
 
         public IndividualFeature() : base() { }
 
@@ -394,20 +394,61 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            #region Other System
 
-            #region Stanford NER
-            {
-                var ner = StanfordNerPool.GetStanfordNer();
-                ner.FindNer(context);
-                var type = ner.GetNerType(mention);
-                feature.Add(type);
-            }
-            #endregion
-
-            #endregion
             return feature;
         }
+
+        enum   Field
+        {
+            lastWord,
+            nextWord,
+            mentionHead,
+            mentionAction,
+            mentionDriver,
+            mentionAdjModifier,
+            topicID,
+            dictionary,
+            stanfordNer
+        }
+
+        /// <summary>
+        /// Add feature to exist event.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        public List<string> AddFeature(Event e, List<Field> fields)
+        {
+            List<string> feature = e.Feature.ToList();
+            foreach(var field in fields)
+            {
+                feature.Add(AddFeature(e, field));
+            }
+            return feature;
+        }
+
+        public string AddFeature(Event e, Field field)
+        {
+            var rawFeature = e.Feature;
+            var mention = rawFeature.ElementAt((int)Event.Field.mentionSurfaces).Replace(',',' ');
+            var context = rawFeature.ElementAt((int)Event.Field.sentenceContext);
+            #region Stanford NER
+            {
+            if (field == Field.stanfordNer)
+            {
+            
+                    var ner = StanfordNerPool.GetStanfordNer();
+                    ner.FindNer(context);
+                    var type = ner.GetNerType(mention);
+                    return type;
+                }
+            }
+            #endregion
+            return null;
+        }
+
+
+
 
         private void AddFieldToFeture(string word, string posTag)
         {

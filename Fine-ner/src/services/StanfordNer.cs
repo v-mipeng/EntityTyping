@@ -122,7 +122,6 @@ namespace msra.nlp.tr
                     }
                 }
             }
-            return nerPairs;
         }
 
         public  List<Pair<string, string>> GetEntities()
@@ -156,5 +155,6 @@ namespace msra.nlp.tr
             }
             return "UNKNOW";
         }
+
     }
 }

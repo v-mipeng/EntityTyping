@@ -60,6 +60,12 @@ namespace msra.nlp.tr
             return sentences.FirstOrDefault(sentence => sentence.Contains(mention));
         }
 
+        /// <summary>
+        /// Get the first sentence contains mention.
+        /// </summary>
+        /// <param name="sentences"></param>
+        /// <param name="words"></param>
+        /// <returns></returns>
         public string GetSentenceCoverMention(IEnumerable<string> sentences, IEnumerable<string> words)
         {
             var mention = new StringBuilder();
