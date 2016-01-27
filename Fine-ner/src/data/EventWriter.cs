@@ -8,7 +8,10 @@ namespace msra.nlp.tr
 {
     interface EventWriter
     {
+        void WriterHead(IEnumerable<string> heads);
+
         void WriteEvent(Event e);
+
 
         bool Close();
 

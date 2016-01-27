@@ -11,13 +11,13 @@ namespace msra.nlp.tr
     /// </summary>
     class SVMFeatureExtractor  : FeatureExtractor
     {
-        InstanceReader reader = null;
+        EventReader reader = null;
         EventWriter writer = null;
         SVMFeature extractor = null;
 
         public SVMFeatureExtractor(string sourceFilePath, string desFilePath)
         {
-            reader = new InstanceReaderByLine(sourceFilePath);
+            reader = new EventReaderByLine(sourceFilePath, true);
             writer = new EventWriterByLine(desFilePath);
             extractor = new SVMFeature();
         }
@@ -26,23 +26,20 @@ namespace msra.nlp.tr
         {
              while(reader.HasNext())
              {
-                 var instance = reader.GetNextInstance();
+                 var e = reader.GetNextEvent();
                  try
                  {
-                     //var feature = extractor.ExtractFeature(instance);
-                     //var e = new Event(instance.Label, feature);
-                     //writer.WriteEvent(e);
+                     var feature = extractor.ExtractFeature(e);
+                     writer.WriteEvent(new Event(e.Label, feature));
                  }
-                 catch(Exception e)
+                 catch(Exception ex)
                  {
-                     Console.WriteLine(e.Message);
+                     Console.WriteLine(ex.Message);
                  }
              }
              reader.Close();
              writer.Close();
         }
-
-
 
     }
 }

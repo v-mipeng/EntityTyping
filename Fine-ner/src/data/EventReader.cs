@@ -10,11 +10,30 @@ namespace msra.nlp.tr
 {
     interface EventReader
     {
-        void Open(string filePath);
+        void Open(string filePath, bool HasHead = false);
 
         Event GetNextEvent();
 
         bool HasNext();
+
+
+        /// <summary>
+        /// Check if event file contains head information
+        /// </summary>
+        /// <returns></returns>
+        bool ContainHeads();
+
+
+        /// <summary>
+        /// Get head index in event feature starting from 0.
+        /// If head not exists, return -1
+        /// </summary>
+        /// <param name="head"></param>
+        /// <returns>
+        /// 
+        /// </returns>
+        int GetFeatureHeadIndex(string head);
+
 
         bool Close();
     }

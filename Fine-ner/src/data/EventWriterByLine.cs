@@ -18,6 +18,16 @@ namespace msra.nlp.tr
             writer = new LargeFileWriter(filePath, FileMode.Create);
         }
 
+
+        public void WriterHead(IEnumerable<string> heads)
+        {
+            writer.Write(heads.ElementAt(0));
+            for(var i = 1;i<heads.Count();i++)
+            {
+                writer.Write("\t" + heads.ElementAt(i));
+            }
+        }
+
         public void WriteEvent(Event e)
         {
             writer.Write(e.Label.StringLabel);
@@ -41,7 +51,8 @@ namespace msra.nlp.tr
             }
 
         }
-    
 
-}
+
+
+    }
 }

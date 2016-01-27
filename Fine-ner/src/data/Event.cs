@@ -64,6 +64,7 @@ namespace msra.nlp.tr
             sentenceContext
         }
 
+
         private IEnumerable<string> feature = null;
 
         private Label label = null;
@@ -83,6 +84,9 @@ namespace msra.nlp.tr
             this.feature = feature;
         }
 
+        /// <summary>
+        /// Get event label
+        /// </summary>
         public Label Label
         {
             get
@@ -95,6 +99,9 @@ namespace msra.nlp.tr
             }
         }
 
+        /// <summary>
+        /// Get event feature
+        /// </summary>
         public IEnumerable<string> Feature
         {
             get

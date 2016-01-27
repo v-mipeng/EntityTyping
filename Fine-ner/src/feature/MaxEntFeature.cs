@@ -53,24 +53,6 @@ namespace msra.nlp.tr
 
         public MaxEntFeature() : base() { }
 
-        /// <summary>
-        ///      Get feature with label information for train and test
-        /// </summary>
-        /// <param name="input">
-        ///      string array with input[0] the mention, input[1] the label and input[2] the context of mention
-        /// </param>
-        /// <returns>
-        ///      A  pair with pair.first the label and pair.second the feature.
-        /// </returns>
-        internal Pair<string, List<string>> GetFeatureWithLabel(string[] input)
-        {
-            if (input.Length < 3)
-            {
-                throw new Exception("Invalid input in GetFeatureWithLabel(string[] input) function with input:\r" +
-                                    string.Join(",", input));
-            }
-            return new Pair<string, List<string>>(input[1], GetFeature(input[0], input[2]));
-        }
 
         /*   Extract feature from the input, and the feature is clustered by field
          *   The input should contains two items:
@@ -93,163 +75,151 @@ namespace msra.nlp.tr
          *      Topic(Define topic)             :TODO: I am going to work with document cluster
          * 
          */
-        internal List<string> GetFeature(string mention, string context)
+        internal List<string> ExtractFeature(Event e)
         {
-            int wordTableSize = DataCenter.GetWordTableSize();
             feature.Clear();
-            var tokenizer = TokenizerPool.GetTokenizer();
-            String[] words = tokenizer.Tokenize(mention).ToArray();
-            TokenizerPool.ReturnTokenizer(tokenizer);
-            // pos tags of mention words
-            var pairs = GetPosTags(mention, context);
-            var pair = GetIndexOfMention(pairs, mention);
-            if (pair.first == -1)
-            {
-                return null;
-            }
-            var contextTokens = new List<string>();
-            foreach (var p in pairs)
-            {
-                contextTokens.Add(p.first);
-            }
-            // get a parser
-            var parser = ParserPool.GetParser();
-            parser.Parse(contextTokens);
+            var rawFeature = e.Feature;
+            feature.Add("0");
           
             #region last word
             {
-                var word = GetLastToken(mention, context);
-                var index = 0;
-                index = GetLastWordIndex(pairs, word, pair.first);
-                if (index != -1)
-                {
-                    var posTag = pairs.ElementAt(index).second;
-                    AddFieldToFeture(word, posTag);
-                }
-                else
-                {
-                    AddFieldToFeture(word, null);
-
-                }
+                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.lastWordStemmed),
+                rawFeature.ElementAt((int)Event.Field.lastWordID),
+         rawFeature.ElementAt((int)Event.Field.lastWordShape),
+         rawFeature.ElementAt((int)Event.Field.lastWordTag));
             }
             #endregion
 
             #region next word
             {
-                var word = GetNextToken(mention, context);
-                var index = 0;
-                index = GetNextWordIndex(pairs, word, pair.second)-1;
-                if (index > 0)
-                {
-                    var posTag = pairs.ElementAt(index).second;
-                    AddFieldToFeture(word, posTag);
-                }
-                else
-                {
-                    AddFieldToFeture(word, null);
-                }
-
+                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.nextWordStemmed),
+                    rawFeature.ElementAt((int)Event.Field.nextWordID),
+                    rawFeature.ElementAt((int)Event.Field.nextWordShape),
+                    rawFeature.ElementAt((int)Event.Field.nextWordTag));
             }
             #endregion
 
-            #region mention head
+            #region  mention head
             {
-                string head = null, posTag = null;
-                for (int i = pair.first; i <= pair.second; i++)
-                {
-                    if (pairs.ElementAt(i).second.StartsWith("N"))
-                    {
-                        // last noun
-                        head = pairs.ElementAt(i).first;
-                        posTag = pairs.ElementAt(i).second;
-                    }
-                    else if (pairs.ElementAt(i).second.Equals("IN") || pairs.ElementAt(i).second.Equals(","))
-                    {
-                        // before IN
-                        break;
-                    }
-                }
-                if (head == null)
-                {
-                    head = words[words.Length - 1];
-                    posTag = pairs.ElementAt(pair.second).second;
-                }
-                AddFieldToFeture(head, posTag);
+                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionHeadStemmed),
+                     rawFeature.ElementAt((int)Event.Field.mentionHeadID),
+                     rawFeature.ElementAt((int)Event.Field.mentionHeadShape),
+                     rawFeature.ElementAt((int)Event.Field.mentionHeadTag));
             }
             #endregion
 
             #region mention driver
             {
-                int index = parser.GetDriver(pair.first, pair.second)-1;
-                if (index > 0)
-                {
-                    var driver = pairs.ElementAt(index).first;
-                    var posTag = pairs.ElementAt(index).second;
-                    AddFieldToFeture(driver, posTag);
-                }
-                else
-                {
-                    AddFieldToFeture(null, null);
-                }
+                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionDriverStemmed),
+                     rawFeature.ElementAt((int)Event.Field.mentionDriverID),
+                     rawFeature.ElementAt((int)Event.Field.mentionDriverShape),
+                     rawFeature.ElementAt((int)Event.Field.mentionDriverTag));
             }
             #endregion
 
             #region mention adjective modifer
             {
-                int index = parser.GetAdjModifier(pair.first, pair.second)-1;
-                if (index > 0)
-                {
-                    var adjModifier = pairs.ElementAt(index).first;
-                    var posTag = pairs.ElementAt(index).second;
-                    AddFieldToFeture(adjModifier, posTag);
-                }
-                else
-                {
-                    AddFieldToFeture(null, null);
-                }
+                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionAdjModifierStemmed),
+                      rawFeature.ElementAt((int)Event.Field.mentionAdjModifierID),
+                      rawFeature.ElementAt((int)Event.Field.mentionAdjModifierShape),
+                      rawFeature.ElementAt((int)Event.Field.mentionAdjModifierTag));
+
             }
             #endregion
 
             #region mention action
             {
-                int index = parser.GetAction(pair.first, pair.second) -1;
-                if (index > 0)
-                {
-                    var action = pairs.ElementAt(index).first;
-                    var posTag = pairs.ElementAt(index).second;
-                    AddFieldToFeture(action, posTag);
-                }
-                else
-                {
-                    AddFieldToFeture(null, null);
-                }
+                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionActionStemmed),
+                        rawFeature.ElementAt((int)Event.Field.mentionActionID),
+                        rawFeature.ElementAt((int)Event.Field.mentionActionShape),
+                        rawFeature.ElementAt((int)Event.Field.mentionActionTag));
             }
             #endregion
 
-            ParserPool.ReturnParser(parser);
-            parser = null;
+            #region mention words
+            {
+                string[] words = null;
+                try
+                {
+                    words = rawFeature.ElementAt((int)Event.Field.mentionSurfacesStemmed).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                }
+                catch (Exception)
+                {
+                    throw new Exception("Mention words is null");
+                }
+                string[] IDs = null;
+                try
+                {
+                    IDs = rawFeature.ElementAt((int)Event.Field.mentionIDs).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                }
+                catch (Exception)
+                {
+                    throw new Exception("Mention ids is null");
+                }
+                string[] shapes = null;
+                try
+                {
+                    shapes = rawFeature.ElementAt((int)Event.Field.mentionShapes).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                }
+                catch (Exception)
+                {
+                    throw new Exception("Mention shpaes is null");
+                }
+                string[] tags = null;
+                try
+                {
+                    tags = rawFeature.ElementAt((int)Event.Field.mentionTags).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                }
+                catch (Exception)
+                {
+                    throw new Exception("Mention tags is null");
+                }
+                // words surfaces: first two and last words
+                feature.Add(words[0]);
+                if(words.Length > 1)
+                {
+                    feature.Add(words[1]);
+                }
+                feature.Add(words[words.Length - 1]);
+                // words ids: first two and last words 
+                feature.Add(IDs[0]);
+                if (IDs.Length > 1)
+                {
+                    feature.Add(IDs[1]);
+                }
+                feature.Add(IDs[IDs.Length - 1]);
+                // words shapes : first two and last words
+                feature.Add(shapes[0]);
+                if (shapes.Length > 1)
+                {
+                    feature.Add(shapes[1]);
+                }
+                feature.Add(shapes[shapes.Length - 1]);
+                // words tags : first two and last words
+                feature.Add(tags[0]);
+                if (tags.Length > 1)
+                {
+                    feature.Add(tags[1]);
+                }
+                feature.Add(tags[tags.Length - 1]);
+            }
+            #endregion
 
             #region mention ID
             {
-                StringBuilder m = new StringBuilder();
-                foreach (var w in words)
-                {
-                    if (m.Length == 0)
-                    {
-                        m.Append(w.ToLower());
-                    }
-                    else
-                    {
-                        m.Append("_" + w.ToLower());
-                    }
-                }
-                feature.Add(DataCenter.GetMentionClusterID(m.ToString()).ToString());
+                var mentionID = rawFeature.ElementAt((int)Event.Field.mentionID);
+                feature.Add(mentionID);
             }
             #endregion
 
             #region mention length
             {
-                feature.Add(words.Length.ToString());
+                var length = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionLength));
+                if (length > 5)
+                {
+                    length = 5;
+                }
+                feature.Add((length - 1).ToString());
             }
             #endregion
 
@@ -268,31 +238,29 @@ namespace msra.nlp.tr
             return feature;
         }
 
-        private void AddFieldToFeture(string word, string posTag)
+        private void AddWordFieldToFeature(string stemmedWord, string ID, string shape, string posTag)
         {
-            if (word != null)
+            if (stemmedWord != null)
             {
-                string generalsurface, ID, shape;
-                // mention head
-                generalsurface = Generalizer.Generalize(word);
-                // Cluster id of last word
-                ID = DataCenter.GetWordClusterID(word).ToString();
-                // next word shape
-                shape = GetWordShape(word);
-                AddToFeature(generalsurface, posTag ?? "NULL", ID, shape);
+                // word surface
+                feature.Add(stemmedWord);
             }
-            else
+            // word Cluster id
+            if (ID != null)
             {
-                AddToFeature("NULL", "NULL", DataCenter.GetClusterNumber().ToString(), "NULL");
+                feature.Add(ID);
+            }
+            // word shape
+            if (shape != null)
+            {
+                feature.Add(shape);
+            }
+            // word pos tag
+            if (posTag != null)
+            {
+                feature.Add(posTag);
             }
         }
 
-        private void AddToFeature(params string[] objs)
-        {
-            foreach (var par in objs)
-            {
-                this.feature.Add(par);
-            }
-        }
     }
 }

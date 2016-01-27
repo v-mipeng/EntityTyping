@@ -240,10 +240,12 @@
     <Compile Include="src\feature\IndividualFeature.cs" />
     <Compile Include="src\feature\MaxEntFeature.cs" />
     <Compile Include="src\pipeline\FeatureExtractor.cs" />
+    <Compile Include="src\pipeline\MaxEntFeatureExtractor.cs" />
     <Compile Include="src\pipeline\IndivisualFeatureExtractor.cs" />
     <Compile Include="src\pipeline\ParallelFeatureExtractor.cs" />
     <Compile Include="src\pipeline\ParallelIndividualFeatureExtractor.cs" />
     <Compile Include="src\pipeline\ParallelSVMFeatureExtractor.cs" />
+    <Compile Include="src\pipeline\ParallelMaxEntFeatureExtractor.cs" />
     <Compile Include="src\pipeline\SVMFeatureExtractor.cs" />
     <Compile Include="src\services\Ner.cs" />
     <Compile Include="src\services\ParserPool.cs" />

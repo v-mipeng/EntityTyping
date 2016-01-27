@@ -410,12 +410,12 @@ namespace msra.nlp.tr
             }
             #endregion
 
-<<<<<<< HEAD
+            feature.Add(context);
 
             return feature;
         }
 
-        enum   Field
+        public enum Field
         {
             lastWord,
             nextWord,
@@ -441,13 +441,6 @@ namespace msra.nlp.tr
             {
                 feature.Add(AddFeature(e, field));
             }
-=======
-            #region   Sentence
-            {
-                feature.Add(context);
-            }
-            #endregion
->>>>>>> c1790b4b9746aef8f166bd7cbd8713eeecc29db6
             return feature;
         }
 

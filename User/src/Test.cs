@@ -204,7 +204,7 @@ namespace msra.nlp.tr
             mentionID,
             mentionLength,
         }
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             Console.WriteLine((int)Field.lastWord);
 

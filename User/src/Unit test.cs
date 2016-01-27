@@ -13,7 +13,7 @@ namespace User
 {
     class UnitTest
     {
-        static void Mains(string[] args)
+        static void Main(string[] args)
         {
             //Temp();
             //Analyse();
@@ -84,12 +84,13 @@ namespace User
             /************************************************************************/
             if (true)
             {
-                props.SetProperty("method", @"/ef -s -train");
-                props.SetProperty("train_data_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train\");
-                props.SetProperty("train_feature_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\train\");
-                props.SetProperty("develop_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\develop.txt");
-                props.SetProperty("develop_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\unit test\input\developFeature.txt");
-               
+                props.SetProperty("method", @"/ef -r -test");
+                //props.SetProperty("train_data_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train\");
+                //props.SetProperty("train_feature_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\train\");
+                props.SetProperty("develop_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\input\satori\develop\");
+                props.SetProperty("develop_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\output\satori\develop\");
+                props.SetProperty("test_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\input\satori\test\");
+                props.SetProperty("test_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\output\satori\test\");
                 pipeline = new Pipeline(props);
                 pipeline.Execute();
             }

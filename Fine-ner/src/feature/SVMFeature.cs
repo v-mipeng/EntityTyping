@@ -16,10 +16,6 @@ namespace msra.nlp.tr
 
         public SVMFeature():base(){}
 
-        public Pair<object, Dictionary<int,int>> ExtractFeatureWithLable(String[] input)
-        {
-            return new Pair<object, Dictionary<int, int>>(GetTypeValue(input[1]), null);
-        }
 
         /// <summary>
         /// Reture feature dimension
@@ -62,8 +58,9 @@ namespace msra.nlp.tr
             this.feature.Clear();
             this.offset = 0;
             var rawFeature = e.Feature;
+            feature.Add("0");
 
-            #region last word TODO: make last word more accurate
+            #region last word make last word more accurate
             {
                 AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.lastWordStemmed),
                     rawFeature.ElementAt((int)Event.Field.lastWordID),
@@ -208,23 +205,23 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            #region mention length: 1,2,3,4 or longer than 5
-            {
-                var length = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionLength));
-                if(length > 5)
-                {
-                    length = 5;
-                }
-                feature.Add((offset + length - 1) + ":1");
-                offset += 5;
-            }
-            #endregion
-
             #region mention cluster id   TODO: do entity linking to match mention.
             {
                 var mentionID = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionID));
                 feature.Add((offset + mentionID) + ":1");
                 offset += DataCenter.GetMentionClusterNumber() + 1;
+            }
+            #endregion
+
+            #region mention length: 1,2,3,4 or longer than 5
+            {
+                var length = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionLength));
+                if (length > 5)
+                {
+                    length = 5;
+                }
+                feature.Add((offset + length - 1) + ":1");
+                offset += 5;
             }
             #endregion
 
@@ -240,6 +237,8 @@ namespace msra.nlp.tr
             }
             #endregion
 
+            //set feature dimension
+            feature[0] = FeatureDimension.ToString();
             return feature;
         }
 
@@ -269,14 +268,6 @@ namespace msra.nlp.tr
                 feature.Add((offset + DataCenter.GetPosTagIndex(posTag)) + ":1");
             }
             offset += DataCenter.GetPosTagTableSize() + 1;
-        }
-
-        private void AddToFeature(params string[] objs)
-        {
-            foreach (var par in objs)
-            {
-                this.feature.Add(par);
-            }
         }
 
     }

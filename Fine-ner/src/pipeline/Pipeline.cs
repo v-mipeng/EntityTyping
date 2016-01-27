@@ -134,7 +134,7 @@ namespace msra.nlp.tr
             {
                 ope2opt = new HashMap<string, HashSet<string>>();
                 ope2opt["ewt"] = new HashSet<string>();
-                ope2opt["ef"] = new HashSet<string>(new string[] {"b","s","all","train","test","dev"});
+                ope2opt["ef"] = new HashSet<string>(new string[] {"r","b","s","all","train","test","dev"});
                 ope2opt["out"] = new HashSet<string>(new string[] {"dt"});
                 ope2opt["tr"] = new HashSet<string>(new string[] {"b"});
                 ope2opt["ts"] = new HashSet<string>(new string[] {"b"});
@@ -209,33 +209,46 @@ namespace msra.nlp.tr
                 // extract features for svm model
                 if (options.Contains("train") || options.Contains("all"))
                 {
-                    
-                    //var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
-                    //    (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
-                    //extractor.ExtractFeature();
+
+                    var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
+                        (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
+                    extractor.ExtractFeature();
+                }
+                if (options.Contains("dev") || options.Contains("all"))
+                {
+                    var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
+                        (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
+                    extractor.ExtractFeature();
+                }
+                if (options.Contains("test") || options.Contains("all"))
+                {
+                    var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
+                        (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
+                    extractor.ExtractFeature();
+                }
+            }
+            else if (options.Contains("r"))
+            {
+                // extract raw features
+                if (options.Contains("train") || options.Contains("all"))
+                {
                     var extractor = new ParallelIndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
                        (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
                     extractor.ExtractFeature();
                 }
                 if (options.Contains("dev") || options.Contains("all"))
                 {
-                    //var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
-                    //    (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
-                    //extractor.ExtractFeature();
                     var extractor = new ParallelIndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
                         (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
                     extractor.ExtractFeature();
                 }
                 if (options.Contains("test") || options.Contains("all"))
                 {
-                    //var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
-                    //    (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
-                    //extractor.ExtractFeature();
                     var extractor = new ParallelIndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
                         (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
                     extractor.ExtractFeature();
                 }
-            }        
+            }
         }
 
         #region Extract Bayes Feature
