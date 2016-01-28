@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
-    class StanfordNerPool
+    class OpenNerPool
     {
-        static List<StanfordNer> ners = new List<StanfordNer>();
+        static List<OpenNer> ners = new List<OpenNer>();
         static HashSet<int> availableNers = new HashSet<int>();
         readonly static int maxNerNum = 50;
         static object locker = new object();
@@ -18,7 +18,7 @@ namespace msra.nlp.tr
         /// Get a stanford ner from ner pool
         /// </summary>
         /// <returns></returns>
-        public static StanfordNer GetStanfordNer()
+        public static OpenNer GetOpenNer()
         {
             lock (locker)
             {
@@ -45,7 +45,7 @@ namespace msra.nlp.tr
                     {
                         if (availableNers.Count == 0)
                         {
-                            var ner = new StanfordNer();
+                            var ner = new OpenNer();
                             ners.Add(ner);
                             return ner;
                         }
@@ -70,10 +70,10 @@ namespace msra.nlp.tr
         }
 
         /// <summary>
-        /// return ner to the parser pool
+        /// return ner to the opennlp ner pool
         /// </summary>
         /// <param name="parser"></param>
-        public static void ReturnStanfordNer(StanfordNer ner)
+        public static void ReturnOpenNer(OpenNer ner)
         {
             for (var i = 0; i < ners.Count; i++)
             {

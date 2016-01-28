@@ -64,6 +64,33 @@ namespace msra.nlp.tr
             }
         }
 
+        public void AddFeature()
+        {
+            if (this.sourceFiles == null)
+            {
+                var pair = SplitData(source, des, numPerThread);
+                sourceFiles = pair.first;
+                desFiles = pair.second;
+            }
+            var ThreadClasses = new List<IndividualFeature>(sourceFiles.Count);
+            var threads = new List<Thread>(sourceFiles.Count);
+
+            for (var i = 0; i < sourceFiles.Count; i++)
+            {
+                var threadClass = new IndividualFeatureExtractor(sourceFiles[i], desFiles[i]);
+                var thread = new Thread(threadClass.AddFeature);
+                thread.Name = "Thread " + i;
+                threads.Add(thread);
+                thread.Start();
+                Console.Clear();
+                Console.WriteLine("Thread {0} start.", i);
+            }
+            // Wait until all the threads complete work
+            for (var i = 0; i < threads.Count; i++)
+            {
+                threads[i].Join();
+            }
+        }
 
     }
 }

@@ -225,6 +225,15 @@ namespace msra.nlp.tr
             }
             #endregion
 
+            #region Stanford Ner system
+
+            //var stanfordNerType = rawFeature.ElementAt((int)Event.Field.stanfordNerType);
+            //var index = DataCenter.GetStanfordTypeIndex(stanfordNerType);
+            //feature.Add((offset + index) + ":1");
+            //offset += index + 1;
+
+            #endregion
+
             #region TODO: topic
             {
 

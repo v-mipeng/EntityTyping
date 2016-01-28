@@ -31,7 +31,7 @@ namespace msra.nlp.tr
             public const string posTag_table_file           = "posTag_table_file";
             public const string word_id_file                = "word_id_file";
             public const string mention_id_file             = "mention_id_file";
-
+            public const string opennlp_model_dir          = "opennlp_model_dir";
 
         };
 
@@ -99,6 +99,7 @@ namespace msra.nlp.tr
             parameters[Field.test_feature_file]         = Path.Combine(basedir, @"output\satori\testFeature.txt");
             parameters[Field.model_file]                = Path.Combine(basedir, @"output\model\model.txt");
             parameters[Field.test_result_file]          = Path.Combine(basedir, @"output\result\result.txt");
+            parameters[Field.opennlp_model_dir]         = Path.Combine(basedir, "input/opennlp models");
         }
         private DefaultParameter() { }
     }

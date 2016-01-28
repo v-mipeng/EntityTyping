@@ -59,9 +59,13 @@ namespace msra.nlp.tr
 
             // mention level
             mentionID,
+            // mention length
             mentionLength,
+            //// stanford ner output
+            //stanfordNerType,
             // mention context
             sentenceContext
+
         }
 
 
@@ -106,7 +110,7 @@ namespace msra.nlp.tr
         {
             get
             {
-                return feature;
+                return feature.ToList();
             }
             set
             {

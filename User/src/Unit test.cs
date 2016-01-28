@@ -13,7 +13,7 @@ namespace User
 {
     class UnitTest
     {
-        static void Mains(string[] args)
+        static void Main(string[] args)
         {
             //Temp();
             //Analyse();
@@ -84,13 +84,13 @@ namespace User
             /************************************************************************/
             if (true)
             {
-                props.SetProperty("method", @"/ef -me -dev");
-                props.SetProperty("train_data_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\feature\train\");
-                props.SetProperty("train_feature_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\max ent\train\");
-                props.SetProperty("develop_data_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\feature\develop\");
-                props.SetProperty("develop_feature_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\max ent\develop\");
-                props.SetProperty("test_data_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\feature\test\");
-                props.SetProperty("test_feature_file", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\max ent\test\");
+                props.SetProperty("method", @"/ef -raw -add -test");
+                props.SetProperty("train_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\input\feature\train\");
+                props.SetProperty("train_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\input\feature\train2\");
+                props.SetProperty("develop_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\input\feature\develop\");
+                props.SetProperty("develop_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\input\feature\develop2\");
+                props.SetProperty("test_data_file", @"D:\Codes\C#\EntityTyping\Fine-ner\input\feature\test\");
+                props.SetProperty("test_feature_file", @"D:\Codes\C#\EntityTyping\Fine-ner\input\feature\test2\");
                 pipeline = new Pipeline(props);
                 pipeline.Execute();
             }

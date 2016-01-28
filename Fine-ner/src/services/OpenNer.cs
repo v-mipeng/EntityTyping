@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
-    public class OpenNer : Ner
+    class OpenNer : Ner
     {
 
         opennlp.tools.namefind.NameFinderME locationNameFinder = null;
@@ -20,7 +20,7 @@ namespace msra.nlp.tr
         System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\s+");
         public void FindNer(string context)
         {
-            if(locationNameFinder == null)
+            if (locationNameFinder == null)
             {
                 Initial();
             }
@@ -85,7 +85,6 @@ namespace msra.nlp.tr
             return "UNKNOW";
         }
 
-
         private void Initial()
         {
             var basedir = @"D:\Codes\C#\EntityTyping\Fine-ner\input\opennlp models";
@@ -98,14 +97,6 @@ namespace msra.nlp.tr
             modelInputStream = new java.io.FileInputStream(Path.Combine(basedir, "en-ner-organization.bin"));
             model = new opennlp.tools.namefind.TokenNameFinderModel(modelInputStream);
             organizationNameFinder = new opennlp.tools.namefind.NameFinderME(model);
-        }
-        public static void Mains(string[] args)
-        {
-            var input = "I like Beijing";
-            var ner = new OpenNer();
-            ner.FindNer(input);
-            var type = ner.GetNerType("Beijing");
-
         }
     }
 }

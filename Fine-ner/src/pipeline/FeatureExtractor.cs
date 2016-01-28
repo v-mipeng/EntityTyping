@@ -9,5 +9,8 @@ namespace msra.nlp.tr
     abstract class FeatureExtractor
     {
         public abstract void ExtractFeature();
+
+        public void AddFeature()
+        { }
     }
 }

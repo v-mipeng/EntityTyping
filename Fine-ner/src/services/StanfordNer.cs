@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
-    class StanfordNer : Ner
+    public class StanfordNer : Ner
     {
         StanfordCoreNLP pipeline = null;
         List<Pair<string, string>> nerPairs = null;

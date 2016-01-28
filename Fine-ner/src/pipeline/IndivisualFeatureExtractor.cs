@@ -5,25 +5,28 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
+using System.IO;
 
 namespace msra.nlp.tr
 {
     class IndividualFeatureExtractor : FeatureExtractor
     {
-        InstanceReader reader = null;
-        EventWriter writer = null;
         IndividualFeature extractor = null;
+        string source = null;
+        string des = null;
 
         public IndividualFeatureExtractor(string sourceFilePath, string desFilePath)
         {
-            reader = new InstanceReaderByLine(sourceFilePath);
-            writer = new EventWriterByLine(desFilePath);
+            source = sourceFilePath;
+            des = desFilePath;
             extractor = new IndividualFeature();
         }
 
         public override void ExtractFeature()
         {
             int count = 0;
+            var reader = new InstanceReaderByLine(source);
+            var writer = new EventWriterByLine(des);
             while (reader.HasNext())
             {
                 if (++count % 1000 == 0)
@@ -45,6 +48,53 @@ namespace msra.nlp.tr
                     Console.WriteLine(instance);
                 }
             }
+            reader.Close();
+            writer.Close();
+        }
+
+        public void AddFeature()
+        {
+            var reader = new EventReaderByLine(source);
+            var writer = new EventWriterByLine(des);
+            int count = 0;
+
+            while (reader.HasNext())
+            {
+                if (++count % 10000 == 0)
+                {
+                    Console.Clear();
+                    Console.WriteLine("{0} has processed {1}", Thread.CurrentThread.Name, count);
+                }
+                var e = reader.GetNextEvent();
+                try
+                {
+                    var feature = extractor.AddFeature(e);
+                    e = new Event(e.Label, feature);
+                    //try
+                    //{
+                    //    dic[feature[feature.Count - 2]] += 1;
+                    //}
+                    //catch(Exception)
+                    //{
+                    //    dic[feature[feature.Count - 2]] = 0;
+
+                    //}
+                    writer.WriteEvent(e);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    //Console.WriteLine(e.StackTrace);
+                    Console.WriteLine(e);
+                }
+            }
+            //Console.WriteLine("Effect for file {0}", Path.GetFileName(source));
+            //foreach (var item in dic)
+            //{
+            //    Console.WriteLine(item.Key + ":" + item.Value);
+            //}
+            Console.WriteLine();
+            //Console.ReadKey();
             reader.Close();
             writer.Close();
         }

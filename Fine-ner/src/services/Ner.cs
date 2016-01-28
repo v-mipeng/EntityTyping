@@ -7,7 +7,7 @@ using pml.type;
 
 namespace msra.nlp.tr
 {
-    interface Ner
+   public interface Ner
     {
 
         void FindNer(string context);

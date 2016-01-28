@@ -16,18 +16,18 @@ namespace msra.nlp.tr
         #region Word Surface Table
 
         /*The word table of the train data
-         */ 
+         */
         static Dictionary<String, int> word2index = null;
         static Object wordTableLocker = new object();
         /*Get size of the word table
-         */ 
+         */
         public static int GetWordTableSize()
         {
-                if (word2index == null)
-                {
-                    LoadWordTable();
-                }
-                return word2index.Count;
+            if (word2index == null)
+            {
+                LoadWordTable();
+            }
+            return word2index.Count;
         }
 
 
@@ -94,11 +94,11 @@ namespace msra.nlp.tr
         */
         public static int GetWordShapeTableSize()
         {
-                if (wordShape2index == null)
-                {
-                    LoadWordShapeTable();
-                }
-                return wordShape2index.Count;
+            if (wordShape2index == null)
+            {
+                LoadWordShapeTable();
+            }
+            return wordShape2index.Count;
         }
 
 
@@ -109,18 +109,18 @@ namespace msra.nlp.tr
         /// <returns></returns>
         public static int GetWordShapeIndex(String shape)
         {
-                if (wordShape2index == null)
-                {
-                    LoadWordShapeTable();
-                }
-                try
-                {
-                    return wordShape2index[shape];
-                }
-                catch (Exception)
-                {
-                    return wordShape2index.Count;
-                }
+            if (wordShape2index == null)
+            {
+                LoadWordShapeTable();
+            }
+            try
+            {
+                return wordShape2index[shape];
+            }
+            catch (Exception)
+            {
+                return wordShape2index.Count;
+            }
         }
 
         private static void LoadWordShapeTable()
@@ -161,11 +161,11 @@ namespace msra.nlp.tr
         */
         public static int GetPosTagTableSize()
         {
-                if (posTag2index == null)
-                {
-                    LoadPosTagTable();
-                }
-                return posTag2index.Count;
+            if (posTag2index == null)
+            {
+                LoadPosTagTable();
+            }
+            return posTag2index.Count;
         }
 
 
@@ -176,18 +176,18 @@ namespace msra.nlp.tr
         /// <returns></returns>
         public static int GetPosTagIndex(String posTag)
         {
-                if (posTag2index == null)
-                {
-                    LoadPosTagTable();
-                }
-                try
-                {
-                    return posTag2index[posTag];
-                }
-                catch (Exception)
-                {
-                    return posTag2index.Count;
-                }
+            if (posTag2index == null)
+            {
+                LoadPosTagTable();
+            }
+            try
+            {
+                return posTag2index[posTag];
+            }
+            catch (Exception)
+            {
+                return posTag2index.Count;
+            }
         }
 
         private static void LoadPosTagTable()
@@ -227,53 +227,53 @@ namespace msra.nlp.tr
         private static Dictionary<String, List<String>> dics = null;
         static object dicLocker = new object();
 
-        public static  List<String> GetTypeInDic(String mention)
+        public static List<String> GetTypeInDic(String mention)
         {
-                if (dics == null)
-                {
-                    LoadDictionary();
-                }
-                List<String> types;
-                return dics.TryGetValue(mention, out types) ? types : null;
+            if (dics == null)
+            {
+                LoadDictionary();
+            }
+            List<String> types;
+            return dics.TryGetValue(mention, out types) ? types : null;
         }
 
         /** Get the map of mention-->types
-         */ 
+         */
         public static Dictionary<String, int> GetDicTyeMap()
         {
-                if (dicTypeMap == null)
-                {
-                    LoadDictionary();
-                }
-                return dicTypeMap;
+            if (dicTypeMap == null)
+            {
+                LoadDictionary();
+            }
+            return dicTypeMap;
         }
 
         /*Get type number within dictionary
-         */ 
+         */
         public static int GetDicTypeNum()
         {
-                if (dicTypeMap == null)
-                {
-                    LoadDictionary();
-                }
-                return dicTypeMap.Count;
+            if (dicTypeMap == null)
+            {
+                LoadDictionary();
+            }
+            return dicTypeMap.Count;
         }
 
         /*Get the mapped int value of mention type 
          * Start with 0
-         */ 
+         */
         public static int GetDicTypeValue(String type)
         {
-                if (dicTypeMap == null)
-                {
-                    LoadDictionary();
-                }
-                int value;
-                return dicTypeMap.TryGetValue(type, out value) ? value : int.MinValue;
+            if (dicTypeMap == null)
+            {
+                LoadDictionary();
+            }
+            int value;
+            return dicTypeMap.TryGetValue(type, out value) ? value : int.MinValue;
         }
 
         /*Read Dictionary from  file
-         */ 
+         */
         private static void LoadDictionary()
         {
             lock (dicLocker)
@@ -284,7 +284,7 @@ namespace msra.nlp.tr
                     String line;
                     List<String> list;
                     dics = new Dictionary<string, List<string>>();
-                   var dic = new Dictionary<String, int>();
+                    var dic = new Dictionary<String, int>();
                     HashSet<String> set = new HashSet<String>();
 
                     while ((line = reader.ReadLine()) != null)
@@ -398,23 +398,23 @@ namespace msra.nlp.tr
 
         private static object stemmerLocker = new object();
 
-        private static Dictionary<string, string> stemWordDic = null; 
+        private static Dictionary<string, string> stemWordDic = null;
 
         public static string GetStemmedWord(string word)
         {
-                if (stemWordDic == null)
-                {
-                    LoadStemMap();
-                }
-                string stemmedWord;
-                if (!stemWordDic.TryGetValue(word, out stemmedWord))
-                {
-                    var stemmer = StemmerPool.GetStemmer();
-                    stemmedWord = stemmer.Stem(word)[0];
-                    StemmerPool.ReturnStemmer(stemmer);
-                    stemWordDic[word] = stemmedWord;
-                }
-                return stemmedWord;
+            if (stemWordDic == null)
+            {
+                LoadStemMap();
+            }
+            string stemmedWord;
+            if (!stemWordDic.TryGetValue(word, out stemmedWord))
+            {
+                var stemmer = StemmerPool.GetStemmer();
+                stemmedWord = stemmer.Stem(word)[0];
+                StemmerPool.ReturnStemmer(stemmer);
+                stemWordDic[word] = stemmedWord;
+            }
+            return stemmedWord;
         }
 
         private static void LoadStemMap()
@@ -446,9 +446,9 @@ namespace msra.nlp.tr
             }
         }
 
-        public static void RefreshStemDic(string des =null)
+        public static void RefreshStemDic(string des = null)
         {
-            lock(stemmerLocker)
+            lock (stemmerLocker)
             {
                 if (des == null)
                 {
@@ -482,30 +482,30 @@ namespace msra.nlp.tr
         /// <returns></returns>
         public static int GetWordClusterID(string word)
         {
-                if (wordIdDic == null)
-                {
-                    LoadWordClusterID();
-                }
-                int id;
-                wordIdDic.TryGetValue(word, out id);
-                try
-                {
-                    id = wordIdDic[word];
-                }
-                catch (Exception)
-                {
-                    id = wordClusterSize;
-                }
-                return id;
+            if (wordIdDic == null)
+            {
+                LoadWordClusterID();
+            }
+            int id;
+            wordIdDic.TryGetValue(word, out id);
+            try
+            {
+                id = wordIdDic[word];
+            }
+            catch (Exception)
+            {
+                id = wordClusterSize;
+            }
+            return id;
         }
 
         public static int GetClusterNumber()
         {
-                if (wordIdDic == null)
-                {
-                    LoadWordClusterID();
-                }
-                return wordClusterSize;
+            if (wordIdDic == null)
+            {
+                LoadWordClusterID();
+            }
+            return wordClusterSize;
         }
 
         private static void LoadWordClusterID()
@@ -514,7 +514,7 @@ namespace msra.nlp.tr
             {
                 if (wordIdDic == null)
                 {
-                   var dic = new Dictionary<string, int>();
+                    var dic = new Dictionary<string, int>();
                     FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_id_file));
                     string line;
                     string[] array;
@@ -547,7 +547,7 @@ namespace msra.nlp.tr
         static Dictionary<string, int> mentionIdDic = null;
         static int mentionClusterSize = 0;
         static object mentionIDLocker = new object();
-            
+
 
         /// <summary>
         /// Get the cluster id of a mention
@@ -556,33 +556,33 @@ namespace msra.nlp.tr
         /// <param name="mention"></param>
         /// <returns></returns>
         /// TODO: modify mention matching theory.
-        
+
         public static int GetMentionClusterID(string mention)
         {
-                if (mentionIdDic == null)
-                {
-                    LoadMentionClusterID();
-                }
-                int id;
-                mentionIdDic.TryGetValue(mention, out id);
-                try
-                {
-                    id = mentionIdDic[mention];
-                }
-                catch (Exception)
-                {
-                    id = mentionClusterSize;
-                }
-                return id;
+            if (mentionIdDic == null)
+            {
+                LoadMentionClusterID();
+            }
+            int id;
+            mentionIdDic.TryGetValue(mention, out id);
+            try
+            {
+                id = mentionIdDic[mention];
+            }
+            catch (Exception)
+            {
+                id = mentionClusterSize;
+            }
+            return id;
         }
 
         public static int GetMentionClusterNumber()
         {
-                if (mentionIdDic == null)
-                {
-                    LoadMentionClusterID();
-                }
-                return mentionClusterSize;
+            if (mentionIdDic == null)
+            {
+                LoadMentionClusterID();
+            }
+            return mentionClusterSize;
         }
 
         private static void LoadMentionClusterID()
@@ -616,6 +616,73 @@ namespace msra.nlp.tr
                     mentionIdDic = dic;
                 }
             }
+        }
+
+        #endregion
+
+        #region Stanford Ner system
+
+        static Dictionary<string, int> stanfordNerTypeDic = null;
+        static int stanfordNerTypeNum = 0;
+        static object stanfordNerLocker = new object();
+        static string[] stanfordNerTypes = new string[] { "PERSON", "LOCATTION", "ORGANIZATION", "UNKNOW" };
+
+        /// <summary>
+        /// Get the cluster id of a mention
+        /// The id of mentions begin with 0. If the mention table does not contains the mention, it return number of clusters.
+        /// </summary>
+        /// <param name="mention"></param>
+        /// <returns></returns>
+        /// TODO: modify mention matching theory.
+
+        public static int GetStanfordTypeIndex(string nerType)
+        {
+            if (stanfordNerTypeDic == null)
+            {
+                lock (stanfordNerLocker)
+                {
+                    if (stanfordNerTypeDic == null)
+                    {
+                        var dic = new Dictionary<string, int>();
+                        foreach (var type in stanfordNerTypes)
+                        {
+                            dic[type] = dic.Count;
+                        }
+                        stanfordNerTypeDic = dic;
+                    }
+                }
+            }
+            int id;
+            stanfordNerTypeDic.TryGetValue(nerType, out id);
+            try
+            {
+                id = stanfordNerTypeDic[nerType];
+            }
+            catch (Exception)
+            {
+                id = stanfordNerTypeDic.Count;
+            }
+            return id;
+        }
+
+        public static int GetStanfordNerNumber()
+        {
+            if (stanfordNerTypeDic == null)
+            {
+                lock (stanfordNerLocker)
+                {
+                    if (stanfordNerTypeDic == null)
+                    {
+                        var dic = new Dictionary<string, int>();
+                        foreach (var type in stanfordNerTypes)
+                        {
+                            dic[type] = dic.Count;
+                        }
+                        stanfordNerTypeDic = dic;
+                    }
+                }
+            }
+            return stanfordNerTypeDic.Count;
         }
 
         #endregion

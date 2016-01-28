@@ -201,6 +201,9 @@
       <HintPath>..\packages\MathNet.Numerics.3.9.0\lib\net40\MathNet.Numerics.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="opennlp">
+      <HintPath>..\packages\OpenNLP\opennlp.dll</HintPath>
+    </Reference>
     <Reference Include="SharpEntropy">
       <HintPath>..\packages\SharpEntropy.1.0.0\lib\SharpEntropy.dll</HintPath>
     </Reference>
@@ -248,12 +251,14 @@
     <Compile Include="src\pipeline\ParallelMaxEntFeatureExtractor.cs" />
     <Compile Include="src\pipeline\SVMFeatureExtractor.cs" />
     <Compile Include="src\services\Ner.cs" />
+    <Compile Include="src\services\OpenNer.cs" />
     <Compile Include="src\services\ParserPool.cs" />
     <Compile Include="src\services\PosTagger.cs" />
     <Compile Include="src\services\PosTaggerPool.cs" />
     <Compile Include="src\services\SentenceSpliter.cs" />
     <Compile Include="src\services\SSpliterPool.cs" />
     <Compile Include="src\services\StanfordNer.cs" />
+    <Compile Include="src\services\OpenNerPool.cs" />
     <Compile Include="src\services\StanfordNerPool.cs" />
     <Compile Include="src\services\Stemmer.cs" />
     <Compile Include="src\feature\SVMFeature.cs" />

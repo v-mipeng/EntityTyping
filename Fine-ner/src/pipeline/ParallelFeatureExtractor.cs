@@ -13,6 +13,8 @@ namespace msra.nlp.tr
 
         public abstract void ExtractFeature();
 
+        public void AddFeature() { }
+
         public Pair<List<string>, List<string>> SplitData(string source, string des, int numPerThread)
         {
             var reader = new InstanceReaderByLine(source);
@@ -77,5 +79,6 @@ namespace msra.nlp.tr
             return new Pair<List<string>, List<string>>(sourceFiles, desFiles);
         }
  
+
     }
 }
