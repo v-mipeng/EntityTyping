@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using pml.file.writer;
+using pml.file.reader;
 
 namespace msra.nlp.tr
 {
@@ -204,11 +206,53 @@ namespace msra.nlp.tr
             mentionID,
             mentionLength,
         }
-        public static void Mains(string[] args)
-        {
-            Console.WriteLine((int)Field.lastWord);
 
+        static string[] types = new string[] {
+                "music.music",
+                "broadcast.content",
+                "book.written_work",
+                "award.award",
+                "body.part",
+                "chemicstry.chemistry",
+                "time.event",
+                "food.food",
+                "language.language",
+                "location.location",
+                "organization.organization",
+                "people.person",
+                "computer.software",
+                "commerce.electronics_product",
+                "commerce.consumer_product",
+        };
+
+        public static void Main(string[] args)
+        {
+            var sourceDir = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\train\";
+            var des = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\train.txt";
+            var files = Directory.GetFiles(sourceDir);
+            LargeFileReader reader = new LargeFileReader();
+            var writer = new LargeFileWriter(des, FileMode.Create);
+            string line;
+
+            foreach(var file in files)
+            {
+                int count = 0;
+                reader.Open(file);
+                while ((line = reader.ReadLine())!=null)
+                {
+                    count++;
+                    if(count>100000)
+                    {
+                        break;
+                    }
+                    writer.WriteLine(line);
+                }
+            }
+            reader.Close();
+            writer.Close();
         }
+
+        
 
     }
 }

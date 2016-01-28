@@ -53,6 +53,7 @@ namespace msra.nlp.tr
                 var threadClass = new SVMFeatureExtractor(sourceFiles[i], desFiles[i]);
                 var thread = new Thread(threadClass.ExtractFeature);
                 threads.Add(thread);
+                thread.Name = "Thread " + i;
                 thread.Start();
             }
             // Wait until all the threads complete work
@@ -60,22 +61,6 @@ namespace msra.nlp.tr
             {
                 threads[i].Join();
             }
-            // combine features extracted by different threads
-            var writer = new LargeFileWriter(this.des, FileMode.Create);
-            foreach (var f in this.desFiles)
-            {
-                string text = File.ReadAllText(f);
-                writer.Write(text);
-                File.Delete(f);
-            }
-            writer.Close();
-            // delete temp part files
-            foreach (var f in this.sourceFiles)
-            {
-                File.Delete(f);
-            }
         }
-
-  
     }
 }

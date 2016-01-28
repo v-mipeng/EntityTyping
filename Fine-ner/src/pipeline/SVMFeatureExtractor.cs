@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace msra.nlp.tr
@@ -15,22 +16,33 @@ namespace msra.nlp.tr
         EventWriter writer = null;
         SVMFeature extractor = null;
 
-        public SVMFeatureExtractor(string sourceFilePath, string desFilePath)
+        public SVMFeatureExtractor(string sourceFilePath, string desFilePath, bool HasHead = false)
         {
-            reader = new EventReaderByLine(sourceFilePath, true);
+            reader = new EventReaderByLine(sourceFilePath, HasHead);
             writer = new EventWriterByLine(desFilePath);
             extractor = new SVMFeature();
         }
 
         public override void ExtractFeature()
         {
-             while(reader.HasNext())
+            var count = 0;
+            var dic = new Dictionary<string, int>();
+            foreach (var type in types)
+            {
+                dic[type] = dic.Count;
+            }
+
+            while (reader.HasNext())
              {
+                if(++count % 10000 ==0)
+                {
+                    Console.WriteLine("{0} has processed {1}", Thread.CurrentThread.Name, count);
+                }
                  var e = reader.GetNextEvent();
                  try
                  {
                      var feature = extractor.ExtractFeature(e);
-                     writer.WriteEvent(new Event(e.Label, feature));
+                     writer.WriteEvent(new Event(new Label(dic[e.Label.StringLabel].ToString()), feature));
                  }
                  catch(Exception ex)
                  {
@@ -40,6 +52,24 @@ namespace msra.nlp.tr
              reader.Close();
              writer.Close();
         }
+
+        static string[] types = new string[] {
+                "music.music",
+                "broadcast.content",
+                "book.written_work",
+                "award.award",
+                "body.part",
+                "chemicstry.chemistry",
+                "time.event",
+                "food.food",
+                "language.language",
+                "location.location",
+                "organization.organization",
+                "people.person",
+                "computer.software",
+                "commerce.electronics_product",
+                "commerce.consumer_product",
+        };
 
     }
 }

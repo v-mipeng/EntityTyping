@@ -79,14 +79,13 @@ namespace msra.nlp.tr
         {
             feature.Clear();
             var rawFeature = e.Feature;
-            feature.Add("0");
           
             #region last word
             {
                 AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.lastWordStemmed),
                 rawFeature.ElementAt((int)Event.Field.lastWordID),
-         rawFeature.ElementAt((int)Event.Field.lastWordShape),
-         rawFeature.ElementAt((int)Event.Field.lastWordTag));
+                rawFeature.ElementAt((int)Event.Field.lastWordShape),
+                rawFeature.ElementAt((int)Event.Field.lastWordTag));
             }
             #endregion
 

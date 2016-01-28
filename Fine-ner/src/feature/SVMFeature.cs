@@ -253,7 +253,7 @@ namespace msra.nlp.tr
             // word Cluster id
             if (ID != null)
             {
-                feature.Add((offset + ID) + ":1");
+                feature.Add((offset + int.Parse(ID)) + ":1");
             }
             offset += DataCenter.GetClusterNumber() + 1;
             // word shape

@@ -35,7 +35,7 @@ namespace msra.nlp.tr
             {
                 writer.Write("\t"+str);
             }
-            writer.Write("\r");
+            writer.Write("\r\n");
         }
 
         public bool Close()

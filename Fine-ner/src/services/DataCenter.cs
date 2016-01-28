@@ -30,22 +30,6 @@ namespace msra.nlp.tr
                 return word2index.Count;
         }
 
-        private static bool InsertToWordTable(Pair<String,int> pair)
-        {
-            if(word2index == null)
-            {
-                LoadWordTable();
-            }
-            if(word2index.ContainsKey(pair.first))
-            {
-                return false;
-            }
-            else
-            {
-                word2index[pair.first] = pair.second;
-                return true;
-            }
-        }
 
         /// <summary>
         /// Get word index in word table
@@ -79,14 +63,15 @@ namespace msra.nlp.tr
                     FileReader reader = null;
                     reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_table_file));
                     String line;
-                    word2index = new Dictionary<string, int>();
+                    var dic = new Dictionary<string, int>();
 
                     while ((line = reader.ReadLine()) != null)
                     {
+                        var array = line.Split('\t');
                         try
                         {
-                            var count = word2index.Count;
-                            word2index[line] = count;
+                            var count = dic.Count;
+                            dic[array[0]] = count;
                         }
                         catch (Exception)
                         {
@@ -94,6 +79,7 @@ namespace msra.nlp.tr
                         }
                     }
                     reader.Close();
+                    word2index = dic;
                 }
             }
         }
@@ -143,7 +129,7 @@ namespace msra.nlp.tr
             {
                 if (wordShape2index == null)
                 {
-                    wordShape2index = new Dictionary<string, int>();
+                    var dic = new Dictionary<string, int>();
 
                     FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_shape_table_file));
                     String line;
@@ -152,8 +138,8 @@ namespace msra.nlp.tr
                     {
                         try
                         {
-                            var count = wordShape2index.Count;
-                            wordShape2index[line] = count;
+                            var count = dic.Count;
+                            dic[line] = count;
                         }
                         catch (Exception)
                         {
@@ -161,6 +147,7 @@ namespace msra.nlp.tr
                         }
                     }
                     reader.Close();
+                    wordShape2index = dic;
                 }
             }
         }
@@ -209,7 +196,7 @@ namespace msra.nlp.tr
             {
                 if (posTag2index == null)
                 {
-                    posTag2index = new Dictionary<string, int>();
+                    var dic = new Dictionary<string, int>();
 
                     FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.posTag_table_file));
                     String line;
@@ -218,8 +205,8 @@ namespace msra.nlp.tr
                     {
                         try
                         {
-                            var count = posTag2index.Count;
-                            posTag2index[line] = count;
+                            var count = dic.Count;
+                            dic[line] = count;
                         }
                         catch (Exception)
                         {
@@ -227,6 +214,7 @@ namespace msra.nlp.tr
                         }
                     }
                     reader.Close();
+                    posTag2index = dic;
                 }
             }
         }
@@ -296,7 +284,7 @@ namespace msra.nlp.tr
                     String line;
                     List<String> list;
                     dics = new Dictionary<string, List<string>>();
-                    dicTypeMap = new Dictionary<String, int>();
+                   var dic = new Dictionary<String, int>();
                     HashSet<String> set = new HashSet<String>();
 
                     while ((line = reader.ReadLine()) != null)
@@ -308,9 +296,10 @@ namespace msra.nlp.tr
                     }
                     foreach (var type in set)
                     {
-                        dicTypeMap[type] = dicTypeMap.Count;
+                        dic[type] = dic.Count;
                     }
                     reader.Close();
+                    dicTypeMap = dic;
                 }
             }
         }
@@ -434,7 +423,7 @@ namespace msra.nlp.tr
             {
                 if (stemWordDic == null)
                 {
-                    stemWordDic = new Dictionary<string, string>();
+                    var dic = new Dictionary<string, string>();
                     FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.stem_map));
                     string line;
                     string[] array;
@@ -444,7 +433,7 @@ namespace msra.nlp.tr
                         array = line.Split('\t');
                         try
                         {
-                            stemWordDic[array[0]] = array[1];
+                            dic[array[0]] = array[1];
                         }
                         catch (Exception)
                         {
@@ -452,6 +441,7 @@ namespace msra.nlp.tr
                         }
                     }
                     reader.Close();
+                    stemWordDic = dic;
                 }
             }
         }
@@ -524,7 +514,7 @@ namespace msra.nlp.tr
             {
                 if (wordIdDic == null)
                 {
-                    wordIdDic = new Dictionary<string, int>();
+                   var dic = new Dictionary<string, int>();
                     FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_id_file));
                     string line;
                     string[] array;
@@ -537,7 +527,7 @@ namespace msra.nlp.tr
                         {
                             var id = int.Parse(array[1]);
                             ids.Add(id);
-                            wordIdDic[array[0]] = id;
+                            dic[array[0]] = id;
                         }
                         catch (Exception)
                         {
@@ -546,6 +536,7 @@ namespace msra.nlp.tr
                     }
                     reader.Close();
                     wordClusterSize = ids.Count;
+                    wordIdDic = dic;
                 }
             }
         }
@@ -600,7 +591,7 @@ namespace msra.nlp.tr
             {
                 if (mentionIdDic == null)
                 {
-                    mentionIdDic = new Dictionary<string, int>();
+                    var dic = new Dictionary<string, int>();
                     FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.mention_id_file));
                     string line;
                     string[] array;
@@ -613,7 +604,7 @@ namespace msra.nlp.tr
                         {
                             var id = int.Parse(array[1]);
                             ids.Add(id);
-                            mentionIdDic[array[0]] = id;
+                            dic[array[0]] = id;
                         }
                         catch (Exception)
                         {
@@ -622,6 +613,7 @@ namespace msra.nlp.tr
                     }
                     reader.Close();
                     mentionClusterSize = ids.Count;
+                    mentionIdDic = dic;
                 }
             }
         }

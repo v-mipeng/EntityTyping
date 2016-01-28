@@ -48,6 +48,7 @@
     <Compile Include="src\pml\file\reader\FileReader.cs" />
     <Compile Include="src\pml\file\reader\LargeFileReader.cs" />
     <Compile Include="src\pml\file\util\FileChecker.cs" />
+    <Compile Include="src\pml\file\util\Util.cs" />
     <Compile Include="src\pml\file\writer\FileWriter.cs" />
     <Compile Include="src\pml\file\writer\LargeFileWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

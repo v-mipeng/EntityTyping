@@ -45,34 +45,21 @@ namespace msra.nlp.tr
                 sourceFiles = pair.first;
                 desFiles = pair.second;
             }
-            var ThreadClasses = new List<SVMFeatureExtractor>(sourceFiles.Count);
+            var ThreadClasses = new List<MaxEntFeatureExtractor>(sourceFiles.Count);
             var threads = new List<Thread>(sourceFiles.Count);
 
             for (var i = 0; i < sourceFiles.Count; i++)
             {
-                var threadClass = new SVMFeatureExtractor(sourceFiles[i], desFiles[i]);
+                var threadClass = new MaxEntFeatureExtractor(sourceFiles[i], desFiles[i]);
                 var thread = new Thread(threadClass.ExtractFeature);
                 threads.Add(thread);
+                thread.Name = "Thread " + i;
                 thread.Start();
             }
             // Wait until all the threads complete work
             for (var i = 0; i < threads.Count; i++)
             {
                 threads[i].Join();
-            }
-            // combine features extracted by different threads
-            var writer = new LargeFileWriter(this.des, FileMode.Create);
-            foreach (var f in this.desFiles)
-            {
-                string text = File.ReadAllText(f);
-                writer.Write(text);
-                File.Delete(f);
-            }
-            writer.Close();
-            // delete temp part files
-            foreach (var f in this.sourceFiles)
-            {
-                File.Delete(f);
             }
         }
 

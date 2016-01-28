@@ -26,7 +26,7 @@ namespace msra.nlp.tr
             int count = 0;
             while (reader.HasNext())
             {
-                if (++count % 1000 == 0)
+                if (++count % 10000 == 0)
                 {
                     Console.Clear();
                     Console.WriteLine("{0} has processed {1}", Thread.CurrentThread.Name, count);

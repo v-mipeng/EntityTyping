@@ -134,7 +134,7 @@ namespace msra.nlp.tr
             {
                 ope2opt = new HashMap<string, HashSet<string>>();
                 ope2opt["ewt"] = new HashSet<string>();
-                ope2opt["ef"] = new HashSet<string>(new string[] {"r","b","s","all","train","test","dev"});
+                ope2opt["ef"] = new HashSet<string>(new string[] {"raw","bayes","svm","me","all","train","test","dev"});
                 ope2opt["out"] = new HashSet<string>(new string[] {"dt"});
                 ope2opt["tr"] = new HashSet<string>(new string[] {"b"});
                 ope2opt["ts"] = new HashSet<string>(new string[] {"b"});
@@ -183,9 +183,9 @@ namespace msra.nlp.tr
             if (options == null)
             {
                 // set default options
-                options = new HashSet<string>(new string[] {"b","all"});
+                options = new HashSet<string>(new string[] {"bayes","all"});
             }
-            if (options.Contains("b") || !options.Contains("s"))
+            if (options.Contains("bayes"))
             {
                 // extract features for bayes model
                 if (options.Contains("train") || options.Contains("all"))
@@ -204,30 +204,53 @@ namespace msra.nlp.tr
                         (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
                 }
             }
-            else if (options.Contains("s"))
+            else if (options.Contains("svm"))
             {
                 // extract features for svm model
                 if (options.Contains("train") || options.Contains("all"))
                 {
 
-                    var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
+                    var extractor = new ParallelSVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
                         (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
                     extractor.ExtractFeature();
                 }
                 if (options.Contains("dev") || options.Contains("all"))
                 {
-                    var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
+                    var extractor = new ParallelSVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
                         (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
                     extractor.ExtractFeature();
                 }
                 if (options.Contains("test") || options.Contains("all"))
                 {
-                    var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
+                    var extractor = new ParallelSVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
                         (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
                     extractor.ExtractFeature();
                 }
             }
-            else if (options.Contains("r"))
+            else if (options.Contains("me"))
+            {
+                // extract features for svm model
+                if (options.Contains("train") || options.Contains("all"))
+                {
+
+                    var extractor = new ParallelMaxEntFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
+                        (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
+                    extractor.ExtractFeature();
+                }
+                if (options.Contains("dev") || options.Contains("all"))
+                {
+                    var extractor = new ParallelMaxEntFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
+                        (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
+                    extractor.ExtractFeature();
+                }
+                if (options.Contains("test") || options.Contains("all"))
+                {
+                    var extractor = new ParallelMaxEntFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
+                        (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
+                    extractor.ExtractFeature();
+                }
+            }
+            else if (options.Contains("raw"))
             {
                 // extract raw features
                 if (options.Contains("train") || options.Contains("all"))

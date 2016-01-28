@@ -151,7 +151,7 @@ namespace pml.file.writer
             {
                 Open();
             }
-            Write(output + "\r");
+            Write(output + "\r\n");
         }
 
         StringBuilder buffer = null;
