@@ -397,6 +397,14 @@ namespace msra.nlp.tr
                 return rawFeature;
             }
             #endregion
+
+            #region DBpedia dictionary
+            if (true)
+            {
+
+               
+            }
+            #endregion
         }
 
 
