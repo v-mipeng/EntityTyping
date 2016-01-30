@@ -687,6 +687,183 @@ namespace msra.nlp.tr
 
         #endregion
 
+        #region OpenNLP Ner system
+
+        static Dictionary<string, int> openNLPNerTypeDic = null;
+        static int openNLPNerTypeNum = 0;
+        static object openNLPNerLocker = new object();
+        //static string[] stanfordNerTypes = new string[] { "PERSON", "LOCATTION", "ORGANIZATION", "UNKNOW" };
+
+        /// <summary>
+        /// Get the cluster id of a mention
+        /// The id of mentions begin with 0. If the mention table does not contains the mention, it return number of clusters.
+        /// </summary>
+        /// <param name="mention"></param>
+        /// <returns></returns>
+        /// TODO: modify mention matching theory.
+
+        public static int GetOpenNLPTypeIndex(string nerType)
+        {
+            if (openNLPNerTypeDic == null)
+            {
+                lock (openNLPNerLocker)
+                {
+                    if (openNLPNerTypeDic == null)
+                    {
+                        var dic = new Dictionary<string, int>();
+                        foreach (var type in stanfordNerTypes)
+                        {
+                            dic[type] = dic.Count;
+                        }
+                        openNLPNerTypeDic = dic;
+                    }
+                }
+            }
+            int id;
+            openNLPNerTypeDic.TryGetValue(nerType, out id);
+            try
+            {
+                id = openNLPNerTypeDic[nerType];
+            }
+            catch (Exception)
+            {
+                id = openNLPNerTypeDic.Count;
+            }
+            return id;
+        }
+
+        public static int GetOpenNLPNerNumber()
+        {
+            if (openNLPNerTypeDic == null)
+            {
+                lock (openNLPNerLocker)
+                {
+                    if (openNLPNerTypeDic == null)
+                    {
+                        var dic = new Dictionary<string, int>();
+                        foreach (var type in stanfordNerTypes)
+                        {
+                            dic[type] = dic.Count;
+                        }
+                        openNLPNerTypeDic = dic;
+                    }
+                }
+            }
+            return openNLPNerTypeDic.Count;
+        }
+
+        #endregion
+
+        #region Dictionary like people name list
+
+        static Dictionary<string, HashSet<string>> dbpediaEntity2Type = null;
+        static Dictionary<string, string> redirects = null;
+        static object dbpediaDicLocker = new object();
+
+        /*Is the mention match an item within the name list entirely
+         */
+        public static List<string> GetDBpediaType(string mention)
+        {
+
+            if(dbpediaEntity2Type == null)
+            {
+                LoadDBpedia();
+            }
+            var types = dbpediaEntity2Type[mention];
+            if(types != null)
+            {
+                return types.ToList();
+            }
+            else
+            {
+                mention = GetRedirect(mention);
+                if (mention != null)
+                {
+                    types = dbpediaEntity2Type[mention];
+                    if (types != null)
+                    {
+                        return types.ToList();
+                    }
+                }
+            }
+            return null;
+        }
+
+        /*Is the mention only part of a name within the name list
+         */
+        public static void LoadDBpedia()
+        {
+            lock (dbpediaDicLocker)
+            {
+                if (dbpediaEntity2Type == null)
+                {
+                    var dic = new Dictionary<string, HashSet<string>>();
+                    HashSet<string> types;
+                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_dic_file));
+                    var line = "";
+                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
+                    System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\(\w+\)");
+
+                    while ((line = reader.ReadLine())!= null)
+                    {
+                        var array = line.Split('\t');
+                        var entity = deleteBrace.Replace(array[0], "");
+                        entity = regex.Replace(entity, " ").Trim();
+                        try
+                        {
+                            types = dic[entity];
+                            types.Add(array[1]);
+                        }
+                        catch(Exception)
+                        {
+                            types = new HashSet<string>();
+                            types.Add(array[1]);
+                            dic[entity] = types;
+                        }
+                    }
+                    reader.Close();
+                    dbpediaEntity2Type = dic;
+                }
+            }
+        }
+        #endregion
+
+        public static string GetRedirect(string mention)
+        {
+            if (redirects == null)
+            {
+                LoadDBpediaRedirect();
+            }
+            return redirects[mention];
+        }
+
+        public static void LoadDBpediaRedirect()
+        {
+            lock (dbpediaDicLocker)
+            {
+                if (redirects == null)
+                {
+                    var dic = new Dictionary<string, string>();
+                    var reader = new LargeFileReader();
+                    var line = "";
+                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\s+");
+                    System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\(\w+\)");
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        var array = line.Split('\t');
+                        var source = deleteBrace.Replace(array[0], "");
+                        source = regex.Replace(source, " ").Trim();
+                        var des = deleteBrace.Replace(array[0], "");
+                        des = regex.Replace(des, " ").Trim();
+                        dic[source] = des;
+                    }
+                    reader.Close();
+                    redirects = dic;
+                }
+            }
+        }
+
         private DataCenter() { }
     }
 }

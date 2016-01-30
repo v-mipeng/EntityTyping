@@ -32,7 +32,7 @@ namespace msra.nlp.tr
             public const string word_id_file                = "word_id_file";
             public const string mention_id_file             = "mention_id_file";
             public const string opennlp_model_dir          = "opennlp_model_dir";
-
+            public const string dbpedia_dic_file            = "dbpedia_dic_file";
         };
 
        
@@ -82,6 +82,7 @@ namespace msra.nlp.tr
             var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
             basedir = Path.Combine(basedir,"Fine-ner");
             parameters[Field.stanford_model_dir]        = Path.Combine(basedir, @"input\stanford models");
+            parameters[Field.opennlp_model_dir]         = Path.Combine(basedir, @"input\opennlp models");
             parameters[Field.method]                    = Method;
             parameters[Field.train_data_file]           = Path.Combine(basedir, @"input\satori\train.txt");
             parameters[Field.develop_data_file]         = Path.Combine(basedir, @"input\satori\develop.txt");
@@ -99,7 +100,7 @@ namespace msra.nlp.tr
             parameters[Field.test_feature_file]         = Path.Combine(basedir, @"output\satori\testFeature.txt");
             parameters[Field.model_file]                = Path.Combine(basedir, @"output\model\model.txt");
             parameters[Field.test_result_file]          = Path.Combine(basedir, @"output\result\result.txt");
-            parameters[Field.opennlp_model_dir]         = Path.Combine(basedir, "input/opennlp models");
+            parameters[Field.dbpedia_dic_file]          = Path.Combine(basedir, @"input\dictionaries\dbpedia entity type.txt");
         }
         private DefaultParameter() { }
     }

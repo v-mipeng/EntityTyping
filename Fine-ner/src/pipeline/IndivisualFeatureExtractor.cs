@@ -57,28 +57,33 @@ namespace msra.nlp.tr
             var reader = new EventReaderByLine(source);
             var writer = new EventWriterByLine(des);
             int count = 0;
+            var dic = new Dictionary<string, int>();
 
             while (reader.HasNext())
             {
-                if (++count % 10000 == 0)
+                if (++count % 1000 == 0)
                 {
                     Console.Clear();
                     Console.WriteLine("{0} has processed {1}", Thread.CurrentThread.Name, count);
+                }
+                if(count > 100000)
+                {
+                    break;
                 }
                 var e = reader.GetNextEvent();
                 try
                 {
                     var feature = extractor.AddFeature(e);
                     e = new Event(e.Label, feature);
-                    //try
-                    //{
-                    //    dic[feature[feature.Count - 2]] += 1;
-                    //}
-                    //catch(Exception)
-                    //{
-                    //    dic[feature[feature.Count - 2]] = 0;
+                    try
+                    {
+                        dic[feature[feature.Count - 2]] += 1;
+                    }
+                    catch (Exception)
+                    {
+                        dic[feature[feature.Count - 2]] = 0;
 
-                    //}
+                    }
                     writer.WriteEvent(e);
                 }
                 catch (Exception ex)
@@ -88,13 +93,13 @@ namespace msra.nlp.tr
                     Console.WriteLine(e);
                 }
             }
-            //Console.WriteLine("Effect for file {0}", Path.GetFileName(source));
-            //foreach (var item in dic)
-            //{
-            //    Console.WriteLine(item.Key + ":" + item.Value);
-            //}
+            Console.WriteLine("Effect for file {0}", Path.GetFileName(source));
+            foreach (var item in dic)
+            {
+                Console.WriteLine(item.Key + ":" + item.Value);
+            }
             Console.WriteLine();
-            //Console.ReadKey();
+            Console.ReadKey();
             reader.Close();
             writer.Close();
         }

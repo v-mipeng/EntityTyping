@@ -369,12 +369,28 @@ namespace msra.nlp.tr
             var mention = rawFeature.ElementAt((int)Event.Field.mentionSurfaces).Replace(',',' ');
             var context = rawFeature.ElementAt((int)Event.Field.sentenceContext);
             #region Stanford NER
+            if(false)
             {
 
                 var ner = StanfordNerPool.GetStanfordNer();
                 ner.FindNer(context);
                 var type = ner.GetNerType(mention);
                 StanfordNerPool.ReturnStanfordNer(ner);
+                ner = null;
+                rawFeature[(int)Event.Field.sentenceContext] = type;
+                rawFeature.Add(context);
+                return rawFeature;
+            }
+            #endregion
+
+            #region OpenNLP NER
+            if (true)
+            {
+
+                var ner = OpenNerPool.GetOpenNer();
+                ner.FindNer(context);
+                var type = ner.GetNerType(mention);
+                OpenNerPool.ReturnOpenNer(ner);
                 ner = null;
                 rawFeature[(int)Event.Field.sentenceContext] = type;
                 rawFeature.Add(context);

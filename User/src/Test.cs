@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
-    public class OpenNer : Ner
+    public class OpenNer
     {
 
         opennlp.tools.namefind.NameFinderME locationNameFinder = null;
@@ -99,13 +99,39 @@ namespace msra.nlp.tr
             model = new opennlp.tools.namefind.TokenNameFinderModel(modelInputStream);
             organizationNameFinder = new opennlp.tools.namefind.NameFinderME(model);
         }
-        public static void Mains(string[] args)
+        public static void Main(string[] args)
         {
-            var input = "I like Beijing";
-            var ner = new OpenNer();
-            ner.FindNer(input);
-            var type = ner.GetNerType("Beijing");
+            //var input = "I like Beijing";
+            //var ner = new OpenNer();
+            //ner.FindNer(input);
+            //var type = ner.GetNerType("Beijing");
+            ////var dic = new Dictionary<string, int>();
+            ////var sourceDir = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\test";
+            ////var des = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\test.txt";
+            ////var files = Directory.GetFiles(sourceDir);
+            ////var writer = new pml.file.writer.LargeFileWriter(des);
+            ////var reader = new pml.file.reader.LargeFileReader();
+            ////string line;
 
+
+            ////foreach(var file in files)
+            ////{
+            ////    int count = 0;
+            ////    reader = new pml.file.reader.LargeFileReader(file);
+            ////    while((line = reader.ReadLine())!=null)
+            ////    {
+            ////        var array = line.Split('\t');
+            ////        count++;
+            ////        if(count>100000)
+            ////        {
+            ////            break;
+            ////        }
+            ////        writer.WriteLine(line);
+            ////    }
+            ////}
+            ////reader.Close();
+            ////writer.Close();
+            pml.file.util.Util.CombineFiles(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\test", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\test.txt");
         }
     }
 }
