@@ -34,7 +34,7 @@ namespace msra.nlp.tr
 
             while (reader.HasNext())
              {
-                if(++count % 10000 ==0)
+                if(++count % 1000 ==0)
                 {
                     Console.WriteLine("{0} has processed {1}", Thread.CurrentThread.Name, count);
                 }
@@ -47,6 +47,7 @@ namespace msra.nlp.tr
                  catch(Exception ex)
                  {
                      Console.WriteLine(ex.Message);
+                     Console.WriteLine(ex.StackTrace);
                  }
              }
              reader.Close();

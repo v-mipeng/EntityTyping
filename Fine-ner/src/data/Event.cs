@@ -65,6 +65,8 @@ namespace msra.nlp.tr
             stanfordNerType,
             // opennlp ner output
             opennlpNerType,
+            // dbpedia type
+            dbpediaTypes,
             // mention context
             sentenceContext
 

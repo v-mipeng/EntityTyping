@@ -277,7 +277,7 @@ namespace msra.nlp.tr
         }
          
 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             Temp3();
             //var input = "I like Beijing";
