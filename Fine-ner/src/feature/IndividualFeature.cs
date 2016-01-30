@@ -66,7 +66,7 @@ namespace msra.nlp.tr
             try
             {
                 var ws = tokenizer.Tokenize(mention);
-                for (var i = 0; i <ws.Count; i++)
+                for (var i = 0; i < ws.Count; i++)
                 {
                     if (ws[i].Equals(".") && i > 0 && ws[i - 1].EndsWith("."))
                     {
@@ -74,10 +74,10 @@ namespace msra.nlp.tr
                     }
                     words.Add(ws[i]);
                 }
-               var  ts = tokenizer.Tokenize(context);
-                for( var i = 0; i<ts.Count ;i++)
+                var ts = tokenizer.Tokenize(context);
+                for (var i = 0; i < ts.Count; i++)
                 {
-                     if(ts[i].Equals(".") && i>0 && ts[i-1].EndsWith("."))
+                    if (ts[i].Equals(".") && i > 0 && ts[i - 1].EndsWith("."))
                     {
                         continue;
                     }
@@ -86,7 +86,7 @@ namespace msra.nlp.tr
                 TokenizerPool.ReturnTokenizer(tokenizer);
                 tokenizer = null;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 TokenizerPool.ReturnTokenizer(tokenizer);
                 throw e;
@@ -99,7 +99,7 @@ namespace msra.nlp.tr
                 sentences = sspliter.SplitSequence(tokens);
                 SSpliterPool.ReturnSSpliter(sspliter);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 SSpliterPool.ReturnSSpliter(sspliter);
                 Console.Clear();
@@ -107,7 +107,7 @@ namespace msra.nlp.tr
                 throw e;
             }
             context = GetSentenceCoverMention(sentences, words);
-            if(context == null)
+            if (context == null)
             {
                 throw new Exception("Cannot find mention by token within context!");
             }
@@ -117,13 +117,13 @@ namespace msra.nlp.tr
             {
                 parser = ParserPool.GetParser();
             }
-            catch(Exception )
+            catch (Exception)
             {
                 throw new Exception("Cannot get a parser!");
             }
             List<Pair<string, string>> pairs = null;
             Pair<int, int> pair = null;
-            try                  
+            try
             {
                 parser.Parse(context);
 
@@ -138,6 +138,21 @@ namespace msra.nlp.tr
                 #region last word
                 {
                     var index = pair.first - 1;
+                    while (index >= 0)
+                    {
+                        if (pairs[index].first.Equals("##"))
+                        {
+                            index = -1;
+                        }
+                        else if (pairs[index].first.Equals("-LRB-") || pairs[index].first.Equals(",") || pairs[index].first.Equals("``"))
+                        {
+                            index--;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
                     if (index > 0)
                     {
                         var word = pairs.ElementAt(index).first;
@@ -155,6 +170,21 @@ namespace msra.nlp.tr
                 #region next word
                 {
                     var index = pair.second + 1;
+                    while (index < pairs.Count)
+                    {
+                        if (pairs[index].first.Equals("##"))
+                        {
+                            index = pairs.Count;
+                        }
+                        else if (pairs[index].first.Equals("-LRB-") || pairs[index].first.Equals(",") || pairs[index].first.Equals("``"))
+                        {
+                            index++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
                     if (index < pairs.Count)
                     {
                         var word = pairs.ElementAt(index).first;
@@ -246,7 +276,7 @@ namespace msra.nlp.tr
                 ParserPool.ReturnParser(parser);
                 parser = null;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (parser != null)
                 {
@@ -261,9 +291,9 @@ namespace msra.nlp.tr
             {
                 // mention surfaces
                 var mentionWords = new StringBuilder();
-                foreach(var word in words)
+                foreach (var word in words)
                 {
-                    if(mentionWords.Length == 0)
+                    if (mentionWords.Length == 0)
                     {
                         mentionWords.Append(Generalizer.Generalize(word));
                     }
@@ -277,8 +307,8 @@ namespace msra.nlp.tr
                 // add stemmed mention surface
                 feature.Add(mentionWords.ToString());
                 // mention tags
-                var mentionTags = mentionWords.Clear();     
-                for(var i = pair.first; i<= pair.second;i++)
+                var mentionTags = mentionWords.Clear();
+                for (var i = pair.first; i <= pair.second; i++)
                 {
                     if (mentionTags.Length == 0)
                     {
@@ -290,9 +320,9 @@ namespace msra.nlp.tr
                     }
                 }
                 feature.Add(mentionTags.ToString());
-               // mention IDs
+                // mention IDs
                 var mentionIDs = mentionTags.Clear();
-                foreach(var word in words)
+                foreach (var word in words)
                 {
                     if (mentionIDs.Length == 0)
                     {
@@ -304,7 +334,7 @@ namespace msra.nlp.tr
                     }
                 }
                 feature.Add(mentionIDs.ToString());
-              // mention shapes
+                // mention shapes
                 var mentionShapes = mentionIDs.Clear();
                 foreach (var word in words)
                 {
@@ -366,10 +396,10 @@ namespace msra.nlp.tr
         public List<string> AddFeature(Event e)
         {
             var rawFeature = (List<string>)e.Feature;
-            var mention = rawFeature.ElementAt((int)Event.Field.mentionSurfaces).Replace(',',' ');
+            var mention = rawFeature.ElementAt((int)Event.Field.mentionSurfaces).Replace(',', ' ');
             var context = rawFeature.ElementAt((int)Event.Field.sentenceContext);
             #region Stanford NER
-            if(false)
+            if (false)
             {
 
                 var ner = StanfordNerPool.GetStanfordNer();
@@ -384,7 +414,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region OpenNLP NER
-            if (true)
+            if (false)
             {
 
                 var ner = OpenNerPool.GetOpenNer();
@@ -401,10 +431,174 @@ namespace msra.nlp.tr
             #region DBpedia dictionary
             if (true)
             {
-
-               
+                var type = string.Join(",", DataCenter.GetDBpediaType(mention));
+                rawFeature[(int)Event.Field.sentenceContext] = type;
+                rawFeature.Add(context);
             }
             #endregion
+
+            List<Pair<string, string>> pairs = null;
+            Pair<int, int> pair = null;
+
+            #region Modify last word
+            System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\W");
+
+            if (true)
+            {
+                var lastWord = rawFeature.ElementAt((int)Event.Field.lastWord);
+                if (lastWord.Equals("##") || lastWord.Equals(".") || lastWord.Equals("!") || lastWord.Equals("?") || lastWord.Equals(";"))
+                {
+                    rawFeature[(int)Event.Field.lastWord] = "NULL";
+                    rawFeature[(int)Event.Field.lastWordStemmed] = "NULL";
+                    rawFeature[(int)Event.Field.lastWordTag] = "NULL";
+                    rawFeature[(int)Event.Field.lastWordID] = "100";
+                    rawFeature[(int)Event.Field.lastWordShape] = "NULL";
+                }
+                else if (!lastWord.Equals("'s") && regex.IsMatch(lastWord))
+                {
+                    var pos = PosTaggerPool.GetPosTagger();
+                    try
+                    {
+                        pairs = pos.TagString(context);
+                        PosTaggerPool.ReturnPosTagger(pos);
+                        pair = GetIndexOfMention(pairs, mention);
+                        var index = pair.first - 1;
+                        while (index >= 0)
+                        {
+                            if (pairs[index].first.Equals("##") || pairs[index].first.Equals(".") || pairs[index].first.Equals("!") || pairs[index].first.Equals("?") || pairs[index].first.Equals(";"))
+                            {
+                                index = -1;
+                                break;
+                            }
+                            else if (!pairs[index].first.Equals("'s") && regex.IsMatch(pairs[index].first))
+                            {
+                                index--;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        if (index >= 0)
+                        {
+                            var word = pairs.ElementAt(index).first;
+                            var posTag = pairs.ElementAt(index).second;
+                            var wordStemmed = Generalizer.Generalize(word);
+                            var ID = DataCenter.GetWordClusterID(word).ToString();    // id should use original surface
+                            var shape = GetWordShape(word);
+
+                            rawFeature[(int)Event.Field.lastWord] = word;
+                            rawFeature[(int)Event.Field.lastWordStemmed] = wordStemmed;
+                            rawFeature[(int)Event.Field.lastWordTag] = posTag;
+                            rawFeature[(int)Event.Field.lastWordID] = ID;
+                            rawFeature[(int)Event.Field.lastWordShape] = shape;
+                        }
+                        else
+                        {
+                            rawFeature[(int)Event.Field.lastWord] = "NULL";
+                            rawFeature[(int)Event.Field.lastWordStemmed] = "NULL";
+                            rawFeature[(int)Event.Field.lastWordTag] = "NULL";
+                            rawFeature[(int)Event.Field.lastWordID] = "100";
+                            rawFeature[(int)Event.Field.lastWordShape] = "NULL";
+                        }
+                        PosTaggerPool.ReturnPosTagger(pos);
+                    }
+                    catch (Exception ex)
+                    {
+                        PosTaggerPool.ReturnPosTagger(pos);
+                        throw ex;
+                    }
+                }
+
+            }
+            #endregion
+
+            #region Modify next word
+            if (true)
+            {
+                var nextWord = rawFeature.ElementAt((int)Event.Field.nextWord);
+                if (nextWord.Equals("##") || nextWord.Equals(".") || nextWord.Equals("!") || nextWord.Equals("?") || nextWord.Equals(";"))
+                {
+                    rawFeature[(int)Event.Field.nextWord] = "NULL";
+                    rawFeature[(int)Event.Field.nextWordStemmed] = "NULL";
+                    rawFeature[(int)Event.Field.nextWordTag] = "NULL";
+                    rawFeature[(int)Event.Field.nextWordID] = "100";
+                    rawFeature[(int)Event.Field.nextWordShape] = "NULL";
+                }
+                else if (!nextWord.Equals("'s") && regex.IsMatch(nextWord))
+                {
+                    if (pairs == null)
+                    {
+                        var pos = PosTaggerPool.GetPosTagger();
+                        try
+                        {
+                            pairs = pos.TagString(context);
+                            PosTaggerPool.ReturnPosTagger(pos);
+                            pair = GetIndexOfMention(pairs, mention);
+                        }
+                        catch (Exception ex)
+                        {
+                            PosTaggerPool.ReturnPosTagger(pos);
+                            throw ex;
+                        }
+                    }
+                    var index = pair.second + 1;
+                    while (index < pairs.Count)
+                    {
+                        if (pairs[index].first.Equals("##") || pairs[index].first.Equals(".") || pairs[index].first.Equals("!") || pairs[index].first.Equals("?") || pairs[index].first.Equals(";"))
+                        {
+                            index = pairs.Count;
+                            break;
+                        }
+                        else if (!pairs[index].first.Equals("'s") && regex.IsMatch(pairs[index].first))
+                        {
+                            index++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    if (index < pairs.Count)
+                    {
+                        var word = pairs.ElementAt(index).first;
+                        var posTag = pairs.ElementAt(index).second;
+                        var wordStemmed = Generalizer.Generalize(word);
+                        var ID = DataCenter.GetWordClusterID(word).ToString();    // id should use original surface
+                        var shape = GetWordShape(word);
+
+                        rawFeature[(int)Event.Field.nextWord] = word;
+                        rawFeature[(int)Event.Field.nextWordStemmed] = wordStemmed;
+                        rawFeature[(int)Event.Field.nextWordTag] = posTag;
+                        rawFeature[(int)Event.Field.nextWordID] = ID;
+                        rawFeature[(int)Event.Field.nextWordShape] = shape;
+                    }
+                    else
+                    {
+                        rawFeature[(int)Event.Field.nextWord] = "NULL";
+                        rawFeature[(int)Event.Field.nextWordStemmed] = "NULL";
+                        rawFeature[(int)Event.Field.nextWordTag] = "NULL";
+                        rawFeature[(int)Event.Field.nextWordID] = "100";
+                        rawFeature[(int)Event.Field.nextWordShape] = "NULL";
+                    }
+                }
+            }
+            #endregion
+
+            #region   Modify mention ID
+            if (true)
+            {
+                var mentionID = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionID));
+                var mentionClusterNum = DataCenter.GetMentionClusterNumber();
+                if (mentionID == mentionClusterNum)
+                {
+                    mention = mention.Replace(' ', '_');
+                    mentionID = DataCenter.GetMentionClusterID(mention);
+                    rawFeature[(int)Event.Field.mentionID] = mentionID.ToString();
+                }
+            }
+            #endregion
+            return rawFeature;
         }
 
 
@@ -426,7 +620,7 @@ namespace msra.nlp.tr
             }
             else
             {
-                AddToFeature("NULL","NULL", "NULL", DataCenter.GetClusterNumber().ToString(), "NULL");
+                AddToFeature("NULL", "NULL", "NULL", DataCenter.GetClusterNumber().ToString(), "NULL");
             }
         }
 

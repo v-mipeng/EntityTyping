@@ -119,19 +119,20 @@ namespace msra.nlp.tr
             #region mention words
             {
                 string[] words = null;
-                try 
+                try
                 {
                     words = rawFeature.ElementAt((int)Event.Field.mentionSurfacesStemmed).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     throw new Exception("Mention words is null");
                 }
                 string[] IDs = null;
-                try {
+                try
+                {
                     IDs = rawFeature.ElementAt((int)Event.Field.mentionIDs).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     throw new Exception("Mention ids is null");
                 }
@@ -191,7 +192,7 @@ namespace msra.nlp.tr
                 }
                 offset += DataCenter.GetWordShapeTableSize() + 1;
                 dic.Clear();
-                 foreach (var tag in tags)
+                foreach (var tag in tags)
                 {   // words pos tags
                     var index = offset + DataCenter.GetPosTagIndex(tag);
                     dic.TryGetValue(index, out value);
@@ -205,7 +206,7 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            #region mention cluster id   TODO: do entity linking to match mention.
+            #region mention cluster id
             {
                 var mentionID = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionID));
                 feature.Add((offset + mentionID) + ":1");
@@ -240,6 +241,18 @@ namespace msra.nlp.tr
                 var index = DataCenter.GetOpenNLPTypeIndex(openNLPNerType);
                 feature.Add((offset + index) + ":1");
                 offset += DataCenter.GetOpenNLPNerNumber() + 1;
+            }
+            #endregion
+
+            #region DBpedia types
+            {
+                    var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypes).Split(',');
+                    foreach (var type in types)
+                    {
+                        var index = DataCenter.GetDBpediaTypeIndex(type);
+                        feature.Add((offset + index) + ":1");
+                    }
+                    offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
             }
             #endregion
 

@@ -33,6 +33,7 @@ namespace msra.nlp.tr
             public const string mention_id_file             = "mention_id_file";
             public const string opennlp_model_dir          = "opennlp_model_dir";
             public const string dbpedia_dic_file            = "dbpedia_dic_file";
+            public const string dbpedia_redirect_file       = "dbpedia_redirect_file";
         };
 
        
@@ -100,7 +101,9 @@ namespace msra.nlp.tr
             parameters[Field.test_feature_file]         = Path.Combine(basedir, @"output\satori\testFeature.txt");
             parameters[Field.model_file]                = Path.Combine(basedir, @"output\model\model.txt");
             parameters[Field.test_result_file]          = Path.Combine(basedir, @"output\result\result.txt");
-            parameters[Field.dbpedia_dic_file]          = Path.Combine(basedir, @"input\dictionaries\dbpedia entity type.txt");
+            parameters[Field.dbpedia_dic_file]          = Path.Combine(basedir, @"input\dictionaries\dbpedia\dbpedia entity type.txt");
+            parameters[Field.dbpedia_redirect_file]     = Path.Combine(basedir, @"input\dictionaries\dbpedia\redirects.txt");
+
         }
         private DefaultParameter() { }
     }

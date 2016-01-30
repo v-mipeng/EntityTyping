@@ -25,29 +25,31 @@ namespace msra.nlp.tr
         {
             lock(locker)
             {
-                if (availableTaggers.Count > 0)
+                lock (availableTaggers)
                 {
-                    var index = availableTaggers.First();
-                    availableTaggers.Remove(index);
-                    return taggers[index];
-                }
-                else if (taggers.Count < maxTaggerNum)
-                {
-
-                    if (availableTaggers.Count == 0)
-                    {
-                        var tagger = new PosTagger();
-                        taggers.Add(tagger);
-                        return tagger;
-                    }
-                    else
+                    if (availableTaggers.Count > 0)
                     {
                         var index = availableTaggers.First();
                         availableTaggers.Remove(index);
-                        return taggers[index]; 
+                        return taggers[index];
+                    }
+                    else if (taggers.Count < maxTaggerNum)
+                    {
+
+                        if (availableTaggers.Count == 0)
+                        {
+                            var tagger = new PosTagger();
+                            taggers.Add(tagger);
+                            return tagger;
+                        }
+                        else
+                        {
+                            var index = availableTaggers.First();
+                            availableTaggers.Remove(index);
+                            return taggers[index];
+                        }
                     }
                 }
-                else
                 {
                     while (availableTaggers.Count == 0)
                     {
@@ -70,7 +72,10 @@ namespace msra.nlp.tr
             {
                 if (tagger == taggers[i])
                 {
-                    availableTaggers.Add(i);
+                    lock (availableTaggers)
+                    {
+                        availableTaggers.Add(i);
+                    }
                     break;
                 }
             }
