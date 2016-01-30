@@ -87,7 +87,7 @@ namespace msra.nlp.tr
 
         private void Initial()
         {
-            var basedir = @"D:\Codes\C#\EntityTyping\Fine-ner\input\opennlp models";
+            var basedir = (string)GlobalParameter.Get(DefaultParameter.Field.opennlp_model_dir);
             var modelInputStream = new java.io.FileInputStream(Path.Combine(basedir, "en-ner-location.bin")); //load the name model into a stream
             var model = new opennlp.tools.namefind.TokenNameFinderModel(modelInputStream); //load the model
             locationNameFinder = new opennlp.tools.namefind.NameFinderME(model);                   //create the namefinder

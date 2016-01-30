@@ -116,15 +116,15 @@ namespace msra.nlp.tr
             System.Text.RegularExpressions.Regex typeRegex = new System.Text.RegularExpressions.Regex(@"ontology/(\w+)>\s\.$");
             int count = 0;
 
-            while((line = reader.ReadLine())!=null)
+            while ((line = reader.ReadLine()) != null)
             {
-             
+
                 string entity = null;
                 string type = null;
                 if (entityRegex.IsMatch(line))
                 {
                     var match = entityRegex.Match(line);
-                    entity = match.Groups[1].Value; 
+                    entity = match.Groups[1].Value;
                 }
                 if (typeRegex.IsMatch(line))
                 {

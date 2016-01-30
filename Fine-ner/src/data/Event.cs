@@ -61,8 +61,10 @@ namespace msra.nlp.tr
             mentionID,
             // mention length
             mentionLength,
-            //// stanford ner output
-            //stanfordNerType,
+            // stanford ner output
+            stanfordNerType,
+            // opennlp ner output
+            opennlpNerType,
             // mention context
             sentenceContext
 

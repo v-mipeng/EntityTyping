@@ -226,12 +226,21 @@ namespace msra.nlp.tr
             #endregion
 
             #region Stanford Ner system
+            {
+                var stanfordNerType = rawFeature.ElementAt((int)Event.Field.stanfordNerType);
+                var index = DataCenter.GetStanfordTypeIndex(stanfordNerType);
+                feature.Add((offset + index) + ":1");
+                offset += DataCenter.GetStanfordNerNumber() + 1;
+            }
+            #endregion
 
-            //var stanfordNerType = rawFeature.ElementAt((int)Event.Field.stanfordNerType);
-            //var index = DataCenter.GetStanfordTypeIndex(stanfordNerType);
-            //feature.Add((offset + index) + ":1");
-            //offset += index + 1;
-
+            #region OpenNLP Ner system
+            {
+                var openNLPNerType = rawFeature.ElementAt((int)Event.Field.opennlpNerType);
+                var index = DataCenter.GetOpenNLPTypeIndex(openNLPNerType);
+                feature.Add((offset + index) + ":1");
+                offset += DataCenter.GetOpenNLPNerNumber() + 1;
+            }
             #endregion
 
             #region TODO: topic
@@ -250,6 +259,7 @@ namespace msra.nlp.tr
             feature[0] = FeatureDimension.ToString();
             return feature;
         }
+
 
         private void AddWordFieldToFeature(string stemmedWord,string ID,string shape, string posTag)
         {

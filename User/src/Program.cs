@@ -170,8 +170,8 @@ namespace User
         {
             if (false)
             {
-                FileReader reader = new LargeFileReader(@"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\input\train\train.txt");
-                FileWriter writer = new LargeFileWriter(@"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\input\train\limited train.txt", FileMode.OpenOrCreate);
+                var reader = new LargeFileReader(@"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\input\train\train.txt");
+                var writer = new LargeFileWriter(@"E:\Users\v-mipeng\Codes\C#\NLP\Fine-ner\input\train\limited train.txt", FileMode.OpenOrCreate);
                 Dictionary<string, int> numByType = new Dictionary<string, int>(16);
                 String line;
                 String[] array;
