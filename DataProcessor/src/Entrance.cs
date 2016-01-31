@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using msra.nlp.tr;
 
 namespace msra.nlp.tr.dp
 {
     class Entrance
     {
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             if(false)
             {

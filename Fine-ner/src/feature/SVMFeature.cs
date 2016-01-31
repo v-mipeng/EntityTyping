@@ -9,12 +9,12 @@ using pml.type;
 
 namespace msra.nlp.tr
 {
-    class SVMFeature  : Feature
+    class SVMFeature : Feature
     {
         List<string> feature = new List<string>();
         int offset = 0;
 
-        public SVMFeature():base(){}
+        public SVMFeature() : base() { }
 
 
         /// <summary>
@@ -156,15 +156,18 @@ namespace msra.nlp.tr
                 }
                 var dic = new Dictionary<int, int>();
                 int value = 0;
+                var dic2 = new SortedDictionary<int, int>();
                 foreach (var w in words) // words surface
                 {
                     var index = offset + DataCenter.GetWordIndex(w);
                     dic.TryGetValue(index, out value);
                     dic[index] = value + 1;
                 }
-                foreach (var item in dic)
+                var keys = dic.Keys.ToList();
+                keys.Sort();
+                foreach (var key in keys)
                 {
-                    feature.Add(item.Key + ":" + item.Value);
+                    feature.Add(key + ":" + dic[key]);
                 }
                 offset += DataCenter.GetWordTableSize() + 1;
                 dic.Clear();
@@ -174,9 +177,11 @@ namespace msra.nlp.tr
                     dic.TryGetValue(index, out value);
                     dic[index] = value + 1;
                 }
-                foreach (var item in dic)
+                keys = dic.Keys.ToList();
+                keys.Sort();
+                foreach (var key in keys)
                 {
-                    feature.Add(item.Key + ":" + item.Value);
+                    feature.Add(key + ":" + dic[key]);
                 }
                 offset += DataCenter.GetClusterNumber() + 1;
                 dic.Clear();
@@ -186,9 +191,11 @@ namespace msra.nlp.tr
                     dic.TryGetValue(index, out value);
                     dic[index] = value + 1;
                 }
-                foreach (var item in dic)
+                keys = dic.Keys.ToList();
+                keys.Sort();
+                foreach (var key in keys)
                 {
-                    feature.Add(item.Key + ":" + item.Value);
+                    feature.Add(key + ":" + dic[key]);
                 }
                 offset += DataCenter.GetWordShapeTableSize() + 1;
                 dic.Clear();
@@ -198,9 +205,11 @@ namespace msra.nlp.tr
                     dic.TryGetValue(index, out value);
                     dic[index] = value + 1;
                 }
-                foreach (var item in dic)
+                keys = dic.Keys.ToList();
+                keys.Sort();
+                foreach (var key in keys)
                 {
-                    feature.Add(item.Key + ":" + item.Value);
+                    feature.Add(key + ":" + dic[key]);
                 }
                 offset += DataCenter.GetPosTagTableSize() + 1;
             }
@@ -246,13 +255,19 @@ namespace msra.nlp.tr
 
             #region DBpedia types
             {
-                    var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypes).Split(',');
-                    foreach (var type in types)
-                    {
-                        var index = DataCenter.GetDBpediaTypeIndex(type);
-                        feature.Add((offset + index) + ":1");
-                    }
-                    offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
+                var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypes).Split(',');
+                var list = new List<int>();
+                foreach (var type in types)
+                {
+                    var index = DataCenter.GetDBpediaTypeIndex(type);
+                    list.Add(index);
+                }
+                list.Sort();
+                foreach (var index in list)
+                {
+                    feature.Add((offset + index) + ":1");
+                }
+                offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
             }
             #endregion
 
@@ -274,7 +289,7 @@ namespace msra.nlp.tr
         }
 
 
-        private void AddWordFieldToFeature(string stemmedWord,string ID,string shape, string posTag)
+        private void AddWordFieldToFeature(string stemmedWord, string ID, string shape, string posTag)
         {
             if (stemmedWord != null)
             {

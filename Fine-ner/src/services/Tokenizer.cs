@@ -46,6 +46,7 @@ namespace msra.nlp.tr
         {
             var props = new Properties();
             props.put("annotators", "tokenize");
+            props.setProperty("ner.useSUTime", "false");
             var dir = Directory.GetCurrentDirectory();
             Directory.SetCurrentDirectory((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir));
             pipeline = new StanfordCoreNLP(props);

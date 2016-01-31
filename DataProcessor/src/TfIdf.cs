@@ -55,7 +55,9 @@ namespace msra.nlp.tr.dr
                 {
                     Console.WriteLine(this.docNum);
                 }
-                var document = Tokenizer.Tokenize(this.doc);
+                var tokenizer = TokenizerPool.GetTokenizer();
+                var document = tokenizer.Tokenize(doc);
+                TokenizerPool.ReturnTokenizer(tokenizer);
                 set = new HashSet<string>(document);
                 //documents.Add(document);
                 foreach(var word in set)
@@ -103,7 +105,10 @@ namespace msra.nlp.tr.dr
 
             while(this.doc != null)
             {
-                var document = Tokenizer.Tokenize(doc);
+                var tokenizer = TokenizerPool.GetTokenizer();
+
+                var document = tokenizer.Tokenize(doc);
+                TokenizerPool.ReturnTokenizer(tokenizer);
                 if (++num % 1000 == 0)
                 {
                     Console.WriteLine(num);
