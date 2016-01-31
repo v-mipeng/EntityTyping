@@ -10,7 +10,7 @@ namespace msra.nlp.tr.dp
     {
         public static void Main(string[] args)
         {
-            if(false)
+            if (false)
             {
                 var refiner = new DataRefiner(@"E:\Users\v-mipeng\Data\Satori\Raw\Interlink.stype.tsv",
               @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori ontology\satori-hierarchy.txt",
@@ -18,7 +18,7 @@ namespace msra.nlp.tr.dp
               @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\refined-satori\statisticInfo.txt");
                 refiner.Refine();
             }
-            if(true)
+            if (false)
             {
                 DataSpliter spliter = new DataSpliter(
                 @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\refined-satori\",
@@ -28,6 +28,13 @@ namespace msra.nlp.tr.dp
                 @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\test\",
                 @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train\train-data-info.txt");
                 spliter.SplitData();
+            }
+            if (true)
+            {
+                var sourceDir = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train\";
+                var desDir = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\tmp\";
+                var selector = new KeyWordSelector(sourceDir, desDir);
+                selector.GetKeyWords();
             }
         }
     }

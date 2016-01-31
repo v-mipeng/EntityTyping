@@ -902,6 +902,7 @@ namespace msra.nlp.tr
 
                     while ((line = reader.ReadLine()) != null)
                     {
+                        line = line.ToLower();
                         var array = line.Split('\t');
                         var entity = deleteBrace.Replace(array[0], "");
                         entity = regex.Replace(entity, " ").Trim();
@@ -958,15 +959,16 @@ namespace msra.nlp.tr
                     var dic = new Dictionary<string, string>();
                     var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_redirect_file));
                     var line = "";
-                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\s+");
+                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
                     System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\(\w+\)");
 
                     while ((line = reader.ReadLine()) != null)
                     {
+                        line = line.ToLower();
                         var array = line.Split('\t');
                         var source = deleteBrace.Replace(array[0], "");
                         source = regex.Replace(source, " ").Trim();
-                        var des = deleteBrace.Replace(array[0], "");
+                        var des = deleteBrace.Replace(array[1], "");
                         des = regex.Replace(des, " ").Trim();
                         dic[source] = des;
                     }

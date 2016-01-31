@@ -247,7 +247,6 @@
     <Compile Include="src\feature\FeatureExtractor.cs" />
     <Compile Include="src\feature\IndividualFeature.cs" />
     <Compile Include="src\feature\MaxEntFeature.cs" />
-    <Compile Include="src\feature\stringbuilder.cs" />
     <Compile Include="src\pipeline\FeatureExtractor.cs" />
     <Compile Include="src\pipeline\MaxEntFeatureExtractor.cs" />
     <Compile Include="src\pipeline\IndivisualFeatureExtractor.cs" />

@@ -277,9 +277,12 @@ namespace msra.nlp.tr
         }
          
 
-        public static void Mains(string[] args)
+        public static void Main(string[] args)
         {
-            Temp3();
+            pml.file.util.Util.CombineFiles(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\train", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\train.txt");
+            pml.file.util.Util.CombineFiles(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\develop", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\develop.txt");
+            pml.file.util.Util.CombineFiles(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\test", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\test.txt");
+
             //var input = "I like Beijing";
             //var ner = new OpenNer();
             //ner.FindNer(input);

@@ -67,6 +67,8 @@
     <Compile Include="src\DataRefiner.cs" />
     <Compile Include="src\DataSpliter.cs" />
     <Compile Include="src\Entrance.cs" />
+    <Compile Include="src\KeyWordSelector.cs" />
+    <Compile Include="src\MI.cs" />
     <Compile Include="src\TfIdf.cs" />
   </ItemGroup>
   <ItemGroup>
