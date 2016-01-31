@@ -980,6 +980,104 @@ namespace msra.nlp.tr
         }
 
         #endregion
+
+        #region Key Word
+        static Dictionary<string,int> keyWords = null;
+        static object keyWordLocker = new object();
+
+        static System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\b[\w]{2,}\b");
+
+        private static List<string> Tokenize(string sequence)
+        {
+            var matchCollection = regex.Matches(sequence);
+            List<string> list = new List<string>();
+            foreach (System.Text.RegularExpressions.Match match in matchCollection)
+            {
+                list.Add(match.Groups[0].Value);
+            }
+            return list;
+        }
+
+
+        public static List<string> ExtractKeyWords(string context)
+        {
+            return ExtractKeyWords(Tokenize(context));
+        }
+
+        public static List<string> ExtractKeyWords(List<string> tokens)
+        {
+            if (keyWords == null)
+            {
+                LoadKeyWords();
+            }
+            var list = new List<string>();
+            foreach(var token in tokens)
+            {
+                if(keyWords.ContainsKey(token))
+                {
+                    list.Add(token);
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// If word is not key word, throw error.
+        /// </summary>
+        /// <param name="word"></param>
+        /// <returns></returns>
+        public static    int GetKeyWordIndex(string word)
+        {
+            if(keyWords == null)
+            {
+                LoadKeyWords();
+            }
+            try
+            {
+                return keyWords[word];
+            }
+            catch(Exception)
+            {
+                throw new Exception(word + " is not key word!");
+            }
+        }
+
+        public static int GetKeyWordNumber()
+        {
+            if (keyWords == null)
+            {
+                LoadKeyWords();
+            }
+            return keyWords.Count;
+        }
+
+        private static void LoadKeyWords()
+        {
+           lock(keyWordLocker)
+           {
+            if (keyWords == null)
+            {
+                var reader = new LargeFileReader("");
+                var line = "";
+                var dic = new Dictionary<string,int>;
+                var token = "";
+
+                while((line = reader.ReadLine())!= null)
+                {
+                    if(!dic.ContainsKey((token = line.Trim())))
+                    {
+                        dic[token] = dic.Count;
+                    }
+                }
+                reader.Close();
+                keyWords = dic;
+            }
+           }
+        }
+
+
+
+        #endregion
         private DataCenter() { }
     }
 }

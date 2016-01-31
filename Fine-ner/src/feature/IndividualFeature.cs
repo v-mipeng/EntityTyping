@@ -429,7 +429,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region DBpedia dictionary
-            if (true)
+            if (false)
             {
                 var type = string.Join(",", DataCenter.GetDBpediaType(mention));
                 rawFeature[(int)Event.Field.dbpediaTypes] = type;
@@ -585,7 +585,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region   Modify mention ID
-            if (true)
+            if (false)
             {
                 var mentionID = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionID));
                 var mentionClusterNum = DataCenter.GetMentionClusterNumber();
@@ -597,6 +597,15 @@ namespace msra.nlp.tr
                 }
             }
             #endregion
+
+            #region key words
+            {
+                var keyWords = DataCenter.ExtractKeyWords(context);
+                rawFeature[(int)Event.Field.sentenceContext] = string.Join("\t", keyWords);
+                rawFeature.Add(context);
+            }
+            #endregion
+
             return rawFeature;
         }
 
