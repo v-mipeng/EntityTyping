@@ -30,6 +30,7 @@ namespace msra.nlp.tr
             props.setProperty("tokenizer.whitespace", "true");
             props.setProperty("ssplit.eolonly", "true");
             var dir = Directory.GetCurrentDirectory();
+            props.setProperty("ner.useSUTime", "false");
             Directory.SetCurrentDirectory(@"E:\Users\v-mipeng\Software Install\Stanford NLP\stanford-corenlp-full-2015-04-20\");
             //Directory.SetCurrentDirectory((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir));
             pipeline = new StanfordCoreNLP(props);
@@ -70,7 +71,6 @@ namespace msra.nlp.tr
                 }
                 return lemmas;
             }
-
 
     }
 }

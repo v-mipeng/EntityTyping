@@ -7,138 +7,203 @@ using System.Threading.Tasks;
 using pml.file.reader;
 using msra.nlp.tr;
 using pml.file.writer;
+using System.Threading;
 
-namespace msra.nlp.tr.dp
+namespace msra.nlp.tr
 {
     class KeyWordSelector
     {
         List<string> sourceFiles = null;
         List<string> desFiles = null;
+        static List<Tuple> tuples = new List<Tuple>();
 
         public KeyWordSelector(string sourceDir, string desDic)
         {
             this.sourceFiles = Directory.GetFiles(sourceDir, "*.txt").ToList();
             this.desFiles = new List<string>();
-            for (var i = 0; i < sourceFiles.Count-1 ;i++)
+            for (var i = 0; i < sourceFiles.Count - 1; i++)
             {
                 for (var j = i + 1; j < sourceFiles.Count; j++)
                 {
-                    this.desFiles.Add(Path.Combine(desDic, Path.GetFileNameWithoutExtension(sourceFiles[i]) + "_" + Path.GetFileNameWithoutExtension(sourceFiles[j])));
+                    this.desFiles.Add(Path.Combine(desDic, Path.GetFileNameWithoutExtension(sourceFiles[i]) + " & " + Path.GetFileName(sourceFiles[j])));
                 }
+            }
+            for(var i = 0;i<sourceFiles.Count;i++)
+            {
+                tuples.Add(null);
             }
         }
 
         public void GetKeyWords()
         {
             var count = 0;
-           for(var i= 0; i<sourceFiles.Count-1;i++)
-           {
-               for (var j = i + 1; j < sourceFiles.Count; j++)
-               {
-                   Console.WriteLine("Processing {0} and {1}", Path.GetFileNameWithoutExtension(sourceFiles[i]),Path.GetFileNameWithoutExtension(sourceFiles[j]));
-                   GetKeyWords(sourceFiles[i], sourceFiles[j], desFiles[count]);
-                   Console.WriteLine("Done!");
-                   count++;
-               }
-           }
+            List<Thread> threads = new List<Thread>();
+            for (var i = 0; i < sourceFiles.Count;i++ )
+            {
+                var selector = new KeywordThread(sourceFiles[i], i);
+                var thread = new Thread(new ThreadStart(selector.GetKeyWordInfo));
+                threads.Add(thread);
+                thread.Start();
+            }
+            for (var i = 0; i < threads.Count; i++)
+            {
+                threads[i].Join();
+            }
+            threads.Clear();
+            for (var i = 0; i < sourceFiles.Count - 1; i++)
+            {
+                for (var j = i + 1; j < sourceFiles.Count; j++)
+                {
+                    var selector = new MIThread(tuples[i], tuples[j], desFiles[count]);
+                    var thread = new Thread(new ThreadStart(selector.GetMI));
+                    threads.Add(thread);
+                    thread.Start();
+                    count++;
+                }
+            }
+            for (var i = 0; i < threads.Count; i++)
+            {
+                threads[i].Join();
+            }
         }
 
 
-
-
-        private void GetKeyWords(string fileOne, string fileTwo, string des)
+        class KeywordThread
         {
-            var readerOne = new LargeFileReader(fileOne);
-            var readerTwo = new LargeFileReader(fileTwo);
-            var wordOccurNumDic = new Dictionary<string, int[]>();
-            var wordMIDic = new Dictionary<string, double>();
-            var line = "";
-            var classOneNum = 0;
-            var classTwoNum = 0;
-            var stemmer = StemmerPool.GetStemmer();
+            string source = null;
+            int threadID = -1;
 
-            while((line = readerOne.ReadLine())!=null)
+            public KeywordThread(string source, int threadID)
             {
-                classOneNum++;
-                var array = line.Split('\t');
-                var context = array[3];
-                var tokens = Tokenize(context);
+                this.source = source;
+                this.threadID = threadID;
+            }
+
+            public void GetKeyWordInfo()
+            {
+                Console.WriteLine("Thread {0} start.", threadID);
+                var reader = new LargeFileReader(source);
+                var wordOccurNumDic = new Dictionary<string, int>();
+                var line = "";
+                var classNum = 0;
+                var tagger = PosTaggerPool.GetPosTagger();
                 var set = new HashSet<string>();
 
-                
-                foreach(var token in tokens)
+                while ((line = reader.ReadLine()) != null)
                 {
-                    var tokenStemmed = stemmer.Stem(token)[0];
-                    set.Add(tokenStemmed);
-                }
-                foreach(var token in set)
-                {
-                    int[] nums = null;
-                    try
+                    classNum++;
+                    if (classNum % 1000 == 0)
                     {
-                        nums = wordOccurNumDic[token];
-                        nums[0] += 1;
-                    } 
-                    catch(Exception)
-                    {
-                        nums = new int[2];
-                        nums[0] = 1;
-                        wordOccurNumDic[token] = nums;
+                        Console.WriteLine("Thread {0} has processed: {1}",threadID,classNum);
                     }
-                }
-            }
-            readerOne.Close();
-            while ((line = readerTwo.ReadLine()) != null)
-            {
-                classTwoNum++;
-                var array = line.Split('\t');
-                var context = array[3];
-                var tokens = Tokenize(context);
-                var set = new HashSet<string>();
+                    var array = line.Split('\t');
+                    var pairs = tagger.TagString(array[3]);
+                    set.Clear();
 
-                foreach (var token in tokens)
-                {
-                    var tokenStemmed = stemmer.Stem(token)[0];
-                    set.Add(tokenStemmed);
-                }
-                foreach (var token in set)
-                {
-                    int[] nums = null;
-                    try
+                    foreach (var pair in pairs)
                     {
-                        nums = wordOccurNumDic[token];
-                        nums[1] += 1;
+                        if (pair.second.StartsWith("N") || pair.second.StartsWith("V") || pair.second.StartsWith("J"))
+                        {
+                            var tokenStemmed = Generalizer.Generalize(pair.first).ToLower();
+                            set.Add(tokenStemmed);
+                        }
                     }
-                    catch (Exception)
+                    foreach (var token in set)
                     {
-                        nums = new int[2];
-                        nums[1] = 1;
-                        wordOccurNumDic[token] = nums;
+                        int num = 0;
+                        wordOccurNumDic.TryGetValue(token, out num);
+                        wordOccurNumDic[token] = num + 1;
                     }
                 }
+                reader.Close();
+                PosTaggerPool.ReturnPosTagger(tagger);
+                KeyWordSelector.tuples[threadID] = new Tuple(classNum, wordOccurNumDic);
             }
-            readerTwo.Close();
-            foreach(var token in wordOccurNumDic.Keys)
-            {
-                wordMIDic[token] = MI.GetMI(classOneNum, classTwoNum, wordOccurNumDic[token][0], wordOccurNumDic[token][1]);
-            }
-            SaveKeyWords(wordMIDic, des);
+
+
         }
 
-        private void SaveKeyWords(Dictionary<string,double> keyWordDic, string des)
+
+        class MIThread
         {
-            var writer = new LargeFileWriter(des, FileMode.Create);
-            int count = 0;
-            foreach(var item in keyWordDic.OrderByDescending(key => key.Value))
+            Tuple tupleOne = null;
+            Tuple tupleTwo = null;
+            string des = null;
+            public MIThread(Tuple tupleOne, Tuple tupleTwo, string des)
             {
-                count++;
-                writer.WriteLine(item.Key + "\t" + item.Value);
-                if(count>100)
+                this.tupleOne = tupleOne;
+                this.tupleTwo = tupleTwo;
+                this.des = des;
+            }
+            public void GetMI()
+            {
+                var classOneNum = tupleOne.ItemNum;
+                var classTwoNum = tupleTwo.ItemNum;
+                var keys = tupleOne.WordOccurDic.Keys.ToList();
+                keys.AddRange(tupleTwo.WordOccurDic.Keys);
+                var wordMIDic = new Dictionary<string,double>();
+
+                foreach (var token in keys)
                 {
-                    break;
+                    int N1 = 0;
+                    int N0 = 0;
+                   if(!tupleOne.WordOccurDic.TryGetValue(token, out N1))
+                   {
+                       N1 = 0;
+                   }
+                   if (!tupleTwo.WordOccurDic.TryGetValue(token, out N0))
+                   {
+                       N0 = 0;
+                   }
+                    wordMIDic[token] = MI.GetMI(classOneNum, classTwoNum, N1,N0);
+                }
+                SaveKeyWords(wordMIDic, des);
+                Console.WriteLine("Done!");
+            }
+            private void SaveKeyWords(Dictionary<string, double> keyWordDic, string des)
+            {
+                var writer = new LargeFileWriter(des, FileMode.Create);
+                int count = 0;
+                foreach (var item in keyWordDic.OrderByDescending(key => key.Value))
+                {
+                    count++;
+                    writer.WriteLine(item.Key + "\t" + item.Value);
+                    if (count > 1000)
+                    {
+                        break;
+                    }
+                }
+                writer.Close();
+            }
+
+        }
+
+        class Tuple
+        {
+            int itemNum = -1;
+            Dictionary<string, int> wordOccurDic = null;
+
+            public Tuple(int itemNum, Dictionary<string, int> wordOccurDic)
+            {
+                this.itemNum = itemNum;
+                this.wordOccurDic = wordOccurDic;
+            }
+
+            public int ItemNum
+            {
+                get
+                {
+                    return itemNum;
                 }
             }
-            writer.Close();
+
+            public Dictionary<string, int> WordOccurDic
+            {
+                get
+                {
+                    return wordOccurDic;
+                }
+            }
         }
 
         System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\b[\w]{2,}\b");
@@ -154,9 +219,14 @@ namespace msra.nlp.tr.dp
             return list;
         }
 
-        public static void Mains(string[] args)
-        {
 
+        public static void Main(string[] args)
+        {
+            var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori\train";
+            var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\tmp\";
+            var selector = new KeyWordSelector(sourceDir, desDir);
+            selector.GetKeyWords();
+            //var str = "I like this beautiful Beijing.";
 
         }
 
