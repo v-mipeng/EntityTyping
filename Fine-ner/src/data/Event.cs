@@ -67,6 +67,8 @@ namespace msra.nlp.tr
             opennlpNerType,
             // dbpedia type
             dbpediaTypes,
+            // key words
+            keyWords,
             // mention context
             sentenceContext
 

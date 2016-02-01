@@ -451,19 +451,23 @@ namespace msra.nlp.tr
         {
             lock (stemmerLocker)
             {
-                if (des == null)
+                if (stemWordDic != null)
                 {
-                    des = (string)DefaultParameter.Get(DefaultParameter.Field.stem_map);
-                    //des = (string)GlobalParameter.Get(DefaultParameter.stem_map);
-                }
-                if (stemWordDic == null) return;
-                FileWriter writer = new LargeFileWriter(des, FileMode.Create);
+                    if (des == null)
+                    {
+                        des = (string)DefaultParameter.Get(DefaultParameter.Field.stem_map);
+                        //des = (string)GlobalParameter.Get(DefaultParameter.stem_map);
+                    }
+                    if (stemWordDic == null) return;
+                    FileWriter writer = new LargeFileWriter(des, FileMode.Create);
 
-                foreach (var word in stemWordDic.Keys)
-                {
-                    writer.WriteLine(word + "\t" + stemWordDic[word]);
+                    foreach (var word in stemWordDic.Keys)
+                    {
+                        writer.WriteLine(word + "\t" + stemWordDic[word]);
+                    }
+                    writer.Close();
+                    stemWordDic = null;
                 }
-                writer.Close();
             }
         }
 
@@ -1010,15 +1014,20 @@ namespace msra.nlp.tr
             {
                 LoadKeyWords();
             }
-            var list = new List<string>();
+            var set = new HashSet<string>();
             foreach(var token in tokens)
             {
-                if(keyWords.ContainsKey(token))
+                var tokenStemmed = Generalizer.Generalize(token).ToLower();
+                if (keyWords.ContainsKey(tokenStemmed))
                 {
-                    list.Add(token);
+                    set.Add(tokenStemmed);
                 }
             }
-            return list;
+            if(set.Count == 0)
+            {
+                set.Add("NONE");
+            }
+            return set.ToList();
         }
 
         /// <summary>
@@ -1026,7 +1035,7 @@ namespace msra.nlp.tr
         /// </summary>
         /// <param name="word"></param>
         /// <returns></returns>
-        public static    int GetKeyWordIndex(string word)
+        public static int GetKeyWordIndex(string word)
         {
             if(keyWords == null)
             {
@@ -1057,9 +1066,9 @@ namespace msra.nlp.tr
            {
             if (keyWords == null)
             {
-                var reader = new LargeFileReader("");
+                var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.keyword_file));
                 var line = "";
-                var dic = new Dictionary<string,int>;
+                var dic = new Dictionary<string,int>();
                 var token = "";
 
                 while((line = reader.ReadLine())!= null)
@@ -1070,6 +1079,7 @@ namespace msra.nlp.tr
                     }
                 }
                 reader.Close();
+                dic["NONE"] = dic.Count;
                 keyWords = dic;
             }
            }

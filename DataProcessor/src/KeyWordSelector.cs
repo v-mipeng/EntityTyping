@@ -91,6 +91,10 @@ namespace msra.nlp.tr
 
                 while ((line = reader.ReadLine()) != null)
                 {
+                    if(classNum>10000)
+                    {
+                        break;
+                    }
                     classNum++;
                     if (classNum % 1000 == 0)
                     {
@@ -220,14 +224,47 @@ namespace msra.nlp.tr
         }
 
 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
-            var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori\train";
-            var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\tmp\";
-            var selector = new KeyWordSelector(sourceDir, desDir);
-            selector.GetKeyWords();
+            //var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori\train";
+            //var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\tmp\";
+            //var selector = new KeyWordSelector(sourceDir, desDir);
+            //selector.GetKeyWords();
             //var str = "I like this beautiful Beijing.";
+            Temp();
+        }
 
+        static void Temp()
+        {
+            var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\tmp\";
+            var des = @"D:\Codes\Project\EntityTyping\Fine-ner\input\keywords.txt";
+            var files = Directory.GetFiles(sourceDir);
+            var reader = new LargeFileReader();
+            var writer = new LargeFileWriter(des, FileMode.Create);
+            var line = "";
+            var keyWords = new HashSet<string>();
+
+            foreach(var file in files)
+            {
+                reader.Open(file);
+                int count = 0;
+                while((line = reader.ReadLine())!=null)
+                {
+                    count++;
+                    if(count>100)
+                    {
+                        break;
+                    }
+                    var array = line.Split('\t');
+                    keyWords.Add(array[0]);
+                }
+            }
+            reader.Close();
+            foreach(var word in keyWords)
+            {
+                writer.WriteLine(word);
+            }
+            writer.Close();
         }
 
     }

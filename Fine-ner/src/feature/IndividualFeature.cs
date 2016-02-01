@@ -399,7 +399,7 @@ namespace msra.nlp.tr
             var mention = rawFeature.ElementAt((int)Event.Field.mentionSurfaces).Replace(',', ' ');
             var context = rawFeature.ElementAt((int)Event.Field.sentenceContext);
             #region Stanford NER
-            if (false)
+            if (true)
             {
 
                 var ner = StanfordNerPool.GetStanfordNer();
@@ -407,14 +407,12 @@ namespace msra.nlp.tr
                 var type = ner.GetNerType(mention);
                 StanfordNerPool.ReturnStanfordNer(ner);
                 ner = null;
-                rawFeature[(int)Event.Field.sentenceContext] = type;
-                rawFeature.Add(context);
-                return rawFeature;
+                rawFeature[(int)Event.Field.stanfordNerType] = type;
             }
             #endregion
 
             #region OpenNLP NER
-            if (false)
+            if (true)
             {
 
                 var ner = OpenNerPool.GetOpenNer();
@@ -422,8 +420,7 @@ namespace msra.nlp.tr
                 var type = ner.GetNerType(mention);
                 OpenNerPool.ReturnOpenNer(ner);
                 ner = null;
-                rawFeature[(int)Event.Field.sentenceContext] = type;
-                rawFeature.Add(context);
+                rawFeature[(int)Event.Field.opennlpNerType] = type;
                 return rawFeature;
             }
             #endregion
@@ -598,10 +595,12 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            #region key words
+            #region Key words
+            if(false)
             {
                 var keyWords = DataCenter.ExtractKeyWords(context);
-                rawFeature[(int)Event.Field.sentenceContext] = string.Join("\t", keyWords);
+                rawFeature[(int)Event.Field.sentenceContext] = string.Join(",", keyWords);
+
                 rawFeature.Add(context);
             }
             #endregion

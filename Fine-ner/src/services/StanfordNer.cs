@@ -148,7 +148,11 @@ namespace msra.nlp.tr
             foreach (var pair in nerPairs)
             {
                 var str1 = regex.Replace(pair.first, "").ToLower();
-                if (str1.Contains(mention) || mention.Contains(str1))
+                //if (str1.Contains(mention) || mention.Contains(str1))  // part match
+                //{
+                //    return pair.second;
+                //}
+                if (str1.Equals(mention))    // full match
                 {
                     return pair.second;
                 }
