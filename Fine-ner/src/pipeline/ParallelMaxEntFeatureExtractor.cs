@@ -27,6 +27,10 @@ namespace msra.nlp.tr
             var attr = File.GetAttributes(source);
             if (attr.HasFlag(FileAttributes.Directory))
             {
+                if (!Directory.Exists(des))
+                {
+                    Directory.CreateDirectory(des);
+                }
                 this.sourceFiles = Directory.GetFiles(source, "*.txt").ToList();
                 this.desFiles = new List<string>();
                 foreach (var file in sourceFiles)

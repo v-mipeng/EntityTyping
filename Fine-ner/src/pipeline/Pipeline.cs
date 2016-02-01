@@ -267,7 +267,7 @@ namespace msra.nlp.tr
                 }
                 if (options.Contains("dev") || options.Contains("all"))
                 {
-                    var extractor = new ParallelIndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
+                    var extractor = new IndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
                         (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
                     if (options.Contains("add"))
                     {

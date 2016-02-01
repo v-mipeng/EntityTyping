@@ -22,6 +22,10 @@ namespace msra.nlp.tr
 
         public ParallelSVMFeatureExtractor(string source, string des)
         {
+            if (!Directory.Exists(des))
+            {
+                Directory.CreateDirectory(des);
+            }
             this.source = source;
             this.des = des;
             var attr = File.GetAttributes(source);
