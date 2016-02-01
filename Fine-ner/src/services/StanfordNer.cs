@@ -36,9 +36,9 @@ namespace msra.nlp.tr
             props.setProperty("tokenizer.whitespace", "true");
             props.setProperty("ssplit.eolonly", "true");
             props.setProperty("ner.useSUTime", "0");
-            props.setProperty("ner.model", @"D:\Codes\C#\EntityTyping\Fine-ner\input\stanford models\edu\stanford\nlp\models\ner\english.all.3class.distsim.crf.ser.gz");
+            //props.setProperty("ner.model", @"D:\Codes\C#\EntityTyping\Fine-ner\input\stanford models\edu\stanford\nlp\models\ner\english.all.3class.distsim.crf.ser.gz");
             var dir = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(@"D:\Codes\C#\EntityTyping\Fine-ner\input\stanford models\");
+            Directory.SetCurrentDirectory((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir));
             pipeline = new StanfordCoreNLP(props);
             Directory.SetCurrentDirectory(dir);
         }

@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace msra.nlp.tr
 {
-    class KeyWordSelector
+    public class KeyWordSelector
     {
         List<string> sourceFiles = null;
         List<string> desFiles = null;
@@ -91,6 +91,10 @@ namespace msra.nlp.tr
 
                 while ((line = reader.ReadLine()) != null)
                 {
+                    if(classNum > 10000)
+                    {
+                        break;
+                    }
                     classNum++;
                     if (classNum % 1000 == 0)
                     {
@@ -220,14 +224,13 @@ namespace msra.nlp.tr
         }
 
 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori\train";
             var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\tmp\";
             var selector = new KeyWordSelector(sourceDir, desDir);
             selector.GetKeyWords();
             //var str = "I like this beautiful Beijing.";
-
         }
 
     }

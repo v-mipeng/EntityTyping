@@ -424,8 +424,8 @@ namespace msra.nlp.tr
                 if (stemWordDic == null)
                 {
                     var dic = new Dictionary<string, string>();
-                    //FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.stem_map));
-                    FileReader reader = new LargeFileReader(@"D:\Codes\Project\EntityTyping\Fine-ner\input\tables\stem-word-table.txt");
+                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.stem_map));
+                    //FileReader reader = new LargeFileReader(@"D:\Codes\Project\EntityTyping\Fine-ner\input\tables\stem-word-table.txt");
                     string line;
                     string[] array;
 
@@ -451,19 +451,23 @@ namespace msra.nlp.tr
         {
             lock (stemmerLocker)
             {
-                if (des == null)
+                if (stemWordDic != null)
                 {
-                    des = (string)DefaultParameter.Get(DefaultParameter.Field.stem_map);
-                    //des = (string)GlobalParameter.Get(DefaultParameter.stem_map);
-                }
-                if (stemWordDic == null) return;
-                FileWriter writer = new LargeFileWriter(des, FileMode.Create);
+                    if (des == null)
+                    {
+                        des = (string)DefaultParameter.Get(DefaultParameter.Field.stem_map);
+                        //des = (string)GlobalParameter.Get(DefaultParameter.stem_map);
+                    }
+                    if (stemWordDic == null) return;
+                    FileWriter writer = new LargeFileWriter(des, FileMode.Create);
 
-                foreach (var word in stemWordDic.Keys)
-                {
-                    writer.WriteLine(word + "\t" + stemWordDic[word]);
+                    foreach (var word in stemWordDic.Keys)
+                    {
+                        writer.WriteLine(word + "\t" + stemWordDic[word]);
+                    }
+                    writer.Close();
+                    stemWordDic = null;
                 }
-                writer.Close();
             }
         }
 
@@ -982,7 +986,7 @@ namespace msra.nlp.tr
         #endregion
 
         #region Key Word
-        static Dictionary<string,int> keyWords = null;
+        static Dictionary<string, int> keyWords = null;
         static object keyWordLocker = new object();
 
         static System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\b[\w]{2,}\b");
@@ -1010,15 +1014,20 @@ namespace msra.nlp.tr
             {
                 LoadKeyWords();
             }
-            var list = new List<string>();
-            foreach(var token in tokens)
+            var set = new HashSet<string>();
+            foreach (var token in tokens)
             {
-                if(keyWords.ContainsKey(token))
+                var tokenStemmed = Generalizer.Generalize(token).ToLower();
+                if (keyWords.ContainsKey(tokenStemmed))
                 {
-                    list.Add(token);
+                    set.Add(tokenStemmed);
                 }
             }
-            return list;
+            if (set.Count == 0)
+            {
+                set.Add("NONE");
+            }
+            return set.ToList();
         }
 
         /// <summary>
@@ -1026,9 +1035,9 @@ namespace msra.nlp.tr
         /// </summary>
         /// <param name="word"></param>
         /// <returns></returns>
-        public static    int GetKeyWordIndex(string word)
+        public static int GetKeyWordIndex(string word)
         {
-            if(keyWords == null)
+            if (keyWords == null)
             {
                 LoadKeyWords();
             }
@@ -1036,7 +1045,7 @@ namespace msra.nlp.tr
             {
                 return keyWords[word];
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw new Exception(word + " is not key word!");
             }
@@ -1053,26 +1062,27 @@ namespace msra.nlp.tr
 
         private static void LoadKeyWords()
         {
-           lock(keyWordLocker)
-           {
-            if (keyWords == null)
+            lock (keyWordLocker)
             {
-                var reader = new LargeFileReader("");
-                var line = "";
-                var dic = new Dictionary<string,int>;
-                var token = "";
-
-                while((line = reader.ReadLine())!= null)
+                if (keyWords == null)
                 {
-                    if(!dic.ContainsKey((token = line.Trim())))
+                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.keyword_file));
+                    var line = "";
+                    var dic = new Dictionary<string, int>();
+                    var token = "";
+
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        dic[token] = dic.Count;
+                        if (!dic.ContainsKey((token = line.Trim())))
+                        {
+                            dic[token] = dic.Count;
+                        }
                     }
+                    reader.Close();
+                    dic["NONE"] = dic.Count;
+                    keyWords = dic;
                 }
-                reader.Close();
-                keyWords = dic;
             }
-           }
         }
 
 

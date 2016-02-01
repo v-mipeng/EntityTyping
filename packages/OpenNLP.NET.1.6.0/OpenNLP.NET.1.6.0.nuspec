@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>OpenNLP.NET</id>
+    <version>1.6.0</version>
+    <authors>Jorn Kottmann, Benson Margulies, Grant Ingersoll, Isabel Drost, James Kosin, Jason Baldridge, Thomas Morton, William Silva, Aliaksandr Autayeu, Boris Galitsky, Mark Giaconia, Rodrigo Agerri, Tommaso Teofili, Vinh Khuc</authors>
+    <owners>Jorn Kottmann, Benson Margulies, Grant Ingersoll, Isabel Drost, James Kosin, Jason Baldridge, Thomas Morton, William Silva, Aliaksandr Autayeu, Boris Galitsky, Mark Giaconia, Rodrigo Agerri, Tommaso Teofili, Vinh Khuc</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/sergey-tihon/OpenNLP.NET</projectUrl>
+    <iconUrl>https://github.com/sergey-tihon/OpenNLP.NET/blob/master/docs/files/img/logo.png?raw=true</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The Apache OpenNLP library is a machine learning based toolkit for the processing of natural language text. It supports the most common NLP tasks, such as tokenization, sentence segmentation, part-of-speech tagging, named entity extraction, chunking, parsing, and coreference resolution. These tasks are usually required to build more advanced text processing services. OpenNLP also included maximum entropy and perceptron based machine learning.</description>
+    <releaseNotes>New version of OpenNLP 1.6</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>NLP OpenNLP Tokenizer Categorizer Chunker Parser POS NER</tags>
+    <dependencies>
+      <dependency id="IKVM" version="[8.0.5449.1]" />
+    </dependencies>
+  </metadata>
+</package>
