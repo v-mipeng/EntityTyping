@@ -271,6 +271,25 @@ namespace msra.nlp.tr
             }
             #endregion
 
+            #region Key words
+            {
+                var keywords = rawFeature.ElementAt((int)Event.Field.keyWords).Split(',');
+                var list = new List<int>();
+                foreach (var word in keywords)
+                {
+                    var index = DataCenter.GetKeyWordIndex(word);
+                    list.Add(offset + index);
+                }
+                list.Sort();
+                foreach (var index in list)
+                {
+                    feature.Add(index + ":1");
+                }
+                offset += DataCenter.GetKeyWordNumber();
+            }
+            #endregion
+
+
             #region TODO: topic
             {
 

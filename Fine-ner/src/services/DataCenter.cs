@@ -424,8 +424,8 @@ namespace msra.nlp.tr
                 if (stemWordDic == null)
                 {
                     var dic = new Dictionary<string, string>();
-                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.stem_map));
-                    //FileReader reader = new LargeFileReader(@"D:\Codes\Project\EntityTyping\Fine-ner\input\tables\stem-word-table.txt");
+                    //FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.stem_map));
+                    FileReader reader = new LargeFileReader(@"D:\Codes\Project\EntityTyping\Fine-ner\input\tables\stem-word-table.txt");
                     string line;
                     string[] array;
 

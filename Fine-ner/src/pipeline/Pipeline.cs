@@ -555,7 +555,7 @@ namespace msra.nlp.tr
          */
         ~Pipeline()
         {
-            DataCenter.RefreshStemDic();
+            //DataCenter.RefreshStemDic();
         }
 
     }
