@@ -30,12 +30,18 @@ namespace msra.nlp.tr.dp
                 @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train\train-data-info.txt");
                 spliter.SplitData();
             }
-            if (true)
+            if (false)
             {
                 var sourceDir = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train\";
                 var desDir = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\tmp\";
                 var selector = new KeyWordSelector(sourceDir, desDir);
                 selector.GetKeyWords();
+            }
+            if(true)
+            {
+                var source = @"D:\Data\DBpedia\disambiguations_en.nt";
+                var des = @"D:\Data\DBpedia\disambiguation mapping.txt";
+                DBpediaProcessor.RefineAmbiguousItem(source, des);
             }
         }
     }

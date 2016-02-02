@@ -212,6 +212,9 @@
     <Compile Include="src\data\InstanceWriter.cs" />
     <Compile Include="src\data\InstanceWriterByLine.cs" />
     <Compile Include="src\data\Label.cs" />
+    <Compile Include="src\evaluate\ClassByClassEvaluator.cs" />
+    <Compile Include="src\evaluate\Evaluator.cs" />
+    <Compile Include="src\evaluate\Util.cs" />
     <Compile Include="src\feature\BayesFeature.cs" />
     <Compile Include="src\feature\EmbedFeature.cs" />
     <Compile Include="src\feature\Feature.cs" />

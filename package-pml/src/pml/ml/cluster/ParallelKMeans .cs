@@ -155,7 +155,6 @@ namespace pml.ml.cluster
 
         }
 
-
         public ParallelKMeans(DistanceFunction disFun = DistanceFunction.Euclid)
         {
             this.dataPool = new DataPool();
@@ -234,7 +233,6 @@ namespace pml.ml.cluster
             return this.dataPool.clusters.ToArray();
         }
 
-
         public double[][] Centroids
         {
             get
@@ -283,7 +281,6 @@ namespace pml.ml.cluster
             }
             Initialcentroids();
         }
-
 
         /// <summary>
         /// Initial centroids with random assign method: randomly assign point to cluster

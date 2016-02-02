@@ -412,7 +412,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region OpenNLP NER
-            if (true)
+            if (false)
             {
 
                 var ner = OpenNerPool.GetOpenNer();
@@ -426,10 +426,13 @@ namespace msra.nlp.tr
             #endregion
 
             #region DBpedia dictionary
-            if (false)
+            if (true)
             {
-                var type = string.Join(",", DataCenter.GetDBpediaType(mention));
-                rawFeature[(int)Event.Field.dbpediaTypes] = type;
+                if(rawFeature[(int)Event.Field.dbpediaTypes].Equals("UNKNOW"))
+                {
+                    var type = string.Join(",", DataCenter.GetDBpediaType(mention));
+                    rawFeature[(int)Event.Field.dbpediaTypes] = type;
+                }
             }
             #endregion
 
@@ -582,13 +585,12 @@ namespace msra.nlp.tr
             #endregion
 
             #region   Modify mention ID
-            if (false)
+            if (true)
             {
                 var mentionID = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionID));
                 var mentionClusterNum = DataCenter.GetMentionClusterNumber();
                 if (mentionID == mentionClusterNum)
                 {
-                    mention = mention.Replace(' ', '_');
                     mentionID = DataCenter.GetMentionClusterID(mention);
                     rawFeature[(int)Event.Field.mentionID] = mentionID.ToString();
                 }

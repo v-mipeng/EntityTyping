@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using msra.nlp.tr.eval;
 
 namespace msra.nlp.tr
 {
@@ -185,50 +186,171 @@ namespace msra.nlp.tr
             writer.Close();
 
         }
-
-
-        public static void Mains(string[] args)
+        public static void Temp4()
         {
-            pml.file.util.Util.CombineFiles(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\train", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\train.txt");
-            pml.file.util.Util.CombineFiles(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\develop", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\develop.txt");
-            pml.file.util.Util.CombineFiles(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\test", @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\output\svm\test.txt");
-            //var input = "I like Beijing";
-            //var ner = new OpenNer();
-            //ner.FindNer(input);
-            //var type = ner.GetNerType("Beijing");
-            //var source = @"D:\Codes\C#\EntityTyping\Fine-ner\input\dictionaries\tmp.txt";
-            //var desDir = "";
-            //var dic = new Dictionary<string, int>();
-            //var reader = new pml.file.reader.LargeFileReader(source);
-            //string line;
-            //System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex("/");
-            //var count = 0;
+            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\dbpedia entity type.txt";
+            var reader = new pml.file.reader.LargeFileReader(source);
+            var des = @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\tmp.txt";
+            var writer = new LargeFileWriter(des, FileMode.Create);
+            string line;
+            int count = 0;
+            var set = new HashSet<string>();
+            var dic = new Dictionary<string, int>();
+            var times = 0;
 
-            //while((line =reader.ReadLine())!=null)
+            while ((line = reader.ReadLine()) != null)
+            {
+                if(++count%10000 == 0)
+                {
+                    Console.WriteLine(count);
+                }
+                var array = line.Split('\t');
+                dic.TryGetValue(array[1], out times);
+                dic[array[1]] = times + 1;
+            }
+            reader.Close();
+            foreach (var type in dic.OrderByDescending(key => key.Value))
+            {
+                writer.WriteLine(type.Key+"\t"+type.Value);
+            }
+            writer.Close();
+        }
+
+        public static void Temp5()
+        {
+            var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\train";
+            var sourceFiles = Directory.GetFiles(sourceDir).ToList();
+            var desFile = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\data in dbpedia info.txt";
+            var writer = new LargeFileWriter(desFile);
+
+            for (var i = 0; i < sourceFiles.Count; i++)
+            {
+                var reader = new EventReaderByLine(sourceFiles[i]);
+                int count = 0;
+                while (reader.HasNext())
+                {
+                    var event1 = reader.GetNextEvent();
+                    var rawFeature = event1.Feature.ToList();
+                    if(!rawFeature[(int)Event.Field.dbpediaTypes].Equals("UNKNOW"))
+                    {
+                        count++;
+                    }
+                }
+                reader.Close();
+                writer.WriteLine(Path.GetFileNameWithoutExtension(sourceFiles[i]) + "\t" + count);
+            }
+            writer.Close();
+        }
+
+        public static void Main(string[] args)
+        {
+            Temp5();
+            //var currentFolderPath = Environment.CurrentDirectory;
+            //var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
+            //var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
+            //basedir = Path.Combine(basedir, "Fine-ner/");
+            //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\train\"), Path.Combine(basedir, @"output\svm\train.txt"));
+            //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\develop\"), Path.Combine(basedir, @"output\svm\develop.txt"));
+            //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\test\"), Path.Combine(basedir, @"output\svm\test.txt"));
+
+            //var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\develop2";
+            //var sourceDir2 = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\develop3";
+            //var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\develop4";
+            //var sourceFiles = Directory.GetFiles(sourceDir).ToList();
+            //var sourceFiles2 = Directory.GetFiles(sourceDir2).ToList();
+            //var desFiles = new List<string>();
+            //foreach (var file in sourceFiles)
             //{
-            //    if(++count%1000 == 0)
-            //    {
-            //        Console.WriteLine(count);
-            //    }
-            //    try
-            //    {
-            //        dic[line] += 1;
-            //    }
-            //    catch(Exception)
-            //    {
-            //        dic[line] = 1;
-            //    }
+            //    desFiles.Add(Path.Combine(desDir, Path.GetFileName(file)));
             //}
-            //reader.Close();
-            //var des = @"D:\Codes\C#\EntityTyping\Fine-ner\input\dictionaries\tmp2.txt";
-            //var writer = new LargeFileWriter(des, FileMode.Create);
 
-            //foreach(var item in dic)
+            //for (var i = 0; i < sourceFiles.Count; i++)
             //{
-            //    writer.WriteLine(item.Key + "\t" + item.Value);
-            //}
-            //writer.Close();
+            //    var reader = new EventReaderByLine(sourceFiles[i]);
+            //    var reader2 = new EventReaderByLine(sourceFiles2[i]);
+            //    var writer = new EventWriterByLine(desFiles[i]);
 
+            //    while (reader.HasNext())
+            //    {
+            //        var event1 = reader.GetNextEvent();
+            //        var event2 = reader2.GetNextEvent();
+            //        var rawFeature = event1.Feature.ToList();
+            //        rawFeature[(int)Event.Field.opennlpNerType] = event2.Feature.ElementAt((int)Event.Field.opennlpNerType);
+            //        writer.WriteEvent(new Event(event1.Label, rawFeature));
+            //    }
+            //    writer.Close();
+            //    reader.Close();
+            //    reader2.Close();
+            //}
+
+        }
+
+        public static void GetItemNumByType()
+        {
+            var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test";
+            var desFile = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\data info.txt";
+            var sourceFiles = Directory.GetFiles(sourceDir).ToList();
+            var writer = new LargeFileWriter(desFile, FileMode.Append);
+            writer.WriteLine(sourceDir.Substring(sourceDir.LastIndexOf("\\")+1)+":");
+            for (var i = 0; i < sourceFiles.Count; i++)
+            {
+                var reader = new LargeFileReader(sourceFiles[i]);
+                var line = "";
+                int count = 0;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    count++;
+                }
+                reader.Close();
+                writer.WriteLine(Path.GetFileNameWithoutExtension(sourceFiles[i]) + "\t:\t" + count);
+            }
+            writer.Close();
+        }
+
+        public static void EvaluateResult()
+        {
+            var evaluator = new ClassByClassEvaluator();
+            var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\output\result\satori\eval\instance result\inst result with stanford ner\";
+            var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\output\result\satori\eval\statistic result\with stanford ner\";
+            var sourceFiles = Directory.GetFiles(sourceDir).ToList();
+            var desFile = "";
+            foreach (var file in sourceFiles)
+            {
+                desFile = Path.Combine(desDir, Path.GetFileName(file));
+                evaluator.EvaluateResult(file, desFile);
+            }
+         
+        }
+
+
+        /// <summary>
+        /// pair.first: word
+        /// pair.second: pos tag of word
+        /// </summary>
+        /// <param name="pairs"></param>
+        public pml.type.Pair<string,string> GetMentionHead(List<pml.type.Pair<string, string>> pairs)
+        {
+            string head = null, posTag = null;
+            for (int i = 0; i <= pairs.Count; i++)
+            {
+                if (pairs.ElementAt(i).second.StartsWith("N"))
+                {
+                    // last noun
+                    head = pairs.ElementAt(i).first;
+                    posTag = pairs.ElementAt(i).second;
+                }
+                else if (pairs.ElementAt(i).second.Equals("IN") || pairs.ElementAt(i).second.Equals(","))
+                {
+                    // before IN
+                    break;
+                }
+            }
+            if(head == null)
+            {
+                head = pairs[pairs.Count - 1].first;
+                posTag = pairs[pairs.Count - 1].second;
+            }
+            return new pml.type.Pair<string, string>(head, posTag);
         }
 
     }

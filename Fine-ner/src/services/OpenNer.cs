@@ -77,14 +77,14 @@ namespace msra.nlp.tr
             foreach (var entity in entities)
             {
                 var str1 = regex.Replace(entity.first, "").ToLower();
-                //if (str1.Contains(mention) || mention.Contains(str1))
-                //{
-                //    return entity.second;
-                //}
-                if (str1.Equals(mention))   // full match
+                if (str1.Contains(mention) || mention.Contains(str1))
                 {
                     return entity.second;
                 }
+                //if (str1.Equals(mention))   // full match
+                //{
+                //    return entity.second;
+                //}
             }
             return "UNKNOW";
         }

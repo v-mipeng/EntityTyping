@@ -8,7 +8,7 @@ using System.IO;
 
 namespace msra.nlp.tr
 {
-    class EventWriterByLine : EventWriter
+   public class EventWriterByLine : EventWriter
     {
 
         FileWriter writer = null;

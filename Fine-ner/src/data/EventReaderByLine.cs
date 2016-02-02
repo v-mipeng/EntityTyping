@@ -7,7 +7,7 @@ using pml.file.reader;
 
 namespace msra.nlp.tr
 {
-    class EventReaderByLine : EventReader
+   public class EventReaderByLine : EventReader
     {
 
         FileReader reader = null;

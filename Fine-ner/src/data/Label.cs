@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
-    class Label
+    public class Label
     {
         private string stringLabel = null;
 

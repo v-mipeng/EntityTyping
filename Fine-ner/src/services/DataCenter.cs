@@ -568,16 +568,27 @@ namespace msra.nlp.tr
                 LoadMentionClusterID();
             }
             int id;
-            mentionIdDic.TryGetValue(mention, out id);
             try
             {
                 id = mentionIdDic[mention];
+                return id;
             }
             catch (Exception)
             {
-                id = mentionClusterSize;
+                mention = GetRedirect(mention);
+                if (mention != null)
+                {
+                    try
+                    {
+                        id = mentionIdDic[mention];
+                    }
+                    catch
+                    {
+                        return mentionClusterSize;
+                    }
+                }
+                return mentionClusterSize;
             }
-            return id;
         }
 
         public static int GetMentionClusterNumber()
@@ -603,6 +614,7 @@ namespace msra.nlp.tr
                     string line;
                     string[] array;
                     HashSet<int> ids = new HashSet<int>();
+                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
 
                     while ((line = reader.ReadLine()) != null)
                     {
@@ -611,6 +623,7 @@ namespace msra.nlp.tr
                         {
                             var id = int.Parse(array[1]);
                             ids.Add(id);
+                            array[0] = regex.Replace(array[0], " ");
                             dic[array[0]] = id;
                         }
                         catch (Exception)
@@ -764,13 +777,23 @@ namespace msra.nlp.tr
         #region DBpedia dictionary
 
         static Dictionary<string, object> dbpediaEntity2Type = null;
-        static Dictionary<string, string> redirects = null;
         static Dictionary<string, int> dbpediaType2index = null;
+        static Dictionary<string, List<string>> disambiguousDic = null;
+        static Dictionary<string, List<string>> pageAnchorsDic = null;
+
         static object dbpediaDicLocker = new object();
         static object dbpediaType2IndexLocker = new object();
+        static object disambiguousLocker = new object();
+        static object pageAnchorLocker = new object();
+        static System.Text.RegularExpressions.Regex deleteSpace = new System.Text.RegularExpressions.Regex(@"\s+");
 
-        /*Is the mention match an item within the name list entirely
-         */
+        /// <summary>
+        /// Get mention's type in dbpedia database.
+        /// </summary>
+        /// <param name="mention">
+        /// The queried mention. Mention can contain space.
+        /// </param>
+        /// <returns></returns>
         public static List<string> GetDBpediaType(string mention)
         {
 
@@ -779,45 +802,183 @@ namespace msra.nlp.tr
                 LoadDBpedia();
             }
             object types = null;
-
-            mention = mention.ToLower();
-            if (dbpediaEntity2Type.TryGetValue(mention, out types))
+            if (mention != null)
             {
-                if (types.GetType().Equals(typeof(string)))
+                mention = mention.ToLower().Replace("-lrb-", "(");
+                mention = mention.Replace("-rrb-", ")");
+                mention = deleteSpace.Replace(mention, "");
+                if (dbpediaEntity2Type.TryGetValue(mention, out types))
                 {
-                    var list = new List<string>();
-                    list.Add(types.ToString());
-                    return list;
+                    if (types.GetType().Equals(typeof(string)))
+                    {
+                        var list = new List<string>();
+                        list.Add(types.ToString());
+                        return list;
+                    }
+                    else
+                    {
+                        return ((HashSet<string>)types).ToList();
+                    }
                 }
                 else
                 {
-                    return ((HashSet<string>)types).ToList();
+                    mention = GetRedirectWithoutSpace(mention);
+                    if (mention != null)
+                    {
+                        if (dbpediaEntity2Type.TryGetValue(mention, out types))
+                        {
+                            if (types.GetType().Equals(typeof(string)))
+                            {
+                                var list = new List<string>();
+                                list.Add(types.ToString());
+                                return list;
+                            }
+                            else
+                            {
+                                return ((HashSet<string>)types).ToList();
+                            }
+                        }
+                    }
                 }
+                var l = new List<string>();
+                l.Add("UNKNOW");
+                return l;
             }
             else
             {
-                mention = GetRedirect(mention);
-                if (mention != null)
+                throw new Exception("Mention is null for finding dbpedia type!");
+            }
+        }
+
+        #region Disambigution
+        /// <summary>
+        /// Get possible entities of given mention.
+        /// </summary>
+        /// <param name="mention"></param>
+        /// <returns></returns>
+        private static List<string> GetAmbiguousEntities(string mention)
+        {
+            if (disambiguousDic == null)
+            {
+                LoadDisambiguous();
+            }
+            try
+            {
+                return disambiguousDic[mention];
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private static void LoadDisambiguous()
+        {
+            lock (disambiguousLocker)
+            {
+                if (disambiguousDic == null)
                 {
-                    if (dbpediaEntity2Type.TryGetValue(mention, out types))
+                    var dic = new Dictionary<string, List<string>>();
+                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.disambiguous_file));
+                    var line = "";
+                    System.Text.RegularExpressions.Regex deleteUnderline = new System.Text.RegularExpressions.Regex(@"_+");
+
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        if (types.GetType().Equals(typeof(string)))
+                        var l = deleteUnderline.Replace(line, "");
+                        var array = line.Split('\t').ToList();
+                        dic[array[0]] = array;
+                        array.RemoveAt(0);
+                    }
+                    reader.Close();
+                    disambiguousDic = dic;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Find the exatcly entity from the ambiguous entities with context information.
+        /// This is done by compare anchors within a page corresponding to the given entity with context.
+        /// Return the entity which match most achors with context.
+        /// </summary>
+        /// <param name="ambiguousEntities"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        private static string Disambiguation(List<string> ambiguousEntities, string context)
+        {
+            var anchorMatchNum = new int[ambiguousEntities.Count];
+            for (var i = 0; i < ambiguousEntities.Count; i++)
+            {
+                var anchors = GetPageAnchors(ambiguousEntities[i]);
+                if (anchors != null)
+                {
+                    foreach (var anchor in anchors)
+                    {
+                        if (context.Contains(anchor))
                         {
-                            var list = new List<string>();
-                            list.Add(types.ToString());
-                            return list;
-                        }
-                        else
-                        {
-                            return ((HashSet<string>)types).ToList();
+                            anchorMatchNum[i] += 1;
                         }
                     }
                 }
             }
-            var l = new List<string>();
-            l.Add("UNKNOW");
-            return l;
+            var index = 0;
+            var maxNum = -1;
+            for (var i = 0; i < anchorMatchNum.Length; i++)
+            {
+                if (maxNum < anchorMatchNum[i])
+                {
+                    maxNum = anchorMatchNum[i];
+                    index = i;
+                }
+            }
+            return ambiguousEntities[index];
         }
+
+        /// <summary>
+        /// Get anchors in page abstract corresponding to the given entity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        private static List<string> GetPageAnchors(string entity)
+        {
+            if(pageAnchorsDic == null)
+            {
+                LoadPageAnchors();
+            }
+           try
+           {
+               return pageAnchorsDic[entity];
+           }
+           catch(Exception)
+           {
+               return null;
+           }
+        }
+
+        private static void LoadPageAnchors()
+        {
+              lock(pageAnchorLocker)
+              {
+                  if(pageAnchorsDic == null)
+                  {
+                      var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.page_anchor_file));
+                      var line = "";
+                      var dic = new Dictionary<string, List<string>>();
+
+                      while((line = reader.ReadLine())!=null)
+                      {
+                          var array = line.Split('\t');
+                          var list = array.ToList();
+                          dic[array[0]] = list;       // Depend on file format
+                          list.RemoveAt(0);
+                      }
+                      reader.Close();
+                      pageAnchorsDic = dic;
+                  }
+              }
+        }
+
+        #endregion
 
         /// <summary>
         /// Get the index of type in the dbpedia type set.
@@ -910,7 +1071,7 @@ namespace msra.nlp.tr
                         line = line.ToLower();
                         var array = line.Split('\t');
                         var entity = deleteBrace.Replace(array[0], "");
-                        entity = regex.Replace(entity, " ").Trim();
+                        entity = regex.Replace(entity, "").Trim();    // does not contains space
                         if (dic.TryGetValue(entity, out types))
                         {
                             if (types.GetType().Equals(typeof(string)))
@@ -937,10 +1098,20 @@ namespace msra.nlp.tr
         }
         #endregion
 
-        #region DBpedia redirects
+        #region DBpedia redirects TODO: add anchor to title redirects.
+
+        static Dictionary<string, string> redirects = null;
+        static Dictionary<string, string> redirectsWithoutSpace = null;
+        static Dictionary<string, string> redirectsWithoutSpace2WithSpace = null;
+        static object dbpediaRedirectLocker = new object();
 
         public static string GetRedirect(string mention)
         {
+            if(mention != null)
+            {
+                mention = mention.ToLower().Replace("-lrb-", "(");
+                mention = mention.Replace("-rrb-", ")");
+            }
             if (redirects == null)
             {
                 LoadDBpediaRedirect();
@@ -951,17 +1122,43 @@ namespace msra.nlp.tr
             }
             catch (Exception)
             {
+                try
+                {
+                    mention = deleteSpace.Replace(mention, "");
+                    return redirectsWithoutSpace2WithSpace[mention];
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+        }
+
+        private static string GetRedirectWithoutSpace(string mention)
+        {
+            if (redirects == null)
+            {
+                LoadDBpediaRedirect();
+            }
+            try
+            {
+                return redirectsWithoutSpace[mention];
+            }
+            catch (Exception)
+            {
                 return null;
             }
         }
 
         public static void LoadDBpediaRedirect()
         {
-            lock (dbpediaDicLocker)
+            lock (dbpediaRedirectLocker)
             {
                 if (redirects == null)
                 {
                     var dic = new Dictionary<string, string>();
+                    var dic2 = new Dictionary<string, string>();
+                    var dic3 = new Dictionary<string, string>();
                     var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_redirect_file));
                     var line = "";
                     System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
@@ -976,9 +1173,15 @@ namespace msra.nlp.tr
                         var des = deleteBrace.Replace(array[1], "");
                         des = regex.Replace(des, " ").Trim();
                         dic[source] = des;
+                        var source2 = deleteSpace.Replace(source, "");
+                        var des2 = deleteSpace.Replace(des, "");
+                        dic2[source2] = des2;
+                        dic3[source2] = des;
                     }
                     reader.Close();
                     redirects = dic;
+                    redirectsWithoutSpace = dic2;
+                    redirectsWithoutSpace2WithSpace = dic3;
                 }
             }
         }

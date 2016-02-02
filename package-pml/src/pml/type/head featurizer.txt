@@ -1,0 +1,24 @@
+        public pml.type.Pairstring,string GetMentionHead(Listpml.type.Pairstring, string pairs)
+        {
+            string head = null, posTag = null;
+            for (int i = 0; i = pairs.Count; i++)
+            {
+                if (pairs.ElementAt(i).second.StartsWith(N))
+                {
+                     last noun
+                    head = pairs.ElementAt(i).first;
+                    posTag = pairs.ElementAt(i).second;
+                }
+                else if (pairs.ElementAt(i).second.Equals(IN)  pairs.ElementAt(i).second.Equals(,))
+                {
+                     before IN
+                    break;
+                }
+            }
+            if(head == null)
+            {
+                head = pairs[pairs.Count - 1].first;
+                posTag = pairs[pairs.Count - 1].second;
+            }
+            return new pml.type.Pairstring, string(head, posTag);
+        }

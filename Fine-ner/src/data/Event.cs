@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
-    class Event
+   public class Event
     {
         // feature of event
         public enum Field
