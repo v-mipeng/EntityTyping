@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Fine_ner</RootNamespace>
     <AssemblyName>Fine-ner</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -38,6 +40,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -47,6 +50,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ejml-0.23, Version=0.23.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -177,6 +181,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Stanford.NLP.CoreNLP.3.5.1\lib\jollyday.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Live.Json.Signed">
+      <HintPath>..\..\..\..\Software Install\TLC 2.7\Microsoft.Live.Json.Signed.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.MachineLearning.Core">
+      <HintPath>..\..\..\..\Software Install\TLC 2.7\Microsoft.MachineLearning.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.MachineLearning.Learners">
+      <HintPath>..\..\..\..\Software Install\TLC 2.7\Microsoft.MachineLearning.Learners.dll</HintPath>
+    </Reference>
     <Reference Include="opennlp-tools-1.6.0, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\OpenNLP.NET.1.6.0\lib\opennlp-tools-1.6.0.dll</HintPath>
@@ -195,6 +208,12 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="TMSNlearnPrediction">
+      <HintPath>..\..\..\..\Software Install\TLC 2.7\TMSNlearnPrediction.dll</HintPath>
+    </Reference>
+    <Reference Include="Vectors">
+      <HintPath>..\..\..\..\Software Install\TLC 2.7\Vectors.dll</HintPath>
+    </Reference>
     <Reference Include="xom, Version=1.2.10.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Stanford.NLP.CoreNLP.3.5.1\lib\xom.dll</HintPath>
@@ -231,6 +250,8 @@
     <Compile Include="src\pipeline\ParallelSVMFeatureExtractor.cs" />
     <Compile Include="src\pipeline\Pipeline.cs" />
     <Compile Include="src\pipeline\SVMFeatureExtractor.cs" />
+    <Compile Include="src\predict\Predictor.cs" />
+    <Compile Include="src\predict\FullFeaturePredictor.cs" />
     <Compile Include="src\script\Script.cs" />
     <Compile Include="src\script\Statistic.cs" />
     <Compile Include="src\services\DataCenter.cs" />
@@ -251,7 +272,6 @@
     <Compile Include="src\services\Tokenizer.cs" />
     <Compile Include="src\services\TokenizerPool.cs" />
     <Compile Include="src\share\DefaultParameter.cs" />
-    <Compile Include="src\share\DefaultPaths.cs" />
     <Compile Include="src\share\GlobalParameter - Copy.cs" />
     <Compile Include="src\share\GlobalParameter.cs" />
     <Compile Include="src\test\BayesTest.cs" />
@@ -263,7 +283,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-    <Folder Include="src\predict\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\package-pml\Package-pml.csproj">

@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace pml.ml.cluster
 {
+    /// <summary>
+    /// Do K-means parallelly.
+    /// Time consuming is supported to be: c*n*k*d.  
+    /// n:  the number of points to be clustered
+    /// k:  the cluster number
+    /// d:  the dimension of the representation of a point.
+    /// c:  a const, related to iteration times which is usually about 10~20
+    /// </summary>
     public class ParallelKMeans
     {
         // define distance function options

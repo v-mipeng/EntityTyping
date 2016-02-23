@@ -850,135 +850,6 @@ namespace msra.nlp.tr
             }
         }
 
-        #region Disambigution
-        /// <summary>
-        /// Get possible entities of given mention.
-        /// </summary>
-        /// <param name="mention"></param>
-        /// <returns></returns>
-        private static List<string> GetAmbiguousEntities(string mention)
-        {
-            if (disambiguousDic == null)
-            {
-                LoadDisambiguous();
-            }
-            try
-            {
-                return disambiguousDic[mention];
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        private static void LoadDisambiguous()
-        {
-            lock (disambiguousLocker)
-            {
-                if (disambiguousDic == null)
-                {
-                    var dic = new Dictionary<string, List<string>>();
-                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.disambiguous_file));
-                    var line = "";
-                    System.Text.RegularExpressions.Regex deleteUnderline = new System.Text.RegularExpressions.Regex(@"_+");
-
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        var l = deleteUnderline.Replace(line, "");
-                        var array = line.Split('\t').ToList();
-                        dic[array[0]] = array;
-                        array.RemoveAt(0);
-                    }
-                    reader.Close();
-                    disambiguousDic = dic;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Find the exatcly entity from the ambiguous entities with context information.
-        /// This is done by compare anchors within a page corresponding to the given entity with context.
-        /// Return the entity which match most achors with context.
-        /// </summary>
-        /// <param name="ambiguousEntities"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        private static string Disambiguation(List<string> ambiguousEntities, string context)
-        {
-            var anchorMatchNum = new int[ambiguousEntities.Count];
-            for (var i = 0; i < ambiguousEntities.Count; i++)
-            {
-                var anchors = GetPageAnchors(ambiguousEntities[i]);
-                if (anchors != null)
-                {
-                    foreach (var anchor in anchors)
-                    {
-                        if (context.Contains(anchor))
-                        {
-                            anchorMatchNum[i] += 1;
-                        }
-                    }
-                }
-            }
-            var index = 0;
-            var maxNum = -1;
-            for (var i = 0; i < anchorMatchNum.Length; i++)
-            {
-                if (maxNum < anchorMatchNum[i])
-                {
-                    maxNum = anchorMatchNum[i];
-                    index = i;
-                }
-            }
-            return ambiguousEntities[index];
-        }
-
-        /// <summary>
-        /// Get anchors in page abstract corresponding to the given entity
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        private static List<string> GetPageAnchors(string entity)
-        {
-            if(pageAnchorsDic == null)
-            {
-                LoadPageAnchors();
-            }
-           try
-           {
-               return pageAnchorsDic[entity];
-           }
-           catch(Exception)
-           {
-               return null;
-           }
-        }
-
-        private static void LoadPageAnchors()
-        {
-              lock(pageAnchorLocker)
-              {
-                  if(pageAnchorsDic == null)
-                  {
-                      var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.page_anchor_file));
-                      var line = "";
-                      var dic = new Dictionary<string, List<string>>();
-
-                      while((line = reader.ReadLine())!=null)
-                      {
-                          var array = line.Split('\t');
-                          var list = array.ToList();
-                          dic[array[0]] = list;       // Depend on file format
-                          list.RemoveAt(0);
-                      }
-                      reader.Close();
-                      pageAnchorsDic = dic;
-                  }
-              }
-        }
-
-        #endregion
 
         /// <summary>
         /// Get the index of type in the dbpedia type set.
@@ -1096,6 +967,137 @@ namespace msra.nlp.tr
                 }
             }
         }
+
+        #region Disambigution
+        /// <summary>
+        /// Get possible entities of given mention.
+        /// </summary>
+        /// <param name="mention"></param>
+        /// <returns></returns>
+        private static List<string> GetAmbiguousEntities(string mention)
+        {
+            if (disambiguousDic == null)
+            {
+                LoadDisambiguous();
+            }
+            try
+            {
+                return disambiguousDic[mention];
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private static void LoadDisambiguous()
+        {
+            lock (disambiguousLocker)
+            {
+                if (disambiguousDic == null)
+                {
+                    var dic = new Dictionary<string, List<string>>();
+                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.disambiguous_file));
+                    var line = "";
+                    System.Text.RegularExpressions.Regex deleteUnderline = new System.Text.RegularExpressions.Regex(@"_+");
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        var l = deleteUnderline.Replace(line, "");
+                        var array = line.Split('\t').ToList();
+                        dic[array[0]] = array;
+                        array.RemoveAt(0);
+                    }
+                    reader.Close();
+                    disambiguousDic = dic;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Find the exatcly entity from the ambiguous entities with context information.
+        /// This is done by compare anchors within a page corresponding to the given entity with context.
+        /// Return the entity which match most achors with context.
+        /// </summary>
+        /// <param name="ambiguousEntities"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        private static string Disambiguation(List<string> ambiguousEntities, string context)
+        {
+            var anchorMatchNum = new int[ambiguousEntities.Count];
+            for (var i = 0; i < ambiguousEntities.Count; i++)
+            {
+                var anchors = GetPageAnchors(ambiguousEntities[i]);
+                if (anchors != null)
+                {
+                    foreach (var anchor in anchors)
+                    {
+                        if (context.Contains(anchor))
+                        {
+                            anchorMatchNum[i] += 1;
+                        }
+                    }
+                }
+            }
+            var index = 0;
+            var maxNum = -1;
+            for (var i = 0; i < anchorMatchNum.Length; i++)
+            {
+                if (maxNum < anchorMatchNum[i])
+                {
+                    maxNum = anchorMatchNum[i];
+                    index = i;
+                }
+            }
+            return ambiguousEntities[index];
+        }
+
+        /// <summary>
+        /// Get anchors in page abstract corresponding to the given entity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        private static List<string> GetPageAnchors(string entity)
+        {
+            if (pageAnchorsDic == null)
+            {
+                LoadPageAnchors();
+            }
+            try
+            {
+                return pageAnchorsDic[entity];
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private static void LoadPageAnchors()
+        {
+            lock (pageAnchorLocker)
+            {
+                if (pageAnchorsDic == null)
+                {
+                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.page_anchor_file));
+                    var line = "";
+                    var dic = new Dictionary<string, List<string>>();
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        var array = line.Split('\t');
+                        var list = array.ToList();
+                        dic[array[0]] = list;       // Depend on file format
+                        list.RemoveAt(0);
+                    }
+                    reader.Close();
+                    pageAnchorsDic = dic;
+                }
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region DBpedia redirects TODO: add anchor to title redirects.

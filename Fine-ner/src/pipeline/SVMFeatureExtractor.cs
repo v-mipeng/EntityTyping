@@ -54,7 +54,7 @@ namespace msra.nlp.tr
              writer.Close();
         }
 
-        static string[] types = new string[] {
+       internal static string[] types = new string[] {
                 "music.music",
                 "broadcast.content",
                 "book.written_work",

@@ -11,6 +11,7 @@ namespace msra.nlp.tr
     {
         private List<string> feature = new List<string>();
         int offset = 0;
+        static System.Text.RegularExpressions.Regex allCharRegex = new System.Text.RegularExpressions.Regex(@"\W");
 
 
         public IndividualFeature() : base() { }
@@ -135,16 +136,17 @@ namespace msra.nlp.tr
                 }
                 this.offset = 0;
 
-                #region last word
+                #region last word           
                 {
                     var index = pair.first - 1;
                     while (index >= 0)
                     {
-                        if (pairs[index].first.Equals("##"))
+                        if (pairs[index].first.Equals("##") || pairs[index].first.Equals(".") || pairs[index].first.Equals("!") || pairs[index].first.Equals("?") || pairs[index].first.Equals(";"))
                         {
                             index = -1;
+                            break;
                         }
-                        else if (pairs[index].first.Equals("-LRB-") || pairs[index].first.Equals(",") || pairs[index].first.Equals("``"))
+                        else if (!pairs[index].first.Equals("'s") && allCharRegex.IsMatch(pairs[index].first))
                         {
                             index--;
                         }
@@ -153,7 +155,7 @@ namespace msra.nlp.tr
                             break;
                         }
                     }
-                    if (index > 0)
+                    if (index >= 0)
                     {
                         var word = pairs.ElementAt(index).first;
                         var posTag = pairs.ElementAt(index).second;
@@ -162,7 +164,6 @@ namespace msra.nlp.tr
                     else
                     {
                         AddFieldToFeture(null, null);
-
                     }
                 }
                 #endregion
@@ -172,11 +173,12 @@ namespace msra.nlp.tr
                     var index = pair.second + 1;
                     while (index < pairs.Count)
                     {
-                        if (pairs[index].first.Equals("##"))
+                        if (pairs[index].first.Equals("##") || pairs[index].first.Equals(".") || pairs[index].first.Equals("!") || pairs[index].first.Equals("?") || pairs[index].first.Equals(";"))
                         {
                             index = pairs.Count;
+                            break;
                         }
-                        else if (pairs[index].first.Equals("-LRB-") || pairs[index].first.Equals(",") || pairs[index].first.Equals("``"))
+                        else if (!pairs[index].first.Equals("'s") && allCharRegex.IsMatch(pairs[index].first))
                         {
                             index++;
                         }
@@ -190,12 +192,13 @@ namespace msra.nlp.tr
                         var word = pairs.ElementAt(index).first;
                         var posTag = pairs.ElementAt(index).second;
                         AddFieldToFeture(word, posTag);
+
                     }
                     else
                     {
                         AddFieldToFeture(null, null);
-                    }
 
+                    }
                 }
                 #endregion
 
@@ -353,25 +356,49 @@ namespace msra.nlp.tr
 
             #region mention ID
             {
-                StringBuilder m = new StringBuilder();
-                foreach (var w in words)
-                {
-                    if (m.Length == 0)
-                    {
-                        m.Append(w.ToLower());
-                    }
-                    else
-                    {
-                        m.Append("_" + w.ToLower());
-                    }
-                }
-                feature.Add(DataCenter.GetMentionClusterID(m.ToString()).ToString());
+                feature.Add(DataCenter.GetMentionClusterID(mention).ToString());
             }
             #endregion
 
             #region mention length
             {
                 feature.Add(words.Count.ToString());
+            }
+            #endregion
+
+            #region Stanford NER
+            {
+                var ner = StanfordNerPool.GetStanfordNer();
+                ner.FindNer(context);
+                var type = ner.GetNerType(mention);
+                StanfordNerPool.ReturnStanfordNer(ner);
+                ner = null;
+                feature.Add(type);
+            }
+            #endregion
+
+            #region OpenNLP NER
+            {
+                var ner = OpenNerPool.GetOpenNer();
+                ner.FindNer(context);
+                var type = ner.GetNerType(mention);
+                OpenNerPool.ReturnOpenNer(ner);
+                ner = null;
+                feature.Add(type);
+            }
+            #endregion
+
+            #region DBpedia dictionary
+            {
+                var types = string.Join(",", DataCenter.GetDBpediaType(mention));
+                feature.Add(types);
+            }
+            #endregion
+
+            #region Key words
+            {
+                var keyWords = DataCenter.ExtractKeyWords(context);
+                feature.Add(string.Join(",", keyWords));
             }
             #endregion
 
@@ -407,32 +434,26 @@ namespace msra.nlp.tr
                 var type = ner.GetNerType(mention);
                 StanfordNerPool.ReturnStanfordNer(ner);
                 ner = null;
-                rawFeature[(int)Event.Field.stanfordNerType] = type;
+                feature.Add(type);
             }
             #endregion
 
             #region OpenNLP NER
-            if (false)
+            if(false)
             {
-
                 var ner = OpenNerPool.GetOpenNer();
                 ner.FindNer(context);
                 var type = ner.GetNerType(mention);
                 OpenNerPool.ReturnOpenNer(ner);
                 ner = null;
                 rawFeature[(int)Event.Field.opennlpNerType] = type;
-                return rawFeature;
             }
             #endregion
 
             #region DBpedia dictionary
-            if (true)
             {
-                if(rawFeature[(int)Event.Field.dbpediaTypes].Equals("UNKNOW"))
-                {
-                    var type = string.Join(",", DataCenter.GetDBpediaType(mention));
-                    rawFeature[(int)Event.Field.dbpediaTypes] = type;
-                }
+                var types = string.Join(",", DataCenter.GetDBpediaType(mention));
+                rawFeature[(int)Event.Field.dbpediaTypes] = types;
             }
             #endregion
 

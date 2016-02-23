@@ -102,7 +102,7 @@ namespace msra.nlp.tr
             parameters[Field.train_feature_file]        = Path.Combine(basedir, @"output\train\trainFeature.txt");
             parameters[Field.develop_feature_file]      = Path.Combine(basedir, @"output\satori\developFeature.txt");
             parameters[Field.test_feature_file]         = Path.Combine(basedir, @"output\satori\testFeature.txt");
-            parameters[Field.model_file]                = Path.Combine(basedir, @"output\model\model.txt");
+            parameters[Field.model_file]                = Path.Combine(basedir, @"output\model\logistic model.zip");
             parameters[Field.test_result_file]          = Path.Combine(basedir, @"output\result\result.txt");
             parameters[Field.dbpedia_dic_file]          = Path.Combine(basedir, @"input\dictionaries\dbpedia\dbpedia entity type.txt");
             parameters[Field.dbpedia_redirect_file]     = Path.Combine(basedir, @"input\dictionaries\dbpedia\redirects.txt");
