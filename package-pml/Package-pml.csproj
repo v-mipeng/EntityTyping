@@ -74,6 +74,7 @@
     <Compile Include="src\pml\file\writer\LargeFileWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\pml\collection\map\IMap.cs" />
+    <Compile Include="src\pml\math\VectorDistance.cs" />
     <Compile Include="src\pml\ml\cluster\Cluster.cs" />
     <Compile Include="src\pml\ml\cluster\ParallelKMeans .cs" />
     <Compile Include="src\pml\type\Pair.cs" />

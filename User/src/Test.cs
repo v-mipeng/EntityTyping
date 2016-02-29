@@ -323,16 +323,35 @@ namespace msra.nlp.tr
             writer.Close();
         }
 
+        public static void Temp8()
+        {
+            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract vector.txt";
+            var des = @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract vector trimed.txt";
+            var reader = new LargeFileReader(source);
+            var writer = new LargeFileWriter(des, FileMode.Create);
+            string line;
+            while((line = reader.ReadLine())!=null)
+            {
+                var array = line.Split(new char[] { '\t' }, 2);
+                if(array[0].Contains("_("))
+                {
+                    writer.WriteLine(line);
+                }
+            }
+            reader.Close();
+            writer.Close();
+        }
 
         public static void Main(string[] args)
         {
-            Temp7();
-            #if debug
-            {
-                  Console.WriteLine("debug!");
-                  Console.ReadKey();
-            }
-            #endif
+            Temp8();
+            //var pipeline = new Pipeline();
+            //TfIdf tfidf = new TfIdf(
+            //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract.txt",
+            //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract vector.txt",
+            //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract df.txt",
+            //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract word table.txt");
+            //tfidf.GetVectorCorpus();
             //var currentFolderPath = Environment.CurrentDirectory;
             //var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
             //var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;

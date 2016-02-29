@@ -34,6 +34,10 @@ namespace msra.nlp.tr
             public const string opennlp_model_dir           = "opennlp_model_dir";
             public const string dbpedia_dic_file            = "dbpedia_dic_file";
             public const string dbpedia_redirect_file       = "dbpedia_redirect_file";
+            public const string dbpedia_abstract_file       = "dbpedia_abstract_file";
+            public const string dbpedia_abstract_df_file    = "dbpedia_abstract_df_file";
+            public const string dbpedia_abstract_word_table = "dbpedia_abstract_word_table";
+            public const string dbpedia_abstract_num        = "dbpedia_abstract_num";
             public const string keyword_file                = "keyword_file";
             public const string disambiguous_file           = "disambiguous_file";
             public const string page_anchor_file            = "page_anchor_file";
@@ -110,6 +114,10 @@ namespace msra.nlp.tr
             parameters[Field.test_result_file]          = Path.Combine(basedir, @"output\result\result.txt");
             parameters[Field.dbpedia_dic_file]          = Path.Combine(basedir, @"input\dictionaries\dbpedia\dbpedia entity type.txt");
             parameters[Field.dbpedia_redirect_file]     = Path.Combine(basedir, @"input\dictionaries\dbpedia\redirects.txt");
+            parameters[Field.dbpedia_abstract_file]     = Path.Combine(basedir, @"input\dictionaries\dbpedia\abstract vector trimed.txt");
+            parameters[Field.dbpedia_abstract_df_file]  = Path.Combine(basedir, @"input\dictionaries\dbpedia\abstract df.txt");
+            parameters[Field.dbpedia_abstract_word_table] = Path.Combine(basedir, @"input\dictionaries\dbpedia\abstract word table.txt");
+            parameters[Field.dbpedia_abstract_num]      = 4305029;
             parameters[Field.disambiguous_file]         = Path.Combine(basedir, @"input\dictionaries\disambiguation mapping.txt");
             parameters[Field.page_anchor_file]          = Path.Combine(basedir, @"input\dictionaries\page anchor.txt");
             parameters[Field.keyword_file]              = Path.Combine(basedir, @"input\tables\keywords.txt");

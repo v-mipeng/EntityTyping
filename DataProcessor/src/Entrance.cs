@@ -43,6 +43,15 @@ namespace msra.nlp.tr.dp
                 var des = @"D:\Data\DBpedia\disambiguation mapping.txt";
                 DBpediaProcessor.RefineAmbiguousItem(source, des);
             }
+            if(true)
+            {
+                TfIdf tfidf = new TfIdf(
+                @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract.txt",
+                @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract vector.txt",
+                @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract df.txt",
+                @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract word table.txt");
+                tfidf.GetVectorCorpus();
+            }
         }
     }
 }

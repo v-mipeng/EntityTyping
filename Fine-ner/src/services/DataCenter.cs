@@ -774,7 +774,7 @@ namespace msra.nlp.tr
 
         #endregion
 
-        #region DBpedia dictionary
+        #region DBpedia dictionary     (mention should be lowercase and without space)
 
         static Dictionary<string, LinkedList<Pair<string,string>>> dbpediaEntity2Type = null;                   // entity type in dbpedia  (serve for indivisual feature); trimed entity -->(type-->untrimed entity)
         static Dictionary<string, int> dbpediaType2index = null;                                                // mapping dbpedia type to integer
@@ -834,6 +834,7 @@ namespace msra.nlp.tr
                 throw new Exception("Mention is null for finding dbpedia type!");
             }
         }
+
         public static void LoadDBpediaType()
         {
             lock (dbpediaDicLocker)
