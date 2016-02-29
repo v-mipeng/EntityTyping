@@ -776,16 +776,18 @@ namespace msra.nlp.tr
 
         #region DBpedia dictionary
 
-        static Dictionary<string, object> dbpediaEntity2Type = null;
-        static Dictionary<string, int> dbpediaType2index = null;
-        static Dictionary<string, List<string>> disambiguousDic = null;
-        static Dictionary<string, List<string>> pageAnchorsDic = null;
+        static Dictionary<string, LinkedList<Pair<string,string>>> dbpediaEntity2Type = null;                   // entity type in dbpedia  (serve for indivisual feature); trimed entity -->(type-->untrimed entity)
+        static Dictionary<string, int> dbpediaType2index = null;                                                // mapping dbpedia type to integer
+        static Dictionary<string, List<string>> disambiguousDic = null;                                         // 
+        static Dictionary<string, List<string>> pageAnchorsDic = null;                                          // recoding page anchors of articles
 
         static object dbpediaDicLocker = new object();
         static object dbpediaType2IndexLocker = new object();
         static object disambiguousLocker = new object();
         static object pageAnchorLocker = new object();
         static System.Text.RegularExpressions.Regex deleteSpace = new System.Text.RegularExpressions.Regex(@"\s+");
+        static System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\([^()]\)");
+
 
         /// <summary>
         /// Get mention's type in dbpedia database.
@@ -794,31 +796,23 @@ namespace msra.nlp.tr
         /// The queried mention. Mention can contain space.
         /// </param>
         /// <returns></returns>
-        public static List<string> GetDBpediaType(string mention)
+        public static List<string> GetDBpediaType(string mention, string context = null)
         {
 
             if (dbpediaEntity2Type == null)
             {
-                LoadDBpedia();
+                LoadDBpediaType();
             }
-            object types = null;
+            LinkedList<Pair<string,string>> types = null;
             if (mention != null)
             {
-                mention = mention.ToLower().Replace("-lrb-", "(");
+                mention = mention.ToLower().Replace("-lrb-", "(");   // recover mention
                 mention = mention.Replace("-rrb-", ")");
                 mention = deleteSpace.Replace(mention, "");
+                mention = deleteBrace.Replace(mention, "");
                 if (dbpediaEntity2Type.TryGetValue(mention, out types))
                 {
-                    if (types.GetType().Equals(typeof(string)))
-                    {
-                        var list = new List<string>();
-                        list.Add(types.ToString());
-                        return list;
-                    }
-                    else
-                    {
-                        return ((HashSet<string>)types).ToList();
-                    }
+                    return GetPreciseDBpediaType(context, types);
                 }
                 else
                 {
@@ -827,16 +821,7 @@ namespace msra.nlp.tr
                     {
                         if (dbpediaEntity2Type.TryGetValue(mention, out types))
                         {
-                            if (types.GetType().Equals(typeof(string)))
-                            {
-                                var list = new List<string>();
-                                list.Add(types.ToString());
-                                return list;
-                            }
-                            else
-                            {
-                                return ((HashSet<string>)types).ToList();
-                            }
+                            return GetPreciseDBpediaType(context, types);
                         }
                     }
                 }
@@ -848,6 +833,96 @@ namespace msra.nlp.tr
             {
                 throw new Exception("Mention is null for finding dbpedia type!");
             }
+        }
+        public static void LoadDBpediaType()
+        {
+            lock (dbpediaDicLocker)
+            {
+                if (dbpediaEntity2Type == null)
+                {
+                    var dic = new Dictionary<string, LinkedList<Pair<string, string>>>();
+                    LinkedList<Pair<string, string>> types = null;             // type<-->entity surface
+                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_dic_file));
+                    var line = "";
+                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
+                    System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\([^)]+\)");
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        line = line.ToLower();
+                        var array = line.Split('\t');                       // array[0]: entity array[1]:type              
+                        array[0] = regex.Replace(array[0], "");             // delete space(for 's)
+                        var entity = deleteBrace.Replace(array[0], "");     // delete brace
+                        if (dic.TryGetValue(entity, out types))
+                        {
+                            types.AddLast(new Pair<string, string>(array[1], array[0]));
+                        }
+                        else
+                        {
+                            types = new LinkedList<Pair<string, string>>();
+                            types.AddLast(new Pair<string, string>(array[1], array[0]));
+                            dic[entity] = types;
+                        }
+                    }
+                    reader.Close();
+                    dbpediaEntity2Type = dic;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Get more precise dbpedia type by counting page anchors matching number in context
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="pairs"></param>
+        /// <returns></returns>
+        private static List<string> GetPreciseDBpediaType(string context, LinkedList<Pair<string,string>> pairs)
+        {
+            if(pairs.Count == 1)
+            {
+                var list = new List<string>();
+                list.Add(pairs.ElementAt(0).first);
+                return list;
+            }
+            var test = pairs.ElementAt(1);
+            var matchNum = new List<double>(pairs.Count());
+            var index = 0;
+            var maxIndex = 0;
+            var maxValue = -1.0;
+            foreach (var pair in pairs)
+            {
+                var anchors = GetPageAnchors(pair.second);
+                foreach(var anchor in anchors)
+                {
+                    if(context.Contains(anchor))     
+                    {
+                        matchNum[index] += 1;
+                    }
+                }
+                matchNum[index] = 1.0*matchNum[index]/anchors.Count();
+                if( matchNum[index]>maxValue)
+                {
+                    maxIndex = index;
+                    maxValue = matchNum[index];
+                }
+            }
+            if(maxValue > 0)
+            {
+                var list = new List<string>();
+                list.Add(pairs.ElementAt(maxIndex).first);
+                return list;
+            }
+            else
+            {
+                var list = new List<string>();
+                foreach (var pair in pairs)
+                {
+                    list.Add(pair.first);
+                }
+                return list;
+            }
+
         }
 
 
@@ -895,7 +970,7 @@ namespace msra.nlp.tr
                 {
                     if (dbpediaEntity2Type == null)
                     {
-                        LoadDBpedia();
+                        LoadDBpediaType();
                     }
                     var dic = new Dictionary<string, int>();
                     var set = new HashSet<string>();
@@ -907,10 +982,10 @@ namespace msra.nlp.tr
                         }
                         else
                         {
-                            foreach (var t in (HashSet<string>)value)
-                            {
-                                set.Add(t);
-                            }
+                            //foreach (var t in (HashSet<string>)value)
+                            //{
+                            //    set.Add(t);
+                            //}
                         }
                     }
 
@@ -924,51 +999,7 @@ namespace msra.nlp.tr
             }
         }
 
-        public static void LoadDBpedia()
-        {
-            lock (dbpediaDicLocker)
-            {
-                if (dbpediaEntity2Type == null)
-                {
-                    var dic = new Dictionary<string, object>();
-                    object types = null;
-                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_dic_file));
-                    var line = "";
-                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
-                    System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\(\w+\)");
 
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        line = line.ToLower();
-                        var array = line.Split('\t');
-                        var entity = deleteBrace.Replace(array[0], "");
-                        entity = regex.Replace(entity, "").Trim();    // does not contains space
-                        if (dic.TryGetValue(entity, out types))
-                        {
-                            if (types.GetType().Equals(typeof(string)))
-                            {
-                                var set = new HashSet<string>();
-                                set.Add((string)types);
-                                set.Add(array[1]);
-                                dic[entity] = set;
-                            }
-                            else
-                            {
-                                ((HashSet<string>)types).Add(array[1]);
-                            }
-                        }
-                        else
-                        {
-                            dic[entity] = array[1];
-                        }
-                    }
-                    reader.Close();
-                    dbpediaEntity2Type = dic;
-                }
-            }
-        }
-
-        #region Disambigution
         /// <summary>
         /// Get possible entities of given mention.
         /// </summary>
@@ -1082,11 +1113,12 @@ namespace msra.nlp.tr
                     var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.page_anchor_file));
                     var line = "";
                     var dic = new Dictionary<string, List<string>>();
+                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
 
                     while ((line = reader.ReadLine()) != null)
                     {
                         var array = line.Split('\t');
-                        var list = array.ToList();
+                        var list = array.ToList();   // TODO: delete space(_)
                         dic[array[0]] = list;       // Depend on file format
                         list.RemoveAt(0);
                     }
@@ -1096,7 +1128,6 @@ namespace msra.nlp.tr
             }
         }
 
-        #endregion
 
         #endregion
 
@@ -1190,7 +1221,7 @@ namespace msra.nlp.tr
 
         #endregion
 
-        #region Key Word
+        #region Keywords Table
         static Dictionary<string, int> keyWords = null;
         static object keyWordLocker = new object();
 

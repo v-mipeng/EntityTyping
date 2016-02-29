@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define debug
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,31 +10,26 @@ namespace msra.nlp.tr
 {
     class IndividualFeature : Feature
     {
+        // feature list
         private List<string> feature = new List<string>();
-        int offset = 0;
+
+        // input instance
+        Instance instance = null;
+
+        string context = null;
+
+        // context surface and pos tag pairs
+        List<Pair<string, string>> contextTokenPairs = null;
+
+        Pair<int, int> mentionIndexPair = null;
+
+        List<string> mentionTokens = null;
+
+        List<string> contextTokens = null;
+
         static System.Text.RegularExpressions.Regex allCharRegex = new System.Text.RegularExpressions.Regex(@"\W");
 
-
         public IndividualFeature() : base() { }
-
-        /// <summary>
-        ///      Get feature with label information for train and test
-        /// </summary>
-        /// <param name="input">
-        ///      string array with input[0] the mention, input[1] the label and input[2] the context of mention
-        /// </param>
-        /// <returns>
-        ///      A  pair with pair.first the label and pair.second the feature.
-        /// </returns>
-        internal Pair<string, List<string>> ExtractFeatureWithLabel(string[] input)
-        {
-            if (input.Length < 3)
-            {
-                throw new Exception("Invalid input in GetFeatureWithLabel(string[] input) function with input:\r" +
-                                    string.Join(",", input));
-            }
-            return null;
-        }
 
         /*   Extract feature from the input, and the feature is clustered by field
          *   The input should contains two items:
@@ -58,243 +54,176 @@ namespace msra.nlp.tr
          */
         public List<string> ExtractFeature(Instance instance)
         {
-            var mention = instance.Mention;
-            var context = instance.Context;
+            this.instance = instance;
             this.feature.Clear();
-            List<string> words = new List<string>();
-            List<string> tokens = new List<string>();
-            var tokenizer = TokenizerPool.GetTokenizer();
-            try
-            {
-                var ws = tokenizer.Tokenize(mention);
-                for (var i = 0; i < ws.Count; i++)
-                {
-                    if (ws[i].Equals(".") && i > 0 && ws[i - 1].EndsWith("."))
-                    {
-                        continue;
-                    }
-                    words.Add(ws[i]);
-                }
-                var ts = tokenizer.Tokenize(context);
-                for (var i = 0; i < ts.Count; i++)
-                {
-                    if (ts[i].Equals(".") && i > 0 && ts[i - 1].EndsWith("."))
-                    {
-                        continue;
-                    }
-                    tokens.Add(ts[i]);
-                }
-                TokenizerPool.ReturnTokenizer(tokenizer);
-                tokenizer = null;
-            }
-            catch (Exception e)
-            {
-                TokenizerPool.ReturnTokenizer(tokenizer);
-                throw e;
-            }
-            // select the first sentence contains mention. This will reduce the parse cost.
-            List<string> sentences = null;
-            var sspliter = SSpliterPool.GetSSpliter();
-            try
-            {
-                sentences = sspliter.SplitSequence(tokens);
-                SSpliterPool.ReturnSSpliter(sspliter);
-            }
-            catch (Exception e)
-            {
-                SSpliterPool.ReturnSSpliter(sspliter);
-                Console.Clear();
-                Console.WriteLine("Error in sentence spliter.");
-                throw e;
-            }
-            context = GetSentenceCoverMention(sentences, words);
-            if (context == null)
-            {
-                throw new Exception("Cannot find mention by token within context!");
-            }
-            // get a parser
+            Tokenizer();
+            FilterContext();
             DependencyParser parser = null;
-            try
+
+            #region Dependency parser
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeParser))
             {
                 parser = ParserPool.GetParser();
-            }
-            catch (Exception)
-            {
-                throw new Exception("Cannot get a parser!");
-            }
-            List<Pair<string, string>> pairs = null;
-            Pair<int, int> pair = null;
-            try
-            {
-                parser.Parse(context);
-
-                pairs = parser.GetPosTags();
-                pair = GetIndexOfMention(pairs, words);
-                if (pair.first == -1)
+                try
                 {
-                    throw new Exception("Cannot find mention by token within context!");
+                    parser.Parse(context);
                 }
-                this.offset = 0;
-
-                #region last word           
-                {
-                    var index = pair.first - 1;
-                    while (index >= 0)
-                    {
-                        if (pairs[index].first.Equals("##") || pairs[index].first.Equals(".") || pairs[index].first.Equals("!") || pairs[index].first.Equals("?") || pairs[index].first.Equals(";"))
-                        {
-                            index = -1;
-                            break;
-                        }
-                        else if (!pairs[index].first.Equals("'s") && allCharRegex.IsMatch(pairs[index].first))
-                        {
-                            index--;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    if (index >= 0)
-                    {
-                        var word = pairs.ElementAt(index).first;
-                        var posTag = pairs.ElementAt(index).second;
-                        AddFieldToFeture(word, posTag);
-                    }
-                    else
-                    {
-                        AddFieldToFeture(null, null);
-                    }
-                }
-                #endregion
-
-                #region next word
-                {
-                    var index = pair.second + 1;
-                    while (index < pairs.Count)
-                    {
-                        if (pairs[index].first.Equals("##") || pairs[index].first.Equals(".") || pairs[index].first.Equals("!") || pairs[index].first.Equals("?") || pairs[index].first.Equals(";"))
-                        {
-                            index = pairs.Count;
-                            break;
-                        }
-                        else if (!pairs[index].first.Equals("'s") && allCharRegex.IsMatch(pairs[index].first))
-                        {
-                            index++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    if (index < pairs.Count)
-                    {
-                        var word = pairs.ElementAt(index).first;
-                        var posTag = pairs.ElementAt(index).second;
-                        AddFieldToFeture(word, posTag);
-
-                    }
-                    else
-                    {
-                        AddFieldToFeture(null, null);
-
-                    }
-                }
-                #endregion
-
-                #region mention head
-                {
-                    string head = null, posTag = null;
-                    for (int i = pair.first; i <= pair.second; i++)
-                    {
-                        if (pairs.ElementAt(i).second.StartsWith("N"))
-                        {
-                            // last noun
-                            head = pairs.ElementAt(i).first;
-                            posTag = pairs.ElementAt(i).second;
-                        }
-                        else if (pairs.ElementAt(i).second.Equals("IN") || pairs.ElementAt(i).second.Equals(","))
-                        {
-                            // before IN
-                            break;
-                        }
-                    }
-                    if (head == null)
-                    {
-                        head = words[words.Count - 1];
-                        posTag = pairs.ElementAt(pair.second).second;
-                    }
-                    AddFieldToFeture(head, posTag);
-                }
-                #endregion
-
-                #region mention driver
-                {
-                    int index = parser.GetDriver(pair.first, pair.second);
-                    if (index > 0)
-                    {
-                        var driver = pairs.ElementAt(index).first;
-                        var posTag = pairs.ElementAt(index).second;
-                        AddFieldToFeture(driver, posTag);
-                    }
-                    else
-                    {
-                        AddFieldToFeture(null, null);
-                    }
-                }
-                #endregion
-
-                #region mention adjective modifer
-                {
-                    int index = parser.GetAdjModifier(pair.first, pair.second);
-                    if (index > 0)
-                    {
-                        var adjModifier = pairs.ElementAt(index).first;
-                        var posTag = pairs.ElementAt(index).second;
-                        AddFieldToFeture(adjModifier, posTag);
-                    }
-                    else
-                    {
-                        AddFieldToFeture(null, null);
-                    }
-                }
-                #endregion
-
-                #region mention action
-                {
-                    int index = parser.GetAction(pair.first, pair.second);
-                    if (index > 0)
-                    {
-                        var action = pairs.ElementAt(index).first;
-                        var posTag = pairs.ElementAt(index).second;
-                        AddFieldToFeture(action, posTag);
-                    }
-                    else
-                    {
-                        AddFieldToFeture(null, null);
-                    }
-                }
-                #endregion
-
-                ParserPool.ReturnParser(parser);
-                parser = null;
-            }
-            catch (Exception e)
-            {
-                if (parser != null)
+                catch (Exception e)
                 {
                     ParserPool.ReturnParser(parser);
                     parser = null;
+                    throw e;
                 }
-                throw e;
+                contextTokenPairs = parser.GetPosTags();
+                mentionIndexPair = GetIndexOfMention(contextTokenPairs, mentionTokens);
+                if (mentionIndexPair.first == -1)
+                {
+                    throw new Exception("Cannot find mention by token within context!");
+                }
             }
+            else
+            {
+                var posTagger = PosTaggerPool.GetPosTagger();
+                try
+                {
+                    contextTokenPairs = posTagger.TagString(context);
+                    mentionIndexPair = GetIndexOfMention(contextTokenPairs, mentionTokens);
+                }
+                catch (Exception e)
+                {
+                    PosTaggerPool.ReturnPosTagger(posTagger);
+                    posTagger = null;
+                    throw e;
+                }
+                if (mentionIndexPair.first == -1)
+                {
+                    throw new Exception("Cannot find mention by token within context!");
+                }
+            }
+            #endregion
 
+            #region last word
+            {
+                var index = GetLastTokenIndex();
+                if (index >= 0)
+                {
+                    var word = contextTokenPairs.ElementAt(index).first;
+                    var posTag = contextTokenPairs.ElementAt(index).second;
+                    AddFieldToFeture(word, posTag);
+                }
+                else
+                {
+                    AddFieldToFeture(null, null);
+                }
+            }
+            #endregion
+
+            #region next word
+            {
+                var index = GetNextTokenIndex();
+                if (index < contextTokenPairs.Count)
+                {
+                    var word = contextTokenPairs.ElementAt(index).first;
+                    var posTag = contextTokenPairs.ElementAt(index).second;
+                    AddFieldToFeture(word, posTag);
+
+                }
+                else
+                {
+                    AddFieldToFeture(null, null);
+
+                }
+            }
+            #endregion
+
+            #region mention head
+            {
+                string head = null, posTag = null;
+                for (int i = mentionIndexPair.first; i <= mentionIndexPair.second; i++)
+                {
+                    if (contextTokenPairs.ElementAt(i).second.StartsWith("N"))
+                    {
+                        // last noun
+                        head = contextTokenPairs.ElementAt(i).first;
+                        posTag = contextTokenPairs.ElementAt(i).second;
+                    }
+                    else if (contextTokenPairs.ElementAt(i).second.Equals("IN") || contextTokenPairs.ElementAt(i).second.Equals(","))
+                    {
+                        // before IN
+                        break;
+                    }
+                }
+                if (head == null)
+                {
+                    head = mentionTokens[mentionTokens.Count - 1];
+                    posTag = contextTokenPairs.ElementAt(mentionIndexPair.second).second;
+                }
+                AddFieldToFeture(head, posTag);
+            }
+            #endregion
+
+            #region mention driver
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeParser))
+            {
+                int index = parser.GetDriver(mentionIndexPair.first, mentionIndexPair.second);
+                if (index > 0)
+                {
+                    var driver = contextTokenPairs.ElementAt(index).first;
+                    var posTag = contextTokenPairs.ElementAt(index).second;
+                    AddFieldToFeture(driver, posTag);
+                }
+                else
+                {
+                    AddFieldToFeture(null, null);
+                }
+            }
+            #endregion
+
+            #region mention adjective modifer
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeParser))
+            {
+                int index = parser.GetAdjModifier(mentionIndexPair.first, mentionIndexPair.second);
+                if (index > 0)
+                {
+                    var adjModifier = contextTokenPairs.ElementAt(index).first;
+                    var posTag = contextTokenPairs.ElementAt(index).second;
+                    AddFieldToFeture(adjModifier, posTag);
+                }
+                else
+                {
+                    AddFieldToFeture(null, null);
+                }
+            }
+            #endregion
+
+            #region mention action
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeParser))
+            {
+                int index = parser.GetAction(mentionIndexPair.first, mentionIndexPair.second);
+                if (index > 0)
+                {
+                    var action = contextTokenPairs.ElementAt(index).first;
+                    var posTag = contextTokenPairs.ElementAt(index).second;
+                    AddFieldToFeture(action, posTag);
+                }
+                else
+                {
+                    AddFieldToFeture(null, null);
+                }
+            }
+            #endregion
+
+            if (parser != null)
+            {
+                ParserPool.ReturnParser(parser);
+                parser = null;
+            }
 
             #region Mention Words
             {
                 // mention surfaces
                 var mentionWords = new StringBuilder();
-                foreach (var word in words)
+                foreach (var word in mentionTokens)
                 {
                     if (mentionWords.Length == 0)
                     {
@@ -306,26 +235,26 @@ namespace msra.nlp.tr
                     }
                 }
                 // add mention surface
-                feature.Add(string.Join(",", words));
+                feature.Add(string.Join(",", mentionTokens));
                 // add stemmed mention surface
                 feature.Add(mentionWords.ToString());
                 // mention tags
                 var mentionTags = mentionWords.Clear();
-                for (var i = pair.first; i <= pair.second; i++)
+                for (var i = mentionIndexPair.first; i <= mentionIndexPair.second; i++)
                 {
                     if (mentionTags.Length == 0)
                     {
-                        mentionTags.Append(pairs.ElementAt(i).second);
+                        mentionTags.Append(contextTokenPairs.ElementAt(i).second);
                     }
                     else
                     {
-                        mentionTags.Append("," + pairs.ElementAt(i).second);
+                        mentionTags.Append("," + contextTokenPairs.ElementAt(i).second);
                     }
                 }
                 feature.Add(mentionTags.ToString());
                 // mention IDs
                 var mentionIDs = mentionTags.Clear();
-                foreach (var word in words)
+                foreach (var word in mentionTokens)
                 {
                     if (mentionIDs.Length == 0)
                     {
@@ -339,7 +268,7 @@ namespace msra.nlp.tr
                 feature.Add(mentionIDs.ToString());
                 // mention shapes
                 var mentionShapes = mentionIDs.Clear();
-                foreach (var word in words)
+                foreach (var word in mentionTokens)
                 {
                     if (mentionShapes.Length == 0)
                     {
@@ -356,21 +285,23 @@ namespace msra.nlp.tr
 
             #region mention ID
             {
-                feature.Add(DataCenter.GetMentionClusterID(mention).ToString());
+                feature.Add(DataCenter.GetMentionClusterID(this.instance.Mention).ToString());
             }
             #endregion
 
             #region mention length
             {
-                feature.Add(words.Count.ToString());
+                feature.Add(mentionTokens.Count.ToString());
             }
             #endregion
 
             #region Stanford NER
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeNer))
             {
+                
                 var ner = StanfordNerPool.GetStanfordNer();
                 ner.FindNer(context);
-                var type = ner.GetNerType(mention);
+                var type = ner.GetNerType(this.instance.Mention);
                 StanfordNerPool.ReturnStanfordNer(ner);
                 ner = null;
                 feature.Add(type);
@@ -378,10 +309,11 @@ namespace msra.nlp.tr
             #endregion
 
             #region OpenNLP NER
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeNer))
             {
                 var ner = OpenNerPool.GetOpenNer();
                 ner.FindNer(context);
-                var type = ner.GetNerType(mention);
+                var type = ner.GetNerType(this.instance.Mention);
                 OpenNerPool.ReturnOpenNer(ner);
                 ner = null;
                 feature.Add(type);
@@ -389,29 +321,18 @@ namespace msra.nlp.tr
             #endregion
 
             #region DBpedia dictionary
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeDbpedia))
             {
-                var types = string.Join(",", DataCenter.GetDBpediaType(mention));
+                var types = string.Join(",", DataCenter.GetDBpediaType(this.instance.Mention));
                 feature.Add(types);
             }
             #endregion
 
             #region Key words
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeMIKeyword))
             {
                 var keyWords = DataCenter.ExtractKeyWords(context);
                 feature.Add(string.Join(",", keyWords));
-            }
-            #endregion
-
-            #region TDDO: topic
-            {
-                // TODO
-            }
-            #endregion
-
-            #region TDDO: dictionary
-            {
-                // dictionary
-                // TODO
             }
             #endregion
 
@@ -439,7 +360,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region OpenNLP NER
-            if(false)
+            if (false)
             {
                 var ner = OpenNerPool.GetOpenNer();
                 ner.FindNer(context);
@@ -619,7 +540,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region Key words
-            if(false)
+            if (false)
             {
                 var keyWords = DataCenter.ExtractKeyWords(context);
                 rawFeature[(int)Event.Field.sentenceContext] = string.Join(",", keyWords);
@@ -630,9 +551,6 @@ namespace msra.nlp.tr
 
             return rawFeature;
         }
-
-
-
 
         private void AddFieldToFeture(string word, string posTag)
         {
@@ -661,5 +579,114 @@ namespace msra.nlp.tr
                 this.feature.Add(par);
             }
         }
+
+        private void Tokenizer()
+        {
+            var tokenizer = TokenizerPool.GetTokenizer();
+            try
+            {
+                var ts = tokenizer.Tokenize(this.instance.Mention);
+                for (var i = 0; i < ts.Count; i++)
+                {
+                    if (ts[i].Equals(".") && i > 0 && ts[i - 1].EndsWith("."))
+                    {
+                        continue;
+                    }
+                    this.mentionTokens.Add(ts[i]);
+                }
+                ts = tokenizer.Tokenize(this.instance.Context);
+                for (var i = 0; i < ts.Count; i++)
+                {
+                    if (ts[i].Equals(".") && i > 0 && ts[i - 1].EndsWith("."))
+                    {
+                        continue;
+                    }
+                    this.contextTokens.Add(ts[i]);
+                }
+                TokenizerPool.ReturnTokenizer(tokenizer);
+                tokenizer = null;
+            }
+            catch (Exception e)
+            {
+                TokenizerPool.ReturnTokenizer(tokenizer);   // return tokenizer to tokenizer pool
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// Reture first sentence contains mention in context.
+        /// </summary>
+        private void FilterContext()
+        {
+            List<string> sentences = null;
+            var sspliter = SSpliterPool.GetSSpliter();
+            try
+            {
+                sentences = sspliter.SplitSequence(contextTokens);
+                SSpliterPool.ReturnSSpliter(sspliter);
+            }
+            catch (Exception e)
+            {
+                SSpliterPool.ReturnSSpliter(sspliter);
+#if debug
+                {
+                    Console.Clear();
+                    Console.WriteLine("Error in sentence spliter.");
+                }
+#endif
+                throw e;
+            }
+            this.context = GetSentenceCoverMention(sentences, mentionTokens);
+            if (this.context == null)
+            {
+                throw new Exception("Cannot find mention by token within context!");
+            }
+        }
+
+        private int GetLastTokenIndex()
+        {
+            var index = mentionIndexPair.first - 1;
+            while (index >= 0)
+            {
+
+                if (contextTokenPairs[index].first.Equals("##") || contextTokenPairs[index].second.Equals(".") || contextTokenPairs[index].first.Equals(";"))
+                {       // if it is sentence terminator
+                    index = -1;
+                    break;
+                }
+                else if (!contextTokenPairs[index].first.Equals("'s") && allCharRegex.IsMatch(contextTokenPairs[index].first)) // skip "(,",'"
+                {
+                    index--;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return index;
+        }
+
+        private int GetNextTokenIndex()
+        {
+            var index = mentionIndexPair.second + 1;
+            while (index < contextTokenPairs.Count)
+            {
+                if (contextTokenPairs[index].first.Equals("##") || contextTokenPairs[index].second.Equals(".") || contextTokenPairs[index].first.Equals(";"))
+                {
+                    index = contextTokenPairs.Count;
+                    break;
+                }
+                else if (!contextTokenPairs[index].first.Equals("'s") && allCharRegex.IsMatch(contextTokenPairs[index].first))
+                {
+                    index++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return index;
+        }
+
     }
 }

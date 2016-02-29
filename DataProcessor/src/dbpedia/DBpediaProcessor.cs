@@ -57,6 +57,9 @@ namespace msra.nlp.tr.dp
             writer.Close();
         }
 
+        public static void RefinePageAbstruct(string sourceFile, string desFile)
+        {
 
+        }
     }
 }

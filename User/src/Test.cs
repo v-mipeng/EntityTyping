@@ -1,4 +1,6 @@
-﻿using pml.file.reader;
+﻿//#define debug
+
+using pml.file.reader;
 using pml.file.writer;
 using System;
 using System.Collections.Generic;
@@ -286,10 +288,51 @@ namespace msra.nlp.tr
             writer.Close();
         }
 
+        public static void Temp7()
+        {
+            var source = @"D:\Data\DBpedia\short-abstracts_en.nt";
+            var abst = @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract.txt";
+            var line = "";
+            var reader = new LargeFileReader(source);
+            var writer = new LargeFileWriter(abst, FileMode.Create);
+            reader.ReadLine();
+            System.Text.RegularExpressions.Regex regex1 = new System.Text.RegularExpressions.Regex(@"([^/]+)>");
+            System.Text.RegularExpressions.Regex regex2 = new System.Text.RegularExpressions.Regex("\"(.+)\"@en .");
+            System.Text.RegularExpressions.Regex regex3 = new System.Text.RegularExpressions.Regex(@"\\u\w{4}");
+            int count = 0;
+
+            while((line = reader.ReadLine())!=null)
+            {
+                if(count++%1000==0)
+                {
+                    Console.WriteLine(count);
+                }
+                try
+                {
+                    var title = regex1.Match(line).Groups[1].Value;
+                    var abs = regex2.Match(line).Groups[1].Value;
+                    abs = regex3.Replace(abs, " ");
+                    writer.WriteLine(title + "\t" + abs);
+                }
+                catch(Exception)
+                {
+                    continue;
+                }
+            }
+            reader.Close();
+            writer.Close();
+        }
+
 
         public static void Main(string[] args)
         {
-            Temp6();
+            Temp7();
+            #if debug
+            {
+                  Console.WriteLine("debug!");
+                  Console.ReadKey();
+            }
+            #endif
             //var currentFolderPath = Environment.CurrentDirectory;
             //var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
             //var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;

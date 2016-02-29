@@ -37,6 +37,10 @@ namespace msra.nlp.tr
             public const string keyword_file                = "keyword_file";
             public const string disambiguous_file           = "disambiguous_file";
             public const string page_anchor_file            = "page_anchor_file";
+            public const string activeParser                = "activeParser";
+            public const string activeNer                   = "activeNer";
+            public const string activeDbpedia               = "activeDbpedia";
+            public const string activeMIKeyword             = "activeDbpedia";
         };
 
        
@@ -109,6 +113,10 @@ namespace msra.nlp.tr
             parameters[Field.disambiguous_file]         = Path.Combine(basedir, @"input\dictionaries\disambiguation mapping.txt");
             parameters[Field.page_anchor_file]          = Path.Combine(basedir, @"input\dictionaries\page anchor.txt");
             parameters[Field.keyword_file]              = Path.Combine(basedir, @"input\tables\keywords.txt");
+            parameters[Field.activeParser]              = true;
+            parameters[Field.activeNer]                 = true;
+            parameters[Field.activeDbpedia]             = true;
+            parameters[Field.activeMIKeyword]           = true;
 
         }
         private DefaultParameter() { }

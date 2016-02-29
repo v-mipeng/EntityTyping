@@ -12,7 +12,7 @@ namespace msra.nlp.tr.dr
 {
     class TfIdf
     {
-        readonly string corpusPath; // path of file storing the documents to be clustered
+        readonly string corpusPath; // path of file storing the documents to be clustered. One line per document.
         readonly string vectorPath; // path of file to store the vector representation of document
         readonly string dfPath;     // path of file to store the df of corpus
         readonly string wordTablePath;  // path of file to store the word table of corpus
@@ -38,10 +38,8 @@ namespace msra.nlp.tr.dr
             OutputTfIdf();
         }
 
-
         private void AnalyzeCorpus()
         {
-            //documents = new List<List<string>>();
             df = new Dictionary<string, int>();
             wordTable = new Dictionary<string,int>();
             ReadOneDoc();
@@ -75,6 +73,8 @@ namespace msra.nlp.tr.dr
             }
 
         }
+
+
 
         private void SaveDf()
         {
@@ -168,7 +168,7 @@ namespace msra.nlp.tr.dr
             }
             else
             {
-                doc = line.Split('\t')[3];
+                doc = line.Split('\t')[1];
             }
         }
        
