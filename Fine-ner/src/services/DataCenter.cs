@@ -855,8 +855,6 @@ namespace msra.nlp.tr
             var test = pairs.ElementAt(1);
             var matchNum = new List<double>(pairs.Count());
             var index = 0;
-            var maxIndex = 0;
-            var maxValue = -1.0;
             var vectorTwo = TfIdf.GetDocTfIdf(context.Split(' ').ToList());
             foreach (var pair in pairs)
             {
@@ -873,11 +871,6 @@ namespace msra.nlp.tr
                 if (vectorOne != null)
                 {
                     matchNum.Add(pml.math.distance.VectorDistance.SparseCosinDistance(vectorOne, vectorTwo));
-                    if (matchNum[index] > maxValue)
-                    {
-                        maxIndex = index;
-                        maxValue = matchNum[index];
-                    }
                 }
                 else
                 {
@@ -885,30 +878,18 @@ namespace msra.nlp.tr
                 }
                 index++;
             }
-            if(maxValue > 0)
-            {
-                var list = new List<string>();
-                list.Add(pairs.ElementAt(maxIndex).first);
-                for (var i = 0; i < matchNum.Count & i != maxIndex; i++)
-                {
-                    if (matchNum[i] >= 0.8 * maxValue && !list.Contains(pairs.ElementAt(i).first))
-                    {
-                        list.Add(pairs.ElementAt(i).first);
-                    }
-                }
-                return list;
-            }
-            else
-            {
-                var list = new List<string>();
-                index = 0;
-                foreach (var pair in pairs)
-                {
-                    list.Add(pair.first);
-                }
-                return list;
-            }
 
+            var types = new List<string>();
+            index = 0;
+            foreach (var pair in pairs)
+            {
+                if(matchNum[index]>0)
+                {
+                    types.Add(pair.first+":"+matchNum[index]);
+                }
+                index++;
+            }
+            return types;
         }
 
         /// <summary>
