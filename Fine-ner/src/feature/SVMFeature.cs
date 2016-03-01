@@ -60,13 +60,12 @@ namespace msra.nlp.tr
             var rawFeature = e.Feature;
             feature.Add("0");
 
-            #region last word make last word more accurate
+            #region last word (make last word more accurate)
             {
                 AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.lastWordStemmed),
                     rawFeature.ElementAt((int)Event.Field.lastWordID),
                     rawFeature.ElementAt((int)Event.Field.lastWordShape),
                     rawFeature.ElementAt((int)Event.Field.lastWordTag));
-
             }
             #endregion
 
@@ -88,33 +87,36 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            #region mention driver
+            if((bool)GlobalParameter.Get(DefaultParameter.Field.activeParser))
             {
-                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionDriverStemmed),
-                     rawFeature.ElementAt((int)Event.Field.mentionDriverID),
-                     rawFeature.ElementAt((int)Event.Field.mentionDriverShape),
-                     rawFeature.ElementAt((int)Event.Field.mentionDriverTag));
-            }
-            #endregion
+                #region mention driver
+                {
+                    AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionDriverStemmed),
+                         rawFeature.ElementAt((int)Event.Field.mentionDriverID),
+                         rawFeature.ElementAt((int)Event.Field.mentionDriverShape),
+                         rawFeature.ElementAt((int)Event.Field.mentionDriverTag));
+                }
+                #endregion
 
-            #region mention adjective modifer
-            {
-                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionAdjModifierStemmed),
-                      rawFeature.ElementAt((int)Event.Field.mentionAdjModifierID),
-                      rawFeature.ElementAt((int)Event.Field.mentionAdjModifierShape),
-                      rawFeature.ElementAt((int)Event.Field.mentionAdjModifierTag));
+                #region mention adjective modifer
+                {
+                    AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionAdjModifierStemmed),
+                          rawFeature.ElementAt((int)Event.Field.mentionAdjModifierID),
+                          rawFeature.ElementAt((int)Event.Field.mentionAdjModifierShape),
+                          rawFeature.ElementAt((int)Event.Field.mentionAdjModifierTag));
 
-            }
-            #endregion
+                }
+                #endregion
 
-            #region mention action
-            {
-                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionActionStemmed),
-                        rawFeature.ElementAt((int)Event.Field.mentionActionID),
-                        rawFeature.ElementAt((int)Event.Field.mentionActionShape),
-                        rawFeature.ElementAt((int)Event.Field.mentionActionTag));
+                #region mention action
+                {
+                    AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionActionStemmed),
+                            rawFeature.ElementAt((int)Event.Field.mentionActionID),
+                            rawFeature.ElementAt((int)Event.Field.mentionActionShape),
+                            rawFeature.ElementAt((int)Event.Field.mentionActionTag));
+                }
+                #endregion
             }
-            #endregion
 
             #region mention words
             {
@@ -235,72 +237,68 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            #region Stanford Ner system
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeNer))
             {
-                var stanfordNerType = rawFeature.ElementAt((int)Event.Field.stanfordNerType);
-                var index = DataCenter.GetStanfordTypeIndex(stanfordNerType);
-                feature.Add((offset + index) + ":1");
-                offset += DataCenter.GetStanfordNerNumber() + 1;
-            }
-            #endregion
-
-            #region OpenNLP Ner system
-            {
-                var openNLPNerType = rawFeature.ElementAt((int)Event.Field.opennlpNerType);
-                var index = DataCenter.GetOpenNLPTypeIndex(openNLPNerType);
-                feature.Add((offset + index) + ":1");
-                offset += DataCenter.GetOpenNLPNerNumber() + 1;
-            }
-            #endregion
-
-            #region DBpedia types
-            {
-                var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypes).Split(',');
-                var list = new List<int>();
-                foreach (var type in types)
+                #region Stanford Ner system
                 {
-                    var index = DataCenter.GetDBpediaTypeIndex(type);
-                    list.Add(index);
-                }
-                list.Sort();
-                foreach (var index in list)
-                {
+                    var stanfordNerType = rawFeature.ElementAt((int)Event.Field.stanfordNerType);
+                    var index = DataCenter.GetStanfordTypeIndex(stanfordNerType);
                     feature.Add((offset + index) + ":1");
+                    offset += DataCenter.GetStanfordNerNumber() + 1;
                 }
-                offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
-            }
-            #endregion
+                #endregion
 
-            #region Key words
-            {
-                var keywords = rawFeature.ElementAt((int)Event.Field.keyWords).Split(',');
-                var list = new List<int>();
-                foreach (var word in keywords)
+                #region OpenNLP Ner system
                 {
-                    var index = DataCenter.GetKeyWordIndex(word);
-                    list.Add(offset + index);
+                    var openNLPNerType = rawFeature.ElementAt((int)Event.Field.opennlpNerType);
+                    var index = DataCenter.GetOpenNLPTypeIndex(openNLPNerType);
+                    feature.Add((offset + index) + ":1");
+                    offset += DataCenter.GetOpenNLPNerNumber() + 1;
                 }
-                list.Sort();
-                foreach (var index in list)
+                #endregion
+            }
+
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeDbpedia))
+            {
+                #region DBpedia types
                 {
-                    feature.Add(index + ":1");
+                    var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypes).Split(',');
+                    var list = new List<int>();
+                    foreach (var type in types)
+                    {
+                        var index = DataCenter.GetDBpediaTypeIndex(type);
+                        list.Add(index);
+                    }
+                    list.Sort();
+                    foreach (var index in list)
+                    {
+                        feature.Add((offset + index) + ":1");
+                    }
+                    offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
                 }
-                offset += DataCenter.GetKeyWordNumber();
+                #endregion
             }
-            #endregion
 
-
-            #region TODO: topic
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeMIKeyword))
             {
-
+                #region Key words
+                {
+                    var keywords = rawFeature.ElementAt((int)Event.Field.keyWords).Split(',');
+                    var list = new List<int>();
+                    foreach (var word in keywords)
+                    {
+                        var index = DataCenter.GetKeyWordIndex(word);
+                        list.Add(offset + index);
+                    }
+                    list.Sort();
+                    foreach (var index in list)
+                    {
+                        feature.Add(index + ":1");
+                    }
+                    offset += DataCenter.GetKeyWordNumber();
+                }
+                #endregion
             }
-            #endregion
-
-            #region TODO: dictionary
-            {
-
-            }
-            #endregion
 
             //set feature dimension
             feature[0] = FeatureDimension.ToString();

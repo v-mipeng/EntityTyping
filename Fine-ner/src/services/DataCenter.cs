@@ -776,15 +776,18 @@ namespace msra.nlp.tr
 
         #region DBpedia dictionary     (mention should be lowercase and without space)
 
-        static Dictionary<string, LinkedList<Pair<string,string>>> dbpediaEntity2Type = null;                   // entity type in dbpedia  (serve for indivisual feature); trimed entity -->(type-->untrimed entity)
+        static Dictionary<string, LinkedList<Pair<string,string>>> dbpediaEntity2Type = null;                   // entity type in dbpedia  (serve for indivisual feature); trimed entity -->(type<-->untrimed entity)
         static Dictionary<string, int> dbpediaType2index = null;                                                // mapping dbpedia type to integer
         static Dictionary<string, List<string>> disambiguousDic = null;                                         // 
         static Dictionary<string, List<string>> pageAnchorsDic = null;                                          // recoding page anchors of articles
+        static Dictionary<string, Dictionary<int, double>> pageAbstract = null;                                 // page absctract: sparse vector
 
         static object dbpediaDicLocker = new object();
         static object dbpediaType2IndexLocker = new object();
         static object disambiguousLocker = new object();
         static object pageAnchorLocker = new object();
+        static object pageAbstractLocker = new object();
+
         static System.Text.RegularExpressions.Regex deleteSpace = new System.Text.RegularExpressions.Regex(@"\s+");
         static System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\([^()]\)");
 
@@ -835,43 +838,6 @@ namespace msra.nlp.tr
             }
         }
 
-        public static void LoadDBpediaType()
-        {
-            lock (dbpediaDicLocker)
-            {
-                if (dbpediaEntity2Type == null)
-                {
-                    var dic = new Dictionary<string, LinkedList<Pair<string, string>>>();
-                    LinkedList<Pair<string, string>> types = null;             // type<-->entity surface
-                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_dic_file));
-                    var line = "";
-                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
-                    System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\([^)]+\)");
-
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        line = line.ToLower();
-                        var array = line.Split('\t');                       // array[0]: entity array[1]:type              
-                        array[0] = regex.Replace(array[0], "");             // delete space(for 's)
-                        var entity = deleteBrace.Replace(array[0], "");     // delete brace
-                        if (dic.TryGetValue(entity, out types))
-                        {
-                            types.AddLast(new Pair<string, string>(array[1], array[0]));
-                        }
-                        else
-                        {
-                            types = new LinkedList<Pair<string, string>>();
-                            types.AddLast(new Pair<string, string>(array[1], array[0]));
-                            dic[entity] = types;
-                        }
-                    }
-                    reader.Close();
-                    dbpediaEntity2Type = dic;
-                }
-            }
-        }
-
-
         /// <summary>
         /// Get more precise dbpedia type by counting page anchors matching number in context
         /// </summary>
@@ -891,32 +857,51 @@ namespace msra.nlp.tr
             var index = 0;
             var maxIndex = 0;
             var maxValue = -1.0;
+            var vectorTwo = TfIdf.GetDocTfIdf(context.Split(' ').ToList());
             foreach (var pair in pairs)
             {
-                var anchors = GetPageAnchors(pair.second);
-                foreach(var anchor in anchors)
+                //var anchors = GetPageAnchors(pair.second);
+                //foreach(var anchor in anchors)
+                //{
+                //    if(context.Contains(anchor))     
+                //    {
+                //        matchNum[index] += 1;
+                //    }
+                //}
+                //matchNum[index] = 1.0*matchNum[index]/anchors.Count();
+                var vectorOne = GetPageAbstract(pair.second);
+                if (vectorOne != null)
                 {
-                    if(context.Contains(anchor))     
+                    matchNum.Add(pml.math.distance.VectorDistance.SparseCosinDistance(vectorOne, vectorTwo));
+                    if (matchNum[index] > maxValue)
                     {
-                        matchNum[index] += 1;
+                        maxIndex = index;
+                        maxValue = matchNum[index];
                     }
                 }
-                matchNum[index] = 1.0*matchNum[index]/anchors.Count();
-                if( matchNum[index]>maxValue)
+                else
                 {
-                    maxIndex = index;
-                    maxValue = matchNum[index];
+                    matchNum.Add(0);
                 }
+                index++;
             }
             if(maxValue > 0)
             {
                 var list = new List<string>();
                 list.Add(pairs.ElementAt(maxIndex).first);
+                for (var i = 0; i < matchNum.Count & i != maxIndex; i++)
+                {
+                    if (matchNum[i] >= 0.8 * maxValue && !list.Contains(pairs.ElementAt(i).first))
+                    {
+                        list.Add(pairs.ElementAt(i).first);
+                    }
+                }
                 return list;
             }
             else
             {
                 var list = new List<string>();
+                index = 0;
                 foreach (var pair in pairs)
                 {
                     list.Add(pair.first);
@@ -925,7 +910,6 @@ namespace msra.nlp.tr
             }
 
         }
-
 
         /// <summary>
         /// Get the index of type in the dbpedia type set.
@@ -963,43 +947,6 @@ namespace msra.nlp.tr
             return dbpediaType2index.Count;
         }
 
-        static private void ConstructTypeIndex()
-        {
-            lock (dbpediaType2IndexLocker)
-            {
-                if (dbpediaType2index == null)
-                {
-                    if (dbpediaEntity2Type == null)
-                    {
-                        LoadDBpediaType();
-                    }
-                    var dic = new Dictionary<string, int>();
-                    var set = new HashSet<string>();
-                    foreach (var value in dbpediaEntity2Type.Values)
-                    {
-                        if (value.GetType().Equals(typeof(string)))
-                        {
-                            set.Add(value.ToString());
-                        }
-                        else
-                        {
-                            //foreach (var t in (HashSet<string>)value)
-                            //{
-                            //    set.Add(t);
-                            //}
-                        }
-                    }
-
-                    foreach (var t in set)
-                    {
-                        dic[t] = dic.Count;
-                    }
-                    dic["UNKNOW"] = dic.Count;
-                    dbpediaType2index = dic;
-                }
-            }
-        }
-
 
         /// <summary>
         /// Get possible entities of given mention.
@@ -1019,30 +966,6 @@ namespace msra.nlp.tr
             catch (Exception)
             {
                 return null;
-            }
-        }
-
-        private static void LoadDisambiguous()
-        {
-            lock (disambiguousLocker)
-            {
-                if (disambiguousDic == null)
-                {
-                    var dic = new Dictionary<string, List<string>>();
-                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.disambiguous_file));
-                    var line = "";
-                    System.Text.RegularExpressions.Regex deleteUnderline = new System.Text.RegularExpressions.Regex(@"_+");
-
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        var l = deleteUnderline.Replace(line, "");
-                        var array = line.Split('\t').ToList();
-                        dic[array[0]] = array;
-                        array.RemoveAt(0);
-                    }
-                    reader.Close();
-                    disambiguousDic = dic;
-                }
             }
         }
 
@@ -1105,6 +1028,97 @@ namespace msra.nlp.tr
             }
         }
 
+        private static Dictionary<int,double> GetPageAbstract(string entity)
+        {
+            if (pageAbstract == null)
+            {
+                LoadPageAbstract();
+            }
+            try
+            {
+                return pageAbstract[entity];
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        static private void ConstructTypeIndex()
+        {
+            lock (dbpediaType2IndexLocker)
+            {
+                if (dbpediaType2index == null)
+                {
+                    var dic = new Dictionary<string, int>();
+                    if (dbpediaEntity2Type != null)
+                    {
+                        foreach (var value in dbpediaEntity2Type.Values)
+                        {
+                            foreach (var pair in value)
+                            {
+                                if (!dic.ContainsKey(pair.first))
+                                {
+                                    dic[pair.first] = dic.Count;
+                                }
+                            }
+                        }
+                       
+                    }
+                    else
+                    {
+                        var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_dic_file));
+                        var line = "";
+                        
+                        while((line =reader.ReadLine())!=null)
+                        {
+                            var array = line.Split('\t');
+                            dic[array[1].ToLower()] = dic.Count;
+                        }
+                        reader.Close();
+                    }
+                    dic["UNKNOW"] = dic.Count;
+                    dbpediaType2index = dic;
+                }
+            }
+        }
+
+        public static void LoadDBpediaType()
+        {
+            lock (dbpediaDicLocker)
+            {
+                if (dbpediaEntity2Type == null)
+                {
+                    var dic = new Dictionary<string, LinkedList<Pair<string, string>>>();
+                    LinkedList<Pair<string, string>> types = null;             // type<-->entity surface
+                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_dic_file));
+                    var line = "";
+                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
+                    System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\([^)]+\)");
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        line = line.ToLower();
+                        var array = line.Split('\t');                       // array[0]: entity array[1]:type              
+                        array[0] = regex.Replace(array[0], "");             // delete space(for 's)
+                        var entity = deleteBrace.Replace(array[0], "");     // delete brace
+                        if (dic.TryGetValue(entity, out types))
+                        {
+                            types.AddLast(new Pair<string, string>(array[1], array[0]));
+                        }
+                        else
+                        {
+                            types = new LinkedList<Pair<string, string>>();
+                            types.AddLast(new Pair<string, string>(array[1], array[0]));
+                            dic[entity] = types;
+                        }
+                    }
+                    reader.Close();
+                    dbpediaEntity2Type = dic;
+                }
+            }
+        }
+
         private static void LoadPageAnchors()
         {
             lock (pageAnchorLocker)
@@ -1129,6 +1143,60 @@ namespace msra.nlp.tr
             }
         }
 
+        private static void LoadDisambiguous()
+        {
+            lock (disambiguousLocker)
+            {
+                if (disambiguousDic == null)
+                {
+                    var dic = new Dictionary<string, List<string>>();
+                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.disambiguous_file));
+                    var line = "";
+                    System.Text.RegularExpressions.Regex deleteUnderline = new System.Text.RegularExpressions.Regex(@"_+");
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        var l = deleteUnderline.Replace(line, "");
+                        var array = line.Split('\t').ToList();
+                        dic[array[0]] = array;
+                        array.RemoveAt(0);
+                    }
+                    reader.Close();
+                    disambiguousDic = dic;
+                }
+            }
+        }
+
+        private static void LoadPageAbstract()
+        {
+            lock(pageAbstractLocker)
+            {
+                if(pageAbstract == null)
+                {
+                    var path = (string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_abstract_file);
+                    var dic = new Dictionary<string, Dictionary<int, double>>();
+                    var reader = new LargeFileReader(path);
+                    string line;
+                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
+
+
+                    while((line = reader.ReadLine())!=null)
+                    {
+                        var array = line.Split('\t');
+                        var dic2 = new Dictionary<int, double>();
+                        for(var i = 1;i<array.Length;i++)
+                        {
+                            var array2 = array[i].Split(':');
+                            dic2[int.Parse(array2[0])] = double.Parse(array2[1]);
+                        }
+                        array[0] = regex.Replace(array[0], "").ToLower();
+                        dic[array[0]] = dic2;
+                    }
+                    reader.Close();
+                    pageAbstract = dic;
+                }
+            }
+        }
 
         #endregion
 

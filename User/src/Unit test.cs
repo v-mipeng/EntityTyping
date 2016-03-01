@@ -88,8 +88,15 @@ namespace User
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
                 var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
                 basedir = Path.Combine(basedir, "Fine-ner/");
+                //props.SetProperty("method", @"/ef -raw -add -dev -test");
+                //props.SetProperty("train_data_file", Path.Combine(basedir,@"input\feature\train\"));
+                //props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\feature\"));
+                //props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\develop\"));
+                //props.SetProperty("develop_feature_file", Path.Combine(basedir, @"input\feature\temp develop\"));
+                //props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\test\"));
+                //props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\feature\temp test\"));
                 props.SetProperty("method", @"/ef -svm -all");
-                props.SetProperty("train_data_file", Path.Combine(basedir,@"input\feature\train\"));
+                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\feature\train\"));
                 props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\svm\train\"));
                 props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\develop\"));
                 props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\svm\develop\"));

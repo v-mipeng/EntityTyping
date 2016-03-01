@@ -6,7 +6,7 @@ using pml.type;
 
 namespace pml.math.distance
 {
-    class VectorDistance
+    public class VectorDistance
     {
         private VectorDistance() { }
 

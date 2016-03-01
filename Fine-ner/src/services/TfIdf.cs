@@ -12,133 +12,82 @@ namespace msra.nlp.tr
 {
     public class TfIdf
     {
-        readonly string corpusPath; // path of file storing the documents to be clustered. One line per document.
-        readonly string vectorPath; // path of file to store the vector representation of document
-        readonly string dfPath;     // path of file to store the df of corpus
-        readonly string wordTablePath;  // path of file to store the word table of corpus
         //List<List<string>> documents = null;
-        int docNum = 4305029;
-        Dictionary<string, int> df = null;
-        Dictionary<string, int> wordTable = null;
+        static int docNum = 0;
+        static Dictionary<string, int> df = null;
+        static Dictionary<string, int> wordTable = null;
+        static object dfLocker = new object();
+        static object abstractWordTableLocker = new object();
 
 
-        public TfIdf(string corpusPath, string vectorPath, string dfPath, string wordTablePath)
+
+
+        private TfIdf()
         {
-            this.corpusPath = corpusPath;
-            this.vectorPath = vectorPath;
-            this.wordTablePath = wordTablePath;
-            this.dfPath = dfPath;
         }
 
-        public void GetVectorCorpus()
+
+        public static Dictionary<int, double> GetDocTfIdf(List<string> document)
         {
-            //AnalyzeCorpus();
-            //SaveDf();
-            //SaveWordTable();
-            LoadDf();
-            LoadAbstractWordTable();
-            OutputTfIdf();
-        }
-
-        private void AnalyzeCorpus()
-        {
-            df = new Dictionary<string, int>();
-            wordTable = new Dictionary<string, int>();
-            ReadOneDoc();
-            HashSet<string> set = null;
-
-
-            while (this.doc != null)
+            if(df == null)
             {
-                this.doc = this.doc.ToLower();
-                this.docNum++;
-                if (this.docNum % 1000 == 0)
-                {
-                    Console.WriteLine(this.docNum);
-                }
-                var tokenizer = msra.nlp.tr.TokenizerPool.GetTokenizer();
-                var document = tokenizer.Tokenize(doc);
-                msra.nlp.tr.TokenizerPool.ReturnTokenizer(tokenizer);
-                set = new HashSet<string>(document);
-                //documents.Add(document);
-                foreach (var word in set)
-                {
-                    int times;
-                    df.TryGetValue(word, out times);
-                    df[word] = times + 1;
-                    if (!wordTable.ContainsKey(word))
-                    {
-                        int count = wordTable.Count;
-                        wordTable[word] = count;
-                    }
-                }
-                ReadOneDoc();
+                docNum = (int)GlobalParameter.Get(DefaultParameter.Field.dbpedia_abstract_num);
+                LoadDf();
             }
-
-        }
-
-        private void SaveDf()
-        {
-            var writer = new LargeFileWriter(dfPath, FileMode.Create);
-            foreach (var word in df.Keys)
+            if(wordTable == null)
             {
-                writer.WriteLine(word + "\t" + df[word]);
+                LoadAbstractWordTable();
             }
-            writer.Close();
+            return GetTfIdf(document);
         }
 
-        private void SaveWordTable()
+        public Dictionary<int, double> GetDocTfIdf(string document)
         {
-            var writer = new LargeFileWriter(wordTablePath, FileMode.Create);
-            foreach (var word in wordTable.Keys)
+            if (df == null)
             {
-                writer.WriteLine(word + "\t" + wordTable[word]);
+                LoadDf();
             }
-            writer.Close();
-        }
-
-        private void OutputTfIdf()
-        {
-            var writer = new LargeFileWriter(vectorPath, FileMode.Create);
-            int num = 0;
-            ReadOneDoc();
-            var tokenizer = TokenizerPool.GetTokenizer();
-
-            while (this.doc != null)
+            if (wordTable == null)
             {
-                this.doc = this.doc.ToLower();
-                var document = tokenizer.Tokenize(doc);
-                if ((++num % 1000) == 0)
-                {
-                    Console.WriteLine(num);
-                }
-                try
-                {
-                    var vector = GetTfIdf(document);
-                    writer.Write(title);
-                    foreach (var value in vector)
-                    {
-                        writer.Write("\t" + value.first + ":" + value.second);
-                    }
-                    writer.WriteLine("");
-                    ReadOneDoc();
-                }
-                catch (Exception)
-                {
-                    ReadOneDoc();
-                }
-
+                LoadAbstractWordTable();
             }
-            TokenizerPool.ReturnTokenizer(tokenizer);
-            writer.Close();
+            var tokenizer = msra.nlp.tr.TokenizerPool.GetTokenizer();
+            var doc = tokenizer.Tokenize(document);
+            msra.nlp.tr.TokenizerPool.ReturnTokenizer(tokenizer);
+            return GetTfIdf(doc);
         }
 
-        private void LoadDf()
+        private static void LoadDf()
         {
+           lock(dfLocker)
+           {
+               if(df == null)
+               {
+                   var dfPath = (string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_abstract_df_file);
+                   var reader = new LargeFileReader(dfPath);
+                   var dic = new Dictionary<string, int>();
+                   string line;
+
+                   while((line = reader.ReadLine())!=null)
+                   {
+                       var array = line.Split('\t');
+                       dic[array[0]] = int.Parse(array[1]);
+                   }
+                   reader.Close();
+                   df = dic;
+               }
+           }
+
+        }
+
+        private static void LoadAbstractWordTable()
+        {
+            lock (abstractWordTableLocker)
             {
-                if (df == null)
+                if (wordTable == null)
                 {
-                    var reader = new LargeFileReader(dfPath);
+                    var wordTablePath = (string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_abstract_word_table);
+                    var reader = new LargeFileReader(wordTablePath);
                     var dic = new Dictionary<string, int>();
                     string line;
 
@@ -148,33 +97,14 @@ namespace msra.nlp.tr
                         dic[array[0]] = int.Parse(array[1]);
                     }
                     reader.Close();
-                    df = dic;
+                    wordTable = dic;
                 }
             }
         }
-
-        private void LoadAbstractWordTable()
-        {
-            if (wordTable == null)
-            {
-                var reader = new LargeFileReader(wordTablePath);
-                var dic = new Dictionary<string, int>();
-                string line;
-
-                while ((line = reader.ReadLine()) != null)
-                {
-                    var array = line.Split('\t');
-                    dic[array[0]] = int.Parse(array[1]);
-                }
-                reader.Close();
-                wordTable = dic;
-            }
-        }
-
 
 
         // Get Tf-idf vector of a document
-        private List<Pair<int, double>> GetTfIdf(List<string> document)
+        private static Dictionary<int,double> GetTfIdf(List<string> document)
         {
             Dictionary<string, int> tf = new Dictionary<string, int>();
             // get tf
@@ -185,43 +115,25 @@ namespace msra.nlp.tr
                 tf[word] = times + 1;
             }
             // calculate tfidf: (1+log(tf))*log(n/df)
-            List<Pair<int, double>> pairs = new List<Pair<int, double>>();
+            Dictionary<int, double> dic = new Dictionary<int, double>();
             foreach (var word in tf.Keys)
             {
-                var tfidf = (1 + Math.Log(tf[word])) * Math.Log(this.docNum / df[word]);
-                if (tfidf > 0.001)
+                try
                 {
-                    var pair = new Pair<int, double>(wordTable[word], tfidf);
-                    pairs.Add(pair);
+                    var tfidf = (1 + Math.Log(tf[word])) * Math.Log(docNum / df[word]);
+                    if (tfidf > 0.001)
+                    {
+                        dic[wordTable[word]] = tfidf;
+                    }
+                }
+                catch(Exception)
+                {
+                    continue;
                 }
             }
-            pairs.Sort(pairs[0].GetByFirstComparer());
-            return pairs;
+            return dic;
         }
 
-        string doc;
-        string title;
-        FileReader reader = null;
-        private void ReadOneDoc()
-        {
-            if (reader == null)
-            {
-                reader = new LargeFileReader(corpusPath);
-            }
-            var line = reader.ReadLine();
-            if (line == null)
-            {
-                reader.Close();
-                doc = null;
-                reader = null;
-                return;
-            }
-            else
-            {
-                var array = line.Split('\t');
-                title = array[0];
-                doc = array[1];
-            }
-        }
+
     }
 }

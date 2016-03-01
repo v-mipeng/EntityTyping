@@ -220,7 +220,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\services\TfIdf.cs" />
     <Compile Include="src\data\Event.cs" />
     <Compile Include="src\data\EventReader.cs" />
     <Compile Include="src\data\EventReaderByLine.cs" />
@@ -275,7 +274,7 @@
     <Compile Include="src\share\DefaultParameter.cs" />
     <Compile Include="src\share\GlobalParameter - Copy.cs" />
     <Compile Include="src\share\GlobalParameter.cs" />
-    <Compile Include="src\share\TfIdf2.cs" />
+    <Compile Include="src\services\TfIdf.cs" />
     <Compile Include="src\test\BayesTest.cs" />
     <Compile Include="src\train\BayesModel.cs" />
     <Compile Include="src\train\Trainer.cs" />

@@ -372,8 +372,9 @@ namespace msra.nlp.tr
             #endregion
 
             #region DBpedia dictionary
+            if(true)
             {
-                var types = string.Join(",", DataCenter.GetDBpediaType(mention));
+                var types = string.Join(",", DataCenter.GetDBpediaType(mention, context));
                 rawFeature[(int)Event.Field.dbpediaTypes] = types;
             }
             #endregion
@@ -527,7 +528,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region   Modify mention ID
-            if (true)
+            if (false)
             {
                 var mentionID = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionID));
                 var mentionClusterNum = DataCenter.GetMentionClusterNumber();

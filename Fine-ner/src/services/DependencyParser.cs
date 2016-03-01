@@ -28,6 +28,7 @@ namespace msra.nlp.tr
         ArrayList tokens = null;
         List<Pair<string,string>> posTags = null;
         private SemanticGraph dependencies = new SemanticGraph();
+
         edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation tokenObj = new edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation();
         edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
         edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.BasicDependenciesAnnotation depObj = new edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.BasicDependenciesAnnotation();
@@ -174,6 +175,25 @@ namespace msra.nlp.tr
         public int GetDriver(int begin, int end)
         {
             return GetInterestDep("dobj", begin, end);
+        }
+
+        /// <summary>
+        /// Get tokens related to given mention with dependency parser.
+        /// </summary>
+        /// <param name="begin"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public List<int> GetRelatedToken(int begin, int end)
+        {
+            var list = new List<int>();
+            foreach (SemanticGraphEdge dep in this.dependencies.edgeListSorted().toArray())
+            {
+                if ((dep.getDependent().index() >= begin + 1 && dep.getDependent().index() <= end + 1) || (dep.getGovernor().index() >= begin + 1 && dep.getGovernor().index() <= end + 1))
+                {
+                    list.Add(dep.getGovernor().index() - 1);
+                }
+            }
+            return list;
         }
 
         private int GetInterestDep(string depType, int begin, int end)

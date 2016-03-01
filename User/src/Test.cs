@@ -344,7 +344,7 @@ namespace msra.nlp.tr
 
         public static void Main(string[] args)
         {
-            Temp8();
+            //Temp8();
             //var pipeline = new Pipeline();
             //TfIdf tfidf = new TfIdf(
             //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract.txt",
@@ -352,13 +352,13 @@ namespace msra.nlp.tr
             //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract df.txt",
             //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract word table.txt");
             //tfidf.GetVectorCorpus();
-            //var currentFolderPath = Environment.CurrentDirectory;
-            //var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
-            //var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
-            //basedir = Path.Combine(basedir, "Fine-ner/");
-            //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\train\"), Path.Combine(basedir, @"output\svm\train.txt"));
-            //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\develop\"), Path.Combine(basedir, @"output\svm\develop.txt"));
-            //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\test\"), Path.Combine(basedir, @"output\svm\test.txt"));
+            var currentFolderPath = Environment.CurrentDirectory;
+            var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
+            var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
+            basedir = Path.Combine(basedir, "Fine-ner/");
+            pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\train\"), Path.Combine(basedir, @"output\svm\train.txt"));
+            pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\develop\"), Path.Combine(basedir, @"output\svm\develop.txt"));
+            pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\test\"), Path.Combine(basedir, @"output\svm\test.txt"));
 
             //var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\develop2";
             //var sourceDir2 = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\develop3";
