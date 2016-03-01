@@ -858,19 +858,10 @@ namespace msra.nlp.tr
             var vectorTwo = TfIdf.GetDocTfIdf(context.Split(' ').ToList());
             foreach (var pair in pairs)
             {
-                //var anchors = GetPageAnchors(pair.second);
-                //foreach(var anchor in anchors)
-                //{
-                //    if(context.Contains(anchor))     
-                //    {
-                //        matchNum[index] += 1;
-                //    }
-                //}
-                //matchNum[index] = 1.0*matchNum[index]/anchors.Count();
                 var vectorOne = GetPageAbstract(pair.second);
                 if (vectorOne != null)
                 {
-                    matchNum.Add(pml.math.distance.VectorDistance.SparseCosinDistance(vectorOne, vectorTwo));
+                    matchNum.Add(pml.math.VectorDistance.SparseCosinDistance(vectorOne, vectorTwo));
                 }
                 else
                 {
@@ -878,14 +869,16 @@ namespace msra.nlp.tr
                 }
                 index++;
             }
-
+            matchNum = pml.math.Normalization.MinMaxNormalize(matchNum);
             var types = new List<string>();
             index = 0;
+            var dic = new Dictionary<string, double>();
             foreach (var pair in pairs)
             {
-                if(matchNum[index]>0)
+                if(!dic.ContainsKey(pair.first) || dic[pair.first] < matchNum[index])
                 {
                     types.Add(pair.first+":"+matchNum[index]);
+                    dic[pair.first] = matchNum[index];
                 }
                 index++;
             }

@@ -91,8 +91,8 @@ namespace User
                 props.SetProperty("method", @"/ef -raw -add -dev -test");
                 props.SetProperty("train_data_file", Path.Combine(basedir, @"input\feature\train\"));
                 props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\feature\"));
-                props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\develop\"));
-                props.SetProperty("develop_feature_file", Path.Combine(basedir, @"input\feature\temp develop\"));
+                props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\develop\award_award.txt"));
+                props.SetProperty("develop_feature_file", Path.Combine(basedir, @"input\feature\temp develop\award_award.txt"));
                 props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\test\"));
                 props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\feature\temp test\"));
                 //props.SetProperty("method", @"/ef -svm -all");
