@@ -547,12 +547,13 @@ namespace msra.nlp.tr
                 var parser = ParserPool.GetParser();
                 parser.Parse(context);
                 contextTokenPairs = parser.GetPosTags();
-                mentionIndexPair = GetIndexOfMention(contextTokenPairs, mentionTokens);
+                mentionIndexPair = GetIndexOfMention(contextTokenPairs, mention);
                 if (mentionIndexPair.first == -1)
                 {
                     throw new Exception("Cannot find mention by token within context!");
                 }
                 var relatedIndexes = parser.GetRelatedToken(mentionIndexPair.first, mentionIndexPair.second);
+                ParserPool.ReturnParser(parser);
                 var keyWords = new List<string>();
                 foreach(var index in relatedIndexes)
                 {
