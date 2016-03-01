@@ -191,6 +191,7 @@ namespace msra.nlp.tr
                 if ((dep.getDependent().index() >= begin + 1 && dep.getDependent().index() <= end + 1) || (dep.getGovernor().index() >= begin + 1 && dep.getGovernor().index() <= end + 1))
                 {
                     list.Add(dep.getGovernor().index() - 1);
+                    list.Add(dep.getDependent().index() - 1);
                 }
             }
             return list;

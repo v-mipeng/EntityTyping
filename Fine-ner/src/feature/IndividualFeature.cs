@@ -372,7 +372,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region DBpedia dictionary
-            if(true)
+            if(false)
             {
                 var types = string.Join(",", DataCenter.GetDBpediaType(mention, context));
                 rawFeature[(int)Event.Field.dbpediaTypes] = types;
@@ -541,11 +541,25 @@ namespace msra.nlp.tr
             #endregion
 
             #region Key words
-            if (false)
+            if (true)
             {
-                var keyWords = DataCenter.ExtractKeyWords(context);
+                //var keyWords = DataCenter.ExtractKeyWords(context);
+                var parser = ParserPool.GetParser();
+                parser.Parse(context);
+                contextTokenPairs = parser.GetPosTags();
+                mentionIndexPair = GetIndexOfMention(contextTokenPairs, mentionTokens);
+                if (mentionIndexPair.first == -1)
+                {
+                    throw new Exception("Cannot find mention by token within context!");
+                }
+                var relatedIndexes = parser.GetRelatedToken(mentionIndexPair.first, mentionIndexPair.second);
+                var keyWords = new List<string>();
+                foreach(var index in relatedIndexes)
+                {
+                    keyWords.Add(contextTokenPairs.ElementAt(index).first);
+                }
+                keyWords = DataCenter.ExtractKeyWords(keyWords);
                 rawFeature[(int)Event.Field.sentenceContext] = string.Join(",", keyWords);
-
                 rawFeature.Add(context);
             }
             #endregion
