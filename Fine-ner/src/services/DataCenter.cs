@@ -813,7 +813,7 @@ namespace msra.nlp.tr
                 mention = mention.Replace("-rrb-", ")");
                 mention = deleteSpace.Replace(mention, "");
                 mention = deleteBrace.Replace(mention, "");
-                if (dbpediaEntity2Type.TryGetValue(mention, out types))
+                 if (dbpediaEntity2Type.TryGetValue(mention, out types))
                 {
                     return GetPreciseDBpediaType(context, types);
                 }
@@ -869,13 +869,13 @@ namespace msra.nlp.tr
                 }
                 index++;
             }
-            matchNum = pml.math.Normalization.MinMaxNormalize(matchNum);
+            matchNum = pml.math.Normalization.MaxNormalize(matchNum);
             var types = new List<string>();
             index = 0;
             var dic = new Dictionary<string, double>();
             foreach (var pair in pairs)
             {
-                if(!dic.ContainsKey(pair.first) || dic[pair.first] < matchNum[index])
+                if((!dic.ContainsKey(pair.first) || dic[pair.first] < matchNum[index]) && matchNum[index] > 0)
                 {
                     types.Add(pair.first+":"+matchNum[index]);
                     dic[pair.first] = matchNum[index];
@@ -903,6 +903,8 @@ namespace msra.nlp.tr
             }
             catch (Exception e)
             {
+                Console.WriteLine("Type:"+type);
+                Console.ReadKey();
                 throw e;
             }
         }
@@ -1037,7 +1039,6 @@ namespace msra.nlp.tr
                                 }
                             }
                         }
-                       
                     }
                     else
                     {

@@ -31,5 +31,27 @@ namespace pml.math
             }
             return list;
         }
+
+        public static List<double> MaxNormalize(IEnumerable<double> vector)
+        {
+            var max = double.MinValue;
+            foreach (var value in vector)   // look for minimal and maximal value
+            {
+                if (max < value)
+                {
+                    max = value;
+                }
+            }
+            if(max == 0)
+            {
+                max = 1;
+            }
+            var list = new List<double>();
+            for (var i = 0; i < vector.Count(); i++)
+            {
+                list.Add(vector.ElementAt(i)/max);
+            }
+            return list;
+        }
     }
 }
