@@ -903,8 +903,6 @@ namespace msra.nlp.tr
             }
             catch (Exception e)
             {
-                Console.WriteLine("Type:"+type);
-                Console.ReadKey();
                 throw e;
             }
         }

@@ -342,7 +342,7 @@ namespace msra.nlp.tr
             writer.Close();
         }
 
-        public static void Mains(string[] args)
+        public static void Main(string[] args)
         {
             //Temp8();
             //var pipeline = new Pipeline();

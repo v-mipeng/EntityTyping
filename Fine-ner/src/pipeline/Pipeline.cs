@@ -209,7 +209,7 @@ namespace msra.nlp.tr
                 // extract features for svm model
                 if (options.Contains("train") || options.Contains("all"))
                 {
-                    var extractor = new SVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
+                    var extractor = new ParallelSVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
                         (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
                     extractor.ExtractFeature();
                 }

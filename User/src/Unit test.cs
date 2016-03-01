@@ -13,7 +13,7 @@ namespace User
 {
     class UnitTest
     {
-        static void Main(string[] args)
+        static void Mains(string[] args)
         {
             //Temp();
             //Analyse();
@@ -95,9 +95,9 @@ namespace User
                 //props.SetProperty("develop_feature_file", Path.Combine(basedir, @"input\feature\temp develop\award_award.txt"));
                 //props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\test\"));
                 //props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\feature\temp test\"));
-                props.SetProperty("method", @"/ef -svm -train");
-                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\feature\temp train\award_award.txt"));
-                props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\svm\train\award_award.txt"));
+                props.SetProperty("method", @"/ef -svm -all");
+                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\feature\temp train\"));
+                props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\svm\train\"));
                 props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\temp develop\"));
                 props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\svm\develop\"));
                 props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\temp test\"));
