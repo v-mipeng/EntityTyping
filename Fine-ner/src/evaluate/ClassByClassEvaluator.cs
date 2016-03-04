@@ -42,10 +42,13 @@ namespace msra.nlp.tr.eval
             var writer = new LargeFileWriter(evaluationFile, FileMode.Create);
             Dictionary<string, int> dic = null;
             line = reader.ReadLine();
+            var keys = new HashSet<string>();
 
             while ((line = reader.ReadLine()) != null)
             {
                 var array = line.Split('\t');
+                keys.Add(array[trueLabelIndex]);
+                keys.Add(array[predictLabelIndex]);
                 try
                 {
                     dic = result[array[trueLabelIndex]];
@@ -68,7 +71,6 @@ namespace msra.nlp.tr.eval
             }
             reader.Close();
             writer.Write("True|Predict");
-            var keys = result.Keys;
             foreach (var key in keys)
             {
                 writer.Write("\t" + key);
@@ -76,21 +78,27 @@ namespace msra.nlp.tr.eval
             writer.WriteLine("");
             foreach (var key in keys)
             {
-                writer.Write(key);
-                var info = result[key];
-
-                foreach (var k in keys)
+                try
                 {
-                    if (info.TryGetValue(k, out times))
+                    var info = result[key];
+                    writer.Write(key);
+                    foreach (var k in keys)
                     {
-                        writer.Write("\t" + times);
+                        if (info.TryGetValue(k, out times))
+                        {
+                            writer.Write("\t" + times);
+                        }
+                        else
+                        {
+                            writer.Write("\t" + 0);
+                        }
                     }
-                    else
-                    {
-                        writer.Write("\t" + 0);
-                    }
+                    writer.WriteLine("");
                 }
-                writer.WriteLine("");
+                catch (Exception)
+                {
+                    continue;
+                }
             }
             var macroPre = Util.GetMacroPrecision(result);
             var macroRec = Util.GetMacroRecall(result);

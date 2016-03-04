@@ -13,7 +13,7 @@ namespace User
 {
     class UnitTest
     {
-        static void Main(string[] args)
+        static void Mains(string[] args)
         {
             //Temp();
             //Analyse();
