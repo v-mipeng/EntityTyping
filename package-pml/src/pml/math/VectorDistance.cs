@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using pml.type;
 
-namespace pml.math.distance
+namespace pml.math
 {
     public class VectorDistance
     {

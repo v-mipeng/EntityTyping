@@ -813,7 +813,7 @@ namespace msra.nlp.tr
                 mention = mention.Replace("-rrb-", ")");
                 mention = deleteSpace.Replace(mention, "");
                 mention = deleteBrace.Replace(mention, "");
-                if (dbpediaEntity2Type.TryGetValue(mention, out types))
+                 if (dbpediaEntity2Type.TryGetValue(mention, out types))
                 {
                     return GetPreciseDBpediaType(context, types);
                 }
@@ -855,29 +855,13 @@ namespace msra.nlp.tr
             var test = pairs.ElementAt(1);
             var matchNum = new List<double>(pairs.Count());
             var index = 0;
-            var maxIndex = 0;
-            var maxValue = -1.0;
             var vectorTwo = TfIdf.GetDocTfIdf(context.Split(' ').ToList());
             foreach (var pair in pairs)
             {
-                //var anchors = GetPageAnchors(pair.second);
-                //foreach(var anchor in anchors)
-                //{
-                //    if(context.Contains(anchor))     
-                //    {
-                //        matchNum[index] += 1;
-                //    }
-                //}
-                //matchNum[index] = 1.0*matchNum[index]/anchors.Count();
                 var vectorOne = GetPageAbstract(pair.second);
                 if (vectorOne != null)
                 {
-                    matchNum.Add(pml.math.distance.VectorDistance.SparseCosinDistance(vectorOne, vectorTwo));
-                    if (matchNum[index] > maxValue)
-                    {
-                        maxIndex = index;
-                        maxValue = matchNum[index];
-                    }
+                    matchNum.Add(pml.math.VectorDistance.SparseCosinDistance(vectorOne, vectorTwo));
                 }
                 else
                 {
@@ -885,30 +869,20 @@ namespace msra.nlp.tr
                 }
                 index++;
             }
-            if(maxValue > 0)
+            matchNum = pml.math.Normalization.MaxNormalize(matchNum);
+            var types = new List<string>();
+            index = 0;
+            var dic = new Dictionary<string, double>();
+            foreach (var pair in pairs)
             {
-                var list = new List<string>();
-                list.Add(pairs.ElementAt(maxIndex).first);
-                for (var i = 0; i < matchNum.Count & i != maxIndex; i++)
+                if((!dic.ContainsKey(pair.first) || dic[pair.first] < matchNum[index]) && matchNum[index] > 0)
                 {
-                    if (matchNum[i] >= 0.8 * maxValue && !list.Contains(pairs.ElementAt(i).first))
-                    {
-                        list.Add(pairs.ElementAt(i).first);
-                    }
+                    types.Add(pair.first+":"+matchNum[index]);
+                    dic[pair.first] = matchNum[index];
                 }
-                return list;
+                index++;
             }
-            else
-            {
-                var list = new List<string>();
-                index = 0;
-                foreach (var pair in pairs)
-                {
-                    list.Add(pair.first);
-                }
-                return list;
-            }
-
+            return types;
         }
 
         /// <summary>
@@ -1063,7 +1037,6 @@ namespace msra.nlp.tr
                                 }
                             }
                         }
-                       
                     }
                     else
                     {
