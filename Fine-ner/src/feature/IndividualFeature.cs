@@ -61,7 +61,7 @@ namespace msra.nlp.tr
             DependencyParser parser = null;
 
             #region Dependency parser
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeParser))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
             {
                 parser = ParserPool.GetParser();
                 try
@@ -163,7 +163,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region mention driver
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeParser))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
             {
                 int index = parser.GetDriver(mentionIndexPair.first, mentionIndexPair.second);
                 if (index > 0)
@@ -180,7 +180,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region mention adjective modifer
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeParser))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
             {
                 int index = parser.GetAdjModifier(mentionIndexPair.first, mentionIndexPair.second);
                 if (index > 0)
@@ -197,7 +197,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region mention action
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeParser))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
             {
                 int index = parser.GetAction(mentionIndexPair.first, mentionIndexPair.second);
                 if (index > 0)
@@ -296,7 +296,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region Stanford NER
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeNer))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateNer))
             {
                 
                 var ner = StanfordNerPool.GetStanfordNer();
@@ -309,7 +309,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region OpenNLP NER
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeNer))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateNer))
             {
                 var ner = OpenNerPool.GetOpenNer();
                 ner.FindNer(context);
@@ -321,7 +321,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region DBpedia dictionary
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeDbpedia))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateDbpedia))
             {
                 var types = string.Join(",", DataCenter.GetDBpediaType(this.instance.Mention));
                 feature.Add(types);
@@ -329,7 +329,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region Key words
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeMIKeyword))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateMIKeyword))
             {
                 var keyWords = DataCenter.ExtractKeyWords(context);
                 feature.Add(string.Join(",", keyWords));

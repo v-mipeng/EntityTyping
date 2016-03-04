@@ -87,7 +87,7 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            if((bool)GlobalParameter.Get(DefaultParameter.Field.activeParser))
+            if((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
             {
                 #region mention driver
                 {
@@ -237,7 +237,7 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeNer))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateNer))
             {
                 #region Stanford Ner system
                 {
@@ -258,7 +258,7 @@ namespace msra.nlp.tr
                 #endregion
             }
 
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeDbpedia))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateDbpedia))
             {
                 #region DBpedia types
                 {
@@ -291,7 +291,7 @@ namespace msra.nlp.tr
                 #endregion
             }
 
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activeMIKeyword))
+            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateMIKeyword))
             {
                 #region Key words
                 {
