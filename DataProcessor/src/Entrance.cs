@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using msra.nlp.tr;
+using msra.nlp.dp.conll;
 
 namespace msra.nlp.tr.dp
 {
@@ -32,25 +33,33 @@ namespace msra.nlp.tr.dp
             }
             if (false)
             {
-                var sourceDir = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train\";
-                var desDir = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\tmp\";
-                var selector = new KeyWordSelector(sourceDir, desDir);
-                selector.GetKeyWords();
+                //var sourceDir = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\train\";
+                //var desDir = @"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\satori\tmp\";
+                //var selector = new KeyWordSelector(sourceDir, desDir);
+                //selector.GetKeyWords();
             }
-            if(true)
+            if(false)
             {
                 var source = @"D:\Data\DBpedia\disambiguations_en.nt";
                 var des = @"D:\Data\DBpedia\disambiguation mapping.txt";
                 DBpediaProcessor.RefineAmbiguousItem(source, des);
             }
+            if(false)
+            {
+                //TfIdf tfidf = new TfIdf(
+                //@"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract.txt",
+                //@"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract vector.txt",
+                //@"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract df.txt",
+                //@"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract word table.txt");
+                //tfidf.GetVectorCorpus();
+            }
             if(true)
             {
-                TfIdf tfidf = new TfIdf(
-                @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract.txt",
-                @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract vector.txt",
-                @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract df.txt",
-                @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract word table.txt");
-                tfidf.GetVectorCorpus();
+                // filter conll data
+                var filter = new DataFilter(@"D:\Codes\Project\EntityTyping\Fine-ner\input\conll",
+                     @"D:\Codes\Project\EntityTyping\Fine-ner\input\conll trimed\",
+                     @"D:\Codes\Project\EntityTyping\Fine-ner\input\conll trimed\conll info.txt");
+                filter.Refine();
             }
         }
     }

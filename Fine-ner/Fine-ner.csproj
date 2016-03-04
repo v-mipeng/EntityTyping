@@ -280,9 +280,6 @@
     <Compile Include="src\train\Trainer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\classify\classifier1.exp" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>

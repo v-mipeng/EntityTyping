@@ -7,6 +7,7 @@ using System.IO;
 using pml.file.reader;
 using pml.file.writer;
 using pml.type;
+using msra.nlp.tr;
 
 namespace msra.nlp.tr
 {
