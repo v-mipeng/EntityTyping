@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using msra.nlp.tr.eval;
+using User.src;
 
 namespace msra.nlp.tr
 {
@@ -342,9 +343,43 @@ namespace msra.nlp.tr
             writer.Close();
         }
 
-        public static void Mains(string[] args)
+        public static void Temp9(string interestWordFile, string word2vecFile, string selectedWord2VectorFile)
         {
-            //Temp8();
+            var reader = new LargeFileReader(interestWordFile);
+            string line;
+            var set = new HashSet<string>();
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                set.Add(line.Trim());
+            }
+            reader.Close();
+            var writer = new LargeFileWriter(selectedWord2VectorFile, FileMode.Create);
+            int count = 0;
+            reader.Open(word2vecFile);
+            while ((line =reader.ReadLine())!=null)
+            {
+                if (++count % 1000 == 0)
+                {
+                    Console.WriteLine(count);
+                }
+                var array = line.Split(new char[]{' '},2);
+                if(set.Contains(array[0]))
+                {
+                    writer.WriteLine(line);
+                }
+            }
+            writer.Close();
+        }
+        public static void Temp10(string vectorFile, string centroidInfoFile, string wordClusterIDFile)
+        {
+            var cluster = new VectorCluster(vectorFile, centroidInfoFile, wordClusterIDFile);
+            cluster.Cluster(1000);
+        }
+
+        public static void Main(string[] args)
+        {
+            Temp10(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300-seleted.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\centroids-1000.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\cluster IDs-1000.txt");
             //var pipeline = new Pipeline();
             //TfIdf tfidf = new TfIdf(
             //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract.txt",
@@ -352,13 +387,13 @@ namespace msra.nlp.tr
             //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract df.txt",
             //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract word table.txt");
             //tfidf.GetVectorCorpus();
-            var currentFolderPath = Environment.CurrentDirectory;
-            var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
-            var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
-            basedir = Path.Combine(basedir, "Fine-ner/");
-            pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\train\"), Path.Combine(basedir, @"output\svm\train.txt"));
-            pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\develop\"), Path.Combine(basedir, @"output\svm\develop.txt"));
-            pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\test\"), Path.Combine(basedir, @"output\svm\test.txt"));
+            //var currentFolderPath = Environment.CurrentDirectory;
+            //var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
+            //var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
+            //basedir = Path.Combine(basedir, "Fine-ner/");
+            //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\train\"), Path.Combine(basedir, @"output\svm\train.txt"));
+            //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\develop\"), Path.Combine(basedir, @"output\svm\develop.txt"));
+            //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\test\"), Path.Combine(basedir, @"output\svm\test.txt"));
 
             //var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\develop2";
             //var sourceDir2 = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\develop3";

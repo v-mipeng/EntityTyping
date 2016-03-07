@@ -70,7 +70,6 @@ namespace User.src
             int mins = seconds/60;
             seconds = seconds-mins*60;
             Console.WriteLine(string.Format("Done!\r Time Consumed:{0}m{1}s ",mins,seconds));
-            this.labels = kmeans.Compute(100,vectors);
             Console.WriteLine("Done!");
             SaveCentroids();
             SaveWordClusterId();

@@ -228,7 +228,7 @@ namespace pml.ml.cluster
                 }
                 Console.WriteLine("total distance: " + totalDistance);
                 // check if stop
-                if (Math.Abs(lastTotalDistance-totalDistance) / lastTotalDistance < 0.005)
+                if (Math.Abs(lastTotalDistance-totalDistance) / lastTotalDistance < 0.0001)
                 {
                     break;
                 }
