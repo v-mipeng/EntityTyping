@@ -29,6 +29,7 @@ namespace msra.nlp.tr
 
         static System.Text.RegularExpressions.Regex allCharRegex = new System.Text.RegularExpressions.Regex(@"\W");
 
+
         public IndividualFeature() : base() { }
 
         /*   Extract feature from the input, and the feature is clustered by field

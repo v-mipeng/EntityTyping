@@ -201,10 +201,31 @@ namespace User.src
         private void SaveWordClusterId()
         {
             var writer = new LargeFileWriter(wordClusterIDFile, FileMode.Create);
+            var dic = new Dictionary<int, List<string>>();
 
             for (int i = 0; i < words.Count;i++ )
             {
-                writer.WriteLine(words[i] + "\t" + labels[i]);
+                try
+                {
+                    var list = dic[labels[i]];
+                    list.Add(words[i]);
+                }
+                catch(Exception)
+                {
+                    var list = new List<string>();
+                    list.Add(words[i]);
+                    dic[labels[i]] = list;
+                }
+            }
+            var keys = dic.Keys.ToList();
+            keys.Sort();
+            foreach(var key in keys)
+            {
+                var list = dic[key];
+                foreach(var word in list)
+                {
+                    writer.WriteLine(word + "\t" + key);
+                }
             }
             writer.Close();
         }

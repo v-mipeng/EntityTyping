@@ -263,28 +263,40 @@ namespace msra.nlp.tr
                 #region DBpedia types
                 {
                     var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypes).Split(',');
-                    if (types.Count() == 1)
+                    //if (types.Count() == 1)
+                    //{
+                    //    var index = DataCenter.GetDBpediaTypeIndex(types[0]);
+                    //    feature.Add((offset + index) + ":1");
+                    //}
+                    //else
+                    //{
+                    var dic = new Dictionary<int, string>();
+                    //    foreach (var item in types)    // UNKNOW
+                    //    {
+                    //        var array = item.Split(':');
+                    //        var type = array[0];
+                    //        var distance = array[1];
+                    //        var index = DataCenter.GetDBpediaTypeIndex(type);
+                    //        dic[index] = distance;
+                    //    }
+                    //    var indexes = dic.Keys.ToList();
+                    //    indexes.Sort();
+                    //    foreach (var index in indexes)
+                    //    {
+                    //        feature.Add((offset + index) + ":" + dic[index]);
+                    //    }
+                    //}
+                    foreach (var type in types)    // UNKNOW
                     {
-                        var index = DataCenter.GetDBpediaTypeIndex(types[0]);
-                        feature.Add((offset + index) + ":1");
+                        var distance = type;
+                        var index = DataCenter.GetDBpediaTypeIndex(type);
+                        dic[index] = "1";
                     }
-                    else
+                    var indexes = dic.Keys.ToList();
+                    indexes.Sort();
+                    foreach (var index in indexes)
                     {
-                        var dic = new Dictionary<int, string>();
-                        foreach (var item in types)    // UNKNOW
-                        {
-                            var array = item.Split(':');
-                            var type = array[0];
-                            var distance = array[1];
-                            var index = DataCenter.GetDBpediaTypeIndex(type);
-                            dic[index] = distance;
-                        }
-                        var indexes = dic.Keys.ToList();
-                        indexes.Sort();
-                        foreach (var index in indexes)
-                        {
-                            feature.Add((offset + index) + ":" + dic[index]);
-                        }
+                        feature.Add((offset + index) + ":" + dic[index]);
                     }
                     offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
                 }

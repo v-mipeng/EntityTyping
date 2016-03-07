@@ -68,6 +68,7 @@ namespace msra.nlp.tr
             // dbpedia type
             dbpediaTypes,
             // key words
+            //keyWordsWithoutParser,
             keyWords,
             // mention context
             sentenceContext

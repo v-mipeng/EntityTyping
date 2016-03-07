@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -41,6 +42,10 @@ namespace msra.nlp.tr
                  var e = reader.GetNextEvent();
                  try
                  {
+                     //if(count==61)
+                     //{
+                     //    Console.ReadKey();
+                     //}
                      var feature = extractor.ExtractFeature(e);
                      writer.WriteEvent(new Event(new Label(dic[e.Label.StringLabel].ToString()), feature));
                  }
@@ -48,6 +53,8 @@ namespace msra.nlp.tr
                  {
                      Console.WriteLine(ex.Message);
                      Console.WriteLine(ex.StackTrace);
+                     Console.WriteLine(e.Label+" in line:"+count);
+                     Console.ReadKey();
                  }
              }
              reader.Close();
