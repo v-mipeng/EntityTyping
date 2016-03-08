@@ -237,7 +237,6 @@
     <Compile Include="src\feature\BayesFeature.cs" />
     <Compile Include="src\feature\EmbedFeature.cs" />
     <Compile Include="src\feature\Feature.cs" />
-    <Compile Include="src\feature\FeatureExtractor.cs" />
     <Compile Include="src\feature\IndividualFeature.cs" />
     <Compile Include="src\feature\MaxEntFeature.cs" />
     <Compile Include="src\feature\SVMFeature.cs" />
@@ -250,6 +249,7 @@
     <Compile Include="src\pipeline\ParallelSVMFeatureExtractor.cs" />
     <Compile Include="src\pipeline\Pipeline.cs" />
     <Compile Include="src\pipeline\SVMFeatureExtractor.cs" />
+    <Compile Include="src\predict\BoostrapPredictor.cs" />
     <Compile Include="src\predict\Predictor.cs" />
     <Compile Include="src\predict\FullFeaturePredictor.cs" />
     <Compile Include="src\script\Script.cs" />
@@ -280,9 +280,6 @@
     <Compile Include="src\train\Trainer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\classify\classifier1.exp" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -290,6 +287,9 @@
       <Project>{5617da2a-e03f-4e48-8150-d13fc0644c9c}</Project>
       <Name>Package-pml</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
