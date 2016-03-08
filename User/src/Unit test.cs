@@ -104,12 +104,12 @@ namespace User
                 props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\svm\develop\"));
                 props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\test\"));
                 props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\svm\test\"));
-                props.Set("activateNer", false);
+                props.Set("activateMIKeyword", false);
                 pipeline = new Pipeline(props);
                 pipeline.Execute();
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\train\"), Path.Combine(basedir, @"output\svm\train.txt"));
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\develop\"), Path.Combine(basedir, @"output\svm\develop.txt"));
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\test\"), Path.Combine(basedir, @"output\svm\test.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\train\"), Path.Combine(basedir, @"output\svm\train.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\develop\"), Path.Combine(basedir, @"output\svm\develop.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\test\"), Path.Combine(basedir, @"output\svm\test.txt"));
             }
             /************************************************************************/
             /* Bayes train and test                                                                     */
@@ -136,6 +136,15 @@ namespace User
                 //props.SetProperty("word_shape_table_file", "");
                 pipeline = new Pipeline(props);
                 pipeline.Execute();
+            }
+            /************************************************************************/
+            /* Predict with hierarchy model                                                                     */
+            /************************************************************************/                                                          
+            if (false)
+            {
+                pipeline = new Pipeline();
+                pipeline.Predict(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\inst.txt");
+                pipeline.Evaluate(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\inst.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\result.txt");
             }
 
         }

@@ -41,10 +41,10 @@ namespace msra.nlp.tr
             public const string keyword_file                = "keyword_file";
             public const string disambiguous_file           = "disambiguous_file";
             public const string page_anchor_file            = "page_anchor_file";
-            public const string activateParser                = "activateParser";
-            public const string activateNer                   = "activateNer";
-            public const string activateDbpedia               = "activateDbpedia";
-            public const string activateMIKeyword             = "activateDbpedia";
+            public const string activateParser              = "activateParser";
+            public const string activateNer                 = "activateNer";
+            public const string activateDbpedia             = "activateDbpedia";
+            public const string activateMIKeyword           = "activateMIKeyword";
         };
 
        

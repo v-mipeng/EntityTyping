@@ -375,11 +375,66 @@ namespace msra.nlp.tr
         {
             var cluster = new VectorCluster(vectorFile, centroidInfoFile, wordClusterIDFile);
             cluster.Cluster(1000);
+        }  
+        
+        public static void Temp11()
+        {
+            var dir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test";
+            var writer = new LargeFileWriter(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt", FileMode.Create);
+            foreach(var file in Directory.GetFiles(dir))
+            {
+                var text = File.ReadAllText(file);
+                writer.Write(text);
+            }
+            writer.Close();
+        }
+
+        public static void Temp12()
+        {
+            var testDataFile = @"D:\Codes\Project\EntityTyping\Fine-ner\output\svm\test.txt";
+            var filterFile = @"D:\Codes\Project\EntityTyping\Fine-ner\output\result\satori\base ners dbpedia-abstract\1.inst.txt";
+            var desFile = @"D:\Codes\Project\EntityTyping\Fine-ner\output\svm\temp test.txt";
+            var traResultFile = @"D:\Codes\Project\EntityTyping\Fine-ner\output\svm\result of traditional types.txt";
+            //var traditionalTypeFile;
+            string line;
+            var reader = new LargeFileReader(filterFile);
+            var writer = new LargeFileWriter(desFile, FileMode.Create);
+            var traResultWriter = new LargeFileWriter(traResultFile, FileMode.Create);
+            var set = new HashSet<int>();
+
+            while((line = reader.ReadLine())!=null)
+            {
+                var array = line.Split(new char[]{'\t'});
+                if (array[2].Equals("9") || array[2].Equals("10") || array[2].Equals("11"))
+                {
+                    traResultWriter.WriteLine(line);
+                }
+                else
+                {
+                    set.Add(int.Parse(array[0]));
+                }
+            }
+            traResultWriter.Close();
+            reader.Close();
+            reader.Open(testDataFile);
+            int count = 0;
+            while((line = reader.ReadLine())!=null)
+            {
+                if (set.Contains(count))
+                {
+                    writer.WriteLine(line);
+                }
+                count++;
+            }
+            reader.Close();
+            writer.Close();
         }
 
         public static void Main(string[] args)
         {
-            Temp10(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300-seleted.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\centroids-1000.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\cluster IDs-1000.txt");
+            EvaluateResult();
+            //Temp12();
+            //Temp10(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300-seleted.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\centroids-1000.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\cluster IDs-1000.txt");
             //var pipeline = new Pipeline();
             //TfIdf tfidf = new TfIdf(
             //   @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract.txt",
@@ -452,15 +507,15 @@ namespace msra.nlp.tr
         public static void EvaluateResult()
         {
             var evaluator = new ClassByClassEvaluator();
-            var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\output\result\satori\eval\instance result\inst result with stanford ner\";
-            var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\output\result\satori\eval\statistic result\with stanford ner\";
-            var sourceFiles = Directory.GetFiles(sourceDir).ToList();
-            var desFile = "";
-            foreach (var file in sourceFiles)
-            {
-                desFile = Path.Combine(desDir, Path.GetFileName(file));
-                evaluator.EvaluateResult(file, desFile);
-            }
+            var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\output\svm\inst.txt";
+            var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\output\svm\result.txt";
+            //var sourceFiles = Directory.GetFiles(sourceDir).ToList();
+            //var desFile = "";
+            //foreach (var file in sourceFiles)
+            //{
+            //    desFile = Path.Combine(desDir, Path.GetFileName(file));
+            evaluator.EvaluateResult(sourceDir, desDir);
+            //}
          
         }
 

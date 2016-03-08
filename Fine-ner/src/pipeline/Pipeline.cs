@@ -12,13 +12,13 @@ using System.Threading;
 using edu.stanford.nlp.parser.lexparser;
 using pml.collection.map;
 using pml.type;
+using msra.nlp.tr.predict;
+using msra.nlp.tr.eval;
 
 namespace msra.nlp.tr
 {
     public class Pipeline
     {
-
-        static Feature  featureExtractor = null;
 
         public Pipeline() 
         {
@@ -38,6 +38,8 @@ namespace msra.nlp.tr
             }
         }
 
+        #region API : TODO
+
         public void SetProperty(Property props)
         {
             foreach(var key in props.Keys)
@@ -46,7 +48,33 @@ namespace msra.nlp.tr
             }
         }
 
-        /*********************Interactive Interface***********************/
+        public void ExtractRawFeature()
+        {
+
+        }
+
+        public void ExtractSVMFeature()
+        {
+
+        }
+
+        //public string Predict(string mention, string context)
+        //{
+        //    return null;
+        //}
+
+        public List<Pair<string,double>> PredictWithProbability(string mention, string context)
+        {
+            return null;
+        }
+
+        #endregion
+
+
+        #region Command Line Operation
+        /*********************Interactive Interfac***********************/
+
+        //!! These only command line usage but not API. So I should implement some API
 
         /// <summary>
         ///    /* Methods:
@@ -116,13 +144,13 @@ namespace msra.nlp.tr
             }
         }
 
-        static readonly HashSet<string> operations = new HashSet<string>(new string[] {"ewt","ef","out","tr","ts"});
+        static readonly HashSet<string> operations = new HashSet<string>(new string[] {"ewt","ef","out","tr","ts"});  //!! I should encode these information into config file
         private static bool IsValidOperation(string operation)
         {
             return operations.Contains(operation);
         }
 
-        static IMap<string, HashSet<string>>  ope2opt = null;
+        static IMap<string, HashSet<string>>  ope2opt = null;   //!! This is a global parameter, the information should be written into config file and intiated when the object created.
 
         private static bool IsValidOption(string operation, string option)
         {
@@ -149,7 +177,7 @@ namespace msra.nlp.tr
                 case "ewt":
                     ExtractWordTable();
                     break;
-                case "ef":
+                case "ef":           
                     ExtractFeature(options);
                     break;
                 case "out":
@@ -167,6 +195,7 @@ namespace msra.nlp.tr
         }
 
         #region Extract Feature
+
         /// <summary>
         ///  Extract feature 
         /// </summary>
@@ -401,22 +430,22 @@ namespace msra.nlp.tr
 
         private static Pair<string,Dictionary<string,object>>  ExtractBayesFeature(string line)
         {
-            if(!(featureExtractor is BayesFeature))
-            {
-                featureExtractor = new BayesFeature();
-            }
-            try
-            {
-               return ((BayesFeature)featureExtractor).GetFeatureWithLabel(line.Split('\t'));
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            //if(!(featureExtractor is BayesFeature))
+            //{
+            //    featureExtractor = new BayesFeature();
+            //}
+            //try
+            //{
+            //   return ((BayesFeature)featureExtractor).GetFeatureWithLabel(line.Split('\t'));
+            //}
+            //catch (Exception e)
+            //{
+            //    throw e;
+            //}
+            return null;
         }
 
         #endregion
-
 
 
         #endregion
@@ -550,6 +579,66 @@ namespace msra.nlp.tr
             }
             writer.Close();
         }
+
+        #endregion
+
+
+        #region Development
+
+        static BoostrapPredictor predictorWithoutKeyword = new BoostrapPredictor(@"D:\Codes\Project\EntityTyping\Fine-ner\output\model\with ners dbpedia-abstract\svm model.zip");
+        static BoostrapPredictor predictorWithKeyword = new BoostrapPredictor(@"D:\Codes\Project\EntityTyping\Fine-ner\output\model\with ners dbpedia-abstract keyword\one-vs-one svm\svm model.zip");
+        static SVMFeature featureExtractor = new SVMFeature();
+
+        public void Predict(string sourceFile, string resultFile)
+        {
+            var reader = new LargeFileReader(sourceFile);
+            var writer = new LargeFileWriter(resultFile, FileMode.Create);
+            string line;
+            int count = 1;
+
+            while((line = reader.ReadLine())!=null)
+            {
+                var array = line.Split('\t');
+                var type = array[0];
+                var a = new string[array.Length - 1];
+                for(var i = 0;i<a.Length-1;i++)
+                {
+                    a[i] = array[i+1];
+                }
+                var predictedType = Predict(a);
+                writer.WriteLine(count + "\t" + type + "\t" + predictedType);
+            }
+            reader.Close();
+            writer.Close();
+        }
+
+        public string Predict(IEnumerable<string> feature)
+        {
+            // Make prediction
+            var e = new Event(feature);
+            GlobalParameter.Set("activateMIKeyword", false);
+            var featureWithoutKeyword = featureExtractor.ExtractFeature(e);
+            var label = predictorWithoutKeyword.Predict(featureWithoutKeyword);
+            if (label.Equals("people.person") || label.Equals("location.location") || label.Equals("organization.organization"))
+            {
+                return label;
+            }
+            else
+            {
+                GlobalParameter.Set("activateMIKeyword", true);
+                var featureWithKeyword = featureExtractor.ExtractFeature(e);
+                return predictorWithoutKeyword.Predict(featureWithoutKeyword);
+            }
+        }
+
+        public void Evaluate(string resultFile, string statisticResultFile)
+        {
+            var evaluator = new ClassByClassEvaluator();
+            evaluator.EvaluateResult(resultFile, statisticResultFile);
+        }
+
+        #endregion
+
 
         /* Refresh the data, learn daily
          */

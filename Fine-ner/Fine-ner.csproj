@@ -250,6 +250,7 @@
     <Compile Include="src\pipeline\ParallelSVMFeatureExtractor.cs" />
     <Compile Include="src\pipeline\Pipeline.cs" />
     <Compile Include="src\pipeline\SVMFeatureExtractor.cs" />
+    <Compile Include="src\predict\BoostrapPredictor.cs" />
     <Compile Include="src\predict\Predictor.cs" />
     <Compile Include="src\predict\FullFeaturePredictor.cs" />
     <Compile Include="src\script\Script.cs" />
@@ -287,6 +288,9 @@
       <Project>{5617da2a-e03f-4e48-8150-d13fc0644c9c}</Project>
       <Name>Package-pml</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

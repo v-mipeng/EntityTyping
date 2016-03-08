@@ -10,7 +10,7 @@ namespace msra.nlp.tr.dp
 {
     class Entrance
     {
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             if (false)
             {
