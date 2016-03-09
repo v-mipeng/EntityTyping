@@ -11,7 +11,7 @@ using pml.type;
 
 namespace msra.nlp.tr
 {
-    class DataCenter
+    public class DataCenter
     {
         #region Word Surface Table
 
@@ -815,16 +815,37 @@ namespace msra.nlp.tr
                 mention = deleteBrace.Replace(mention, "");
                  if (dbpediaEntity2Type.TryGetValue(mention, out types))
                 {
-                    return GetPreciseDBpediaType(context, types);
+                    if (context != null && context.Length>50)
+                    {
+                        return GetPreciseDBpediaType(context, types);
+                    }
+                    else
+                    {
+                        var list = new List<string>();
+                        foreach(var type in types)
+                        {
+                            list.Add(type.first+":1");
+                        }
+                        return list;
+                    }
                 }
                 else
                 {
                     mention = GetRedirectWithoutSpace(mention);
                     if (mention != null)
                     {
-                        if (dbpediaEntity2Type.TryGetValue(mention, out types))
+                        if (context != null && context.Length > 50)
                         {
                             return GetPreciseDBpediaType(context, types);
+                        }
+                        else
+                        {
+                            var list = new List<string>();
+                            foreach (var type in types)
+                            {
+                                list.Add(type.first + ":1");
+                            }
+                            return list;
                         }
                     }
                 }
@@ -1186,6 +1207,10 @@ namespace msra.nlp.tr
             {
                 mention = mention.ToLower().Replace("-lrb-", "(");
                 mention = mention.Replace("-rrb-", ")");
+            }
+            else
+            {
+                return null;
             }
             if (redirects == null)
             {

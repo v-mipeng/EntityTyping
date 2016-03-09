@@ -237,7 +237,6 @@
     <Compile Include="src\feature\BayesFeature.cs" />
     <Compile Include="src\feature\EmbedFeature.cs" />
     <Compile Include="src\feature\Feature.cs" />
-    <Compile Include="src\feature\FeatureExtractor.cs" />
     <Compile Include="src\feature\IndividualFeature.cs" />
     <Compile Include="src\feature\MaxEntFeature.cs" />
     <Compile Include="src\feature\SVMFeature.cs" />

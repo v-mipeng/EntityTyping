@@ -162,56 +162,58 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            #region mention driver
             if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
             {
-                int index = parser.GetDriver(mentionIndexPair.first, mentionIndexPair.second);
-                if (index > 0)
+                #region mention driver
                 {
-                    var driver = contextTokenPairs.ElementAt(index).first;
-                    var posTag = contextTokenPairs.ElementAt(index).second;
-                    AddFieldToFeture(driver, posTag);
+                    int index = parser.GetDriver(mentionIndexPair.first, mentionIndexPair.second);
+                    if (index > 0)
+                    {
+                        var driver = contextTokenPairs.ElementAt(index).first;
+                        var posTag = contextTokenPairs.ElementAt(index).second;
+                        AddFieldToFeture(driver, posTag);
+                    }
+                    else
+                    {
+                        AddFieldToFeture(null, null);
+                    }
                 }
-                else
-                {
-                    AddFieldToFeture(null, null);
-                }
-            }
-            #endregion
+                #endregion
 
-            #region mention adjective modifer
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
-            {
-                int index = parser.GetAdjModifier(mentionIndexPair.first, mentionIndexPair.second);
-                if (index > 0)
+                #region mention adjective modifer
+                if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
                 {
-                    var adjModifier = contextTokenPairs.ElementAt(index).first;
-                    var posTag = contextTokenPairs.ElementAt(index).second;
-                    AddFieldToFeture(adjModifier, posTag);
+                    int index = parser.GetAdjModifier(mentionIndexPair.first, mentionIndexPair.second);
+                    if (index > 0)
+                    {
+                        var adjModifier = contextTokenPairs.ElementAt(index).first;
+                        var posTag = contextTokenPairs.ElementAt(index).second;
+                        AddFieldToFeture(adjModifier, posTag);
+                    }
+                    else
+                    {
+                        AddFieldToFeture(null, null);
+                    }
                 }
-                else
-                {
-                    AddFieldToFeture(null, null);
-                }
-            }
-            #endregion
+                #endregion
 
-            #region mention action
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
-            {
-                int index = parser.GetAction(mentionIndexPair.first, mentionIndexPair.second);
-                if (index > 0)
+                #region mention action
+                if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
                 {
-                    var action = contextTokenPairs.ElementAt(index).first;
-                    var posTag = contextTokenPairs.ElementAt(index).second;
-                    AddFieldToFeture(action, posTag);
+                    int index = parser.GetAction(mentionIndexPair.first, mentionIndexPair.second);
+                    if (index > 0)
+                    {
+                        var action = contextTokenPairs.ElementAt(index).first;
+                        var posTag = contextTokenPairs.ElementAt(index).second;
+                        AddFieldToFeture(action, posTag);
+                    }
+                    else
+                    {
+                        AddFieldToFeture(null, null);
+                    }
                 }
-                else
-                {
-                    AddFieldToFeture(null, null);
-                }
+                #endregion
             }
-            #endregion
 
             if (parser != null)
             {
@@ -295,30 +297,32 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            #region Stanford NER
             if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateNer))
             {
-                
-                var ner = StanfordNerPool.GetStanfordNer();
-                ner.FindNer(context);
-                var type = ner.GetNerType(this.instance.Mention);
-                StanfordNerPool.ReturnStanfordNer(ner);
-                ner = null;
-                feature.Add(type);
-            }
-            #endregion
+                #region Stanford NER
+                {
 
-            #region OpenNLP NER
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateNer))
-            {
-                var ner = OpenNerPool.GetOpenNer();
-                ner.FindNer(context);
-                var type = ner.GetNerType(this.instance.Mention);
-                OpenNerPool.ReturnOpenNer(ner);
-                ner = null;
-                feature.Add(type);
+                    var ner = StanfordNerPool.GetStanfordNer();
+                    ner.FindNer(context);
+                    var type = ner.GetNerType(this.instance.Mention);
+                    StanfordNerPool.ReturnStanfordNer(ner);
+                    ner = null;
+                    feature.Add(type);
+                }
+                #endregion
+
+                #region OpenNLP NER
+                if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateNer))
+                {
+                    var ner = OpenNerPool.GetOpenNer();
+                    ner.FindNer(context);
+                    var type = ner.GetNerType(this.instance.Mention);
+                    OpenNerPool.ReturnOpenNer(ner);
+                    ner = null;
+                    feature.Add(type);
+                }
+                #endregion
             }
-            #endregion
 
             #region DBpedia dictionary
             if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateDbpedia))

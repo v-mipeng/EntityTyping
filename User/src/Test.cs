@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using msra.nlp.tr.eval;
 using User.src;
 
+
 namespace msra.nlp.tr
 {
     public class OpenNer
@@ -430,9 +431,70 @@ namespace msra.nlp.tr
             writer.Close();
         }
 
+        public static void Temp13()
+        {
+            var lineListFile = @"D:\Codes\Project\EntityTyping\Fine-ner\output\result\conll\base ners dbpedia-abstract keyword\line list.txt";
+            var featureFile = @"D:\Codes\Project\EntityTyping\Fine-ner\output\result\conll\base ners dbpedia-abstract keyword\features.txt";
+            var documentFile = @"D:\Codes\Project\EntityTyping\Fine-ner\output\result\conll\base ners dbpedia-abstract keyword\documents.txt";
+            var sourceDocumentFile = @"D:\Codes\Project\EntityTyping\Fine-ner\input\conll\develop.txt";
+            var sourceFeatureFile = @"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\develop.txt";
+            var docReader = new LargeFileReader(sourceDocumentFile);
+            var featureReader = new LargeFileReader(sourceFeatureFile);
+            var lineReader = new LargeFileReader(lineListFile);
+            var docWriter = new LargeFileWriter(documentFile, FileMode.Create);
+            var featureWriter = new LargeFileWriter(featureFile, FileMode.Create);
+            var set = new HashSet<int>();
+            string line;
+            int count = 0;
+            while((line = lineReader.ReadLine())!=null)
+            {
+                if (count < 2)
+                {
+                    set.Add(int.Parse(line));
+                }
+                else if(count<3)
+                {
+                    set.Add(int.Parse(line)+1);
+                }
+                else
+                {
+                    set.Add(int.Parse(line) + 2);
+                }
+                count++;
+            }
+            lineReader.Close();
+            count = 0;
+            while((line = docReader.ReadLine())!=null)
+            {
+                if (set.Contains(count))
+                {
+                    docWriter.WriteLine(line);
+                }
+                count++;
+            }
+            docReader.Close();
+            docWriter.Close();
+            //count = 0;
+            //while ((line = featureReader.ReadLine()) != null)
+            //{
+            //    if (set.Contains(count))
+            //    {
+            //        featureWriter.WriteLine(line);
+            //    }
+            //    count++;
+            //}
+            //featureReader.Close();
+            //featureWriter.Close();
+        }
+
+        public static void Temp14()
+        {
+            var pipline = new Pipeline();
+           var types =  DataCenter.GetDBpediaType("london");
+        }
         public static void Main(string[] args)
         {
-            EvaluateResult();
+            Temp13();
             //Temp12();
             //Temp10(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300-seleted.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\centroids-1000.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\cluster IDs-1000.txt");
             //var pipeline = new Pipeline();
