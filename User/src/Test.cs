@@ -492,9 +492,114 @@ namespace msra.nlp.tr
             var pipline = new Pipeline();
            var types =  DataCenter.GetDBpediaType("london");
         }
+
+        public static void Temp15()
+        {
+            var source = @"D:\Data\Wikipedia\enwiki-20150602-iwlinks.sql";
+            var reader = new LargeFileReader(source);
+            var des = @"D:\Data\Wikipedia\pagelinks-extracted.txt";
+            var writer = new LargeFileWriter(des, FileMode.Create);
+            string line;
+            var indegree = new Dictionary<string, int>();
+            var regex = new System.Text.RegularExpressions.Regex(@"\),\(");
+            var count = 0;
+            var buffer = new StringBuilder();
+            var commentRegex = new System.Text.RegularExpressions.Regex(@"\\\*.+?\\\*");
+
+            while((line = reader.ReadLine())!=null)
+            {
+                if (!line.StartsWith("INSERT"))
+                {
+                    buffer.Append(line);
+                    if (!reader.reachFileEnd)
+                    {
+                        continue;
+                    }
+                }
+                if (buffer.Length == 0)
+                {
+                    buffer.Append(line);
+                    continue;
+                }
+                else
+                {
+                    var temp = line;
+                    line = buffer.ToString();
+                    buffer.Clear();
+                    buffer.Append(temp);
+                }
+                Console.WriteLine(++count);
+                line = line.Replace("INSERT INTO `iwlinks` VALUES ", "");
+                line = commentRegex.Replace(line, "");
+                var array = regex.Split(line);
+                array[array.Length-1] = array[array.Length-1].Replace(";","");
+                for(var i = 0;i<array.Length;i++)
+                {
+                    var a = array[i].Split(',');
+                    try
+                    {
+                        var entity = a[2].Substring(1, a[2].Length - 2);
+                        try
+                        {
+                            indegree[entity] += 1;
+                        }
+                        catch (Exception)
+                        {
+                            indegree[entity] = 1;
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine(e.StackTrace);
+                        Console.WriteLine(i);
+                        Console.WriteLine(array.Length);
+                        Console.WriteLine(string.Join("\t", array[i]));
+                        //Console.ReadKey();
+                    }
+                }
+            }
+            reader.Close();
+            foreach(var key in indegree.Keys)
+            {
+                writer.WriteLine(key + "\t" + indegree[key]);
+            }
+            writer.Close();
+        }
+
+        public static void Temp16()
+        {
+            var regex = new System.Text.RegularExpressions.Regex(@"\A[A-Za-z_'()]+\Z");
+            var source = @"D:\Data\Wikipedia\pagelinks-extracted.txt";
+            var reader = new LargeFileReader(source);
+            var des = @"D:\Data\Wikipedia\pagelinks-extracted-filtered.txt";
+            var writer = new LargeFileWriter(des, FileMode.Create);
+            string line;
+
+            while((line =reader.ReadLine())!=null)
+            {
+                var array = line.Split('\t');
+               if(regex.IsMatch(array[0]))
+               {
+                   writer.WriteLine(line);
+               }
+               else
+               {
+                   continue;
+               }
+            }
+            reader.Close();
+            writer.Close();
+
+        }
+
         public static void Main(string[] args)
         {
-            Temp13();
+            //var commentRegex = new System.Text.RegularExpressions.Regex(@"\\\*(.(?!\\\*))+\\\*");
+            //string str = "I like \\*lskdjlfd\\*lskdl\\*";
+            //str = commentRegex.Replace(str, "");
+            //Console.WriteLine(str);
+            Temp16();
             //Temp12();
             //Temp10(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300-seleted.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\centroids-1000.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\cluster IDs-1000.txt");
             //var pipeline = new Pipeline();

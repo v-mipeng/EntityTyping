@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProcessor", "DataProces
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "WordNet", "WordNet\WordNet.pyproj", "{661AA236-AF45-482D-BDD9-336BDB18F539}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wikipedia", "Wikipedia\Wikipedia.csproj", "{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,7 +108,6 @@ Global
 		{C9CAEB35-1626-4C40-9E58-8D71AC853731}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{C9CAEB35-1626-4C40-9E58-8D71AC853731}.Release|Win32.ActiveCfg = Release|Any CPU
 		{C9CAEB35-1626-4C40-9E58-8D71AC853731}.Release|x64.ActiveCfg = Release|Any CPU
-		{C9CAEB35-1626-4C40-9E58-8D71AC853731}.Release|x64.Build.0 = Release|Any CPU
 		{C9CAEB35-1626-4C40-9E58-8D71AC853731}.Release-Signed|Any CPU.ActiveCfg = Release|Any CPU
 		{C9CAEB35-1626-4C40-9E58-8D71AC853731}.Release-Signed|Any CPU.Build.0 = Release|Any CPU
 		{C9CAEB35-1626-4C40-9E58-8D71AC853731}.Release-Signed|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -126,6 +127,25 @@ Global
 		{661AA236-AF45-482D-BDD9-336BDB18F539}.Release-Signed|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{661AA236-AF45-482D-BDD9-336BDB18F539}.Release-Signed|Win32.ActiveCfg = Release|Any CPU
 		{661AA236-AF45-482D-BDD9-336BDB18F539}.Release-Signed|x64.ActiveCfg = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release|Win32.ActiveCfg = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release|x64.ActiveCfg = Release|x64
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release|x64.Build.0 = Release|x64
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release-Signed|Any CPU.ActiveCfg = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release-Signed|Any CPU.Build.0 = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release-Signed|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release-Signed|Mixed Platforms.Build.0 = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release-Signed|Win32.ActiveCfg = Release|Any CPU
+		{699D5BF9-BC0B-41BB-89D9-E03B78B26E02}.Release-Signed|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

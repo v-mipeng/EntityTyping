@@ -38,6 +38,7 @@ namespace msra.nlp.tr
             public const string dbpedia_abstract_df_file    = "dbpedia_abstract_df_file";
             public const string dbpedia_abstract_word_table = "dbpedia_abstract_word_table";
             public const string dbpedia_abstract_num        = "dbpedia_abstract_num";
+            public const string page_indegree_file           = "page_indegree_file";
             public const string keyword_file                = "keyword_file";
             public const string disambiguous_file           = "disambiguous_file";
             public const string page_anchor_file            = "page_anchor_file";
@@ -118,6 +119,7 @@ namespace msra.nlp.tr
             parameters[Field.dbpedia_abstract_df_file]  = Path.Combine(basedir, @"input\dictionaries\dbpedia\abstract df.txt");
             parameters[Field.dbpedia_abstract_word_table] = Path.Combine(basedir, @"input\dictionaries\dbpedia\abstract word table.txt");
             parameters[Field.dbpedia_abstract_num]      = 4305029;
+            parameters[Field.page_indegree_file]        = Path.Combine(basedir, @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\page indegree.txt");    //TODO!
             parameters[Field.disambiguous_file]         = Path.Combine(basedir, @"input\dictionaries\disambiguation mapping.txt");
             parameters[Field.page_anchor_file]          = Path.Combine(basedir, @"input\dictionaries\page anchor.txt");
             parameters[Field.keyword_file]              = Path.Combine(basedir, @"input\tables\keywords.txt");

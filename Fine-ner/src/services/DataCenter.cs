@@ -781,12 +781,15 @@ namespace msra.nlp.tr
         static Dictionary<string, List<string>> disambiguousDic = null;                                         // 
         static Dictionary<string, List<string>> pageAnchorsDic = null;                                          // recoding page anchors of articles
         static Dictionary<string, Dictionary<int, double>> pageAbstract = null;                                 // page absctract: sparse vector
+        static Dictionary<string, int> pageIndegree = null;
+
 
         static object dbpediaDicLocker = new object();
         static object dbpediaType2IndexLocker = new object();
         static object disambiguousLocker = new object();
         static object pageAnchorLocker = new object();
         static object pageAbstractLocker = new object();
+        static object pageIndegreeLocker = new object();
 
         static System.Text.RegularExpressions.Regex deleteSpace = new System.Text.RegularExpressions.Regex(@"\s+");
         static System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\([^()]\)");
@@ -942,6 +945,18 @@ namespace msra.nlp.tr
             return dbpediaType2index.Count;
         }
 
+        public static int GetPageIndegree(string page)
+        {
+            if(pageIndegree == null)
+            {
+                LoadPageIndegree();
+            }
+            int indegree = 0;
+            pageIndegree.TryGetValue(page, out indegree);
+            return indegree;
+        }
+
+        #region Page Anchor: TODO
 
         /// <summary>
         /// Get possible entities of given mention.
@@ -1023,6 +1038,7 @@ namespace msra.nlp.tr
             }
         }
 
+        #endregion
         private static Dictionary<int,double> GetPageAbstract(string entity)
         {
             if (pageAbstract == null)
@@ -1190,6 +1206,28 @@ namespace msra.nlp.tr
                     pageAbstract = dic;
                 }
             }
+        }
+
+        private static void LoadPageIndegree()
+        {
+             lock(pageIndegreeLocker)
+             {
+                 if(pageIndegree == null)
+                 {
+                     var source = (string)GlobalParameter.Get(DefaultParameter.Field.page_indegree_file);
+                     var reader = new LargeFileReader(source);
+                     var dic = new Dictionary<string, int>();
+                     string line;
+                     while ((line = reader.ReadLine()) != null)
+                     {
+                         line = line.ToLower();
+                         var array = line.Split('\t');                       // array[0]: entity array[1]:type              
+                         dic[array[0]] = int.Parse(array[1]);
+                     }
+                     reader.Close();
+                     pageIndegree = dic;
+                 }
+             }
         }
 
         #endregion
