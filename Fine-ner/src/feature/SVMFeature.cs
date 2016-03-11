@@ -263,7 +263,7 @@ namespace msra.nlp.tr
                 #region DBpedia types
                 {
                     var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypes).Split(new char[]{','},StringSplitOptions.RemoveEmptyEntries);
-                    if (types.Count() == 1 && !types[0].Contains(":"))
+                    if (types.Count() == 1 && types[0].Equals("UNKNOW"))
                     {
                         var index = DataCenter.GetDBpediaTypeIndex(types[0]);
                         feature.Add((offset + index) + ":1");

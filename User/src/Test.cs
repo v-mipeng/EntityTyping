@@ -593,13 +593,35 @@ namespace msra.nlp.tr
 
         }
 
-        public static void Main(string[] args)
+        public static void Temp17()
+        {
+            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\test.txt";
+            var reader = new LargeFileReader(source);
+            string line;
+            var count = 0;
+            var total = 0;
+
+            while((line = reader.ReadLine())!=null)
+            {
+                var array = line.Split('\t');
+                total += 1;
+                if(array[0].ToLower().Contains(array[(int)Event.Field.stanfordNerType+2].ToLower()))
+                {
+                    count += 1;
+                }
+            }
+            reader.Close();
+            Console.WriteLine(string.Format("Total number:{0}\nPositive number:{1}\nPrecision:{2}", total, count, 1.0 * count / total));
+            Console.ReadKey();
+        }
+
+        public static void Mains(string[] args)
         {
             //var commentRegex = new System.Text.RegularExpressions.Regex(@"\\\*(.(?!\\\*))+\\\*");
             //string str = "I like \\*lskdjlfd\\*lskdl\\*";
             //str = commentRegex.Replace(str, "");
             //Console.WriteLine(str);
-            Temp16();
+            Temp17();
             //Temp12();
             //Temp10(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300-seleted.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\centroids-1000.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\cluster IDs-1000.txt");
             //var pipeline = new Pipeline();

@@ -575,18 +575,18 @@ namespace msra.nlp.tr
             }
             catch (Exception)
             {
-                mention = GetRedirect(mention);
-                if (mention != null)
-                {
-                    try
-                    {
-                        id = mentionIdDic[mention];
-                    }
-                    catch
-                    {
-                        return mentionClusterSize;
-                    }
-                }
+                //var mentions = GetRedirect(mention);
+                //foreach (var m in mentions)
+                //{
+                //    try
+                //    {
+                //        id = mentionIdDic[m];
+                //    }
+                //    catch
+                //    {
+                //        return mentionClusterSize;
+                //    }
+                //}
                 return mentionClusterSize;
             }
         }
@@ -776,7 +776,7 @@ namespace msra.nlp.tr
 
         #region DBpedia dictionary     (mention should be lowercase and without space)
 
-        static Dictionary<string, LinkedList<Pair<string,string>>> dbpediaEntity2Type = null;                   // entity type in dbpedia  (serve for indivisual feature); trimed entity -->(type<-->untrimed entity)
+        static Dictionary<string, string> dbpediaEntity2Type = null;                   // entity type in dbpedia  (serve for indivisual feature); trimed entity -->(type<-->untrimed entity)
         static Dictionary<string, int> dbpediaType2index = null;                                                // mapping dbpedia type to integer
         static Dictionary<string, List<string>> disambiguousDic = null;                                         // 
         static Dictionary<string, List<string>> pageAnchorsDic = null;                                          // recoding page anchors of articles
@@ -790,9 +790,6 @@ namespace msra.nlp.tr
         static object pageAnchorLocker = new object();
         static object pageAbstractLocker = new object();
         static object pageIndegreeLocker = new object();
-
-        static System.Text.RegularExpressions.Regex deleteSpace = new System.Text.RegularExpressions.Regex(@"\s+");
-        static System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\([^()]\)");
 
 
         /// <summary>
@@ -809,52 +806,51 @@ namespace msra.nlp.tr
             {
                 LoadDBpediaType();
             }
-            LinkedList<Pair<string,string>> types = null;
+            var list = new List<string>();
             if (mention != null)
             {
-                mention = mention.ToLower().Replace("-lrb-", "(");   // recover mention
-                mention = mention.Replace("-rrb-", ")");
-                mention = deleteSpace.Replace(mention, "");
-                mention = deleteBrace.Replace(mention, "");
-                 if (dbpediaEntity2Type.TryGetValue(mention, out types))
+                mention = TransformQuery(mention); // preprocess mention to meet the format of dbpedia data.
+                var redirects = GetRedirect(mention);
+                if (redirects == null)
                 {
-                    if (context != null && context.Length>50)
-                    {
-                        return GetPreciseDBpediaType(context, types);
-                    }
-                    else
-                    {
-                        var list = new List<string>();
-                        foreach(var type in types)
-                        {
-                            list.Add(type.first+":1");
-                        }
-                        return list;
-                    }
+                    redirects = new HashSet<string>();
+                    redirects.Add(mention);
                 }
                 else
                 {
-                    mention = GetRedirectWithoutSpace(mention);
-                    if (mention != null)
+                    redirects.Add(mention);
+                }
+                int totalIndegree = 0;
+                var types = new List<string>();  // normalize indegree
+                var indegrees = new List<int>();
+                foreach (var m in redirects)
+                {
+                    try
                     {
-                        if (context != null && context.Length > 50)
-                        {
-                            return GetPreciseDBpediaType(context, types);
-                        }
-                        else
-                        {
-                            var list = new List<string>();
-                            foreach (var type in types)
-                            {
-                                list.Add(type.first + ":1");
-                            }
-                            return list;
-                        }
+                        var indegree = GetPageIndegree(m);  // weight by indegree
+                        var type = dbpediaEntity2Type[m];
+                        types.Add(type);
+                        indegrees.Add(indegree);
+                        totalIndegree += indegree;
+                    }
+                    catch (Exception)
+                    {
+                        continue;
                     }
                 }
-                var l = new List<string>();
-                l.Add("UNKNOW");
-                return l;
+                for (var i = 0; i < types.Count;i++ )
+                {
+                    list.Add(types[i] + ":" + (1.0 * indegrees[i] / totalIndegree));
+                }
+                if (list.Count > 0)
+                {
+                    return list;
+                }
+                else
+                {
+                    list.Add("UNKNOW");
+                    return list;
+                }
             }
             else
             {
@@ -862,52 +858,6 @@ namespace msra.nlp.tr
             }
         }
 
-        /// <summary>
-        /// Get more precise dbpedia type by counting page anchors matching number in context
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="pairs"></param>
-        /// <returns></returns>
-        private static List<string> GetPreciseDBpediaType(string context, LinkedList<Pair<string,string>> pairs)
-        {
-            if(pairs.Count == 1)
-            {
-                var list = new List<string>();
-                list.Add(pairs.ElementAt(0).first);
-                return list;
-            }
-            var test = pairs.ElementAt(1);
-            var matchNum = new List<double>(pairs.Count());
-            var index = 0;
-            var vectorTwo = TfIdf.GetDocTfIdf(context.Split(' ').ToList());
-            foreach (var pair in pairs)
-            {
-                var vectorOne = GetPageAbstract(pair.second);
-                if (vectorOne != null)
-                {
-                    matchNum.Add(pml.math.VectorDistance.SparseCosinDistance(vectorOne, vectorTwo));
-                }
-                else
-                {
-                    matchNum.Add(0);
-                }
-                index++;
-            }
-            matchNum = pml.math.Normalization.MaxNormalize(matchNum);
-            var types = new List<string>();
-            index = 0;
-            var dic = new Dictionary<string, double>();
-            foreach (var pair in pairs)
-            {
-                if((!dic.ContainsKey(pair.first) || dic[pair.first] < matchNum[index]) && matchNum[index] > 0)
-                {
-                    types.Add(pair.first+":"+matchNum[index]);
-                    dic[pair.first] = matchNum[index];
-                }
-                index++;
-            }
-            return types;
-        }
 
         /// <summary>
         /// Get the index of type in the dbpedia type set.
@@ -947,7 +897,7 @@ namespace msra.nlp.tr
 
         public static int GetPageIndegree(string page)
         {
-            if(pageIndegree == null)
+            if (pageIndegree == null)
             {
                 LoadPageIndegree();
             }
@@ -1039,7 +989,7 @@ namespace msra.nlp.tr
         }
 
         #endregion
-        private static Dictionary<int,double> GetPageAbstract(string entity)
+        private static Dictionary<int, double> GetPageAbstract(string entity)
         {
             if (pageAbstract == null)
             {
@@ -1062,30 +1012,18 @@ namespace msra.nlp.tr
                 if (dbpediaType2index == null)
                 {
                     var dic = new Dictionary<string, int>();
-                    if (dbpediaEntity2Type != null)
+                    if (dbpediaEntity2Type == null)
                     {
-                        foreach (var value in dbpediaEntity2Type.Values)
-                        {
-                            foreach (var pair in value)
-                            {
-                                if (!dic.ContainsKey(pair.first))
-                                {
-                                    dic[pair.first] = dic.Count;
-                                }
-                            }
-                        }
+                        LoadDBpediaType();
                     }
-                    else
+                    var set = new HashSet<string>();
+                    foreach(var type in dbpediaEntity2Type.Values)
                     {
-                        var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_dic_file));
-                        var line = "";
-                        
-                        while((line =reader.ReadLine())!=null)
-                        {
-                            var array = line.Split('\t');
-                            dic[array[1].ToLower()] = dic.Count;
-                        }
-                        reader.Close();
+                        set.Add(type);
+                    }
+                    foreach(var type in set)
+                    {
+                        dic[type] = dic.Count;
                     }
                     dic["UNKNOW"] = dic.Count;
                     dbpediaType2index = dic;
@@ -1099,29 +1037,16 @@ namespace msra.nlp.tr
             {
                 if (dbpediaEntity2Type == null)
                 {
-                    var dic = new Dictionary<string, LinkedList<Pair<string, string>>>();
+                    var dic = new Dictionary<string, string>();
                     LinkedList<Pair<string, string>> types = null;             // type<-->entity surface
-                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_dic_file));
+                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_type_file));
                     var line = "";
-                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
-                    System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\([^)]+\)");
 
                     while ((line = reader.ReadLine()) != null)
                     {
                         line = line.ToLower();
                         var array = line.Split('\t');                       // array[0]: entity array[1]:type              
-                        array[0] = regex.Replace(array[0], "");             // delete space(for 's)
-                        var entity = deleteBrace.Replace(array[0], "");     // delete brace
-                        if (dic.TryGetValue(entity, out types))
-                        {
-                            types.AddLast(new Pair<string, string>(array[1], array[0]));
-                        }
-                        else
-                        {
-                            types = new LinkedList<Pair<string, string>>();
-                            types.AddLast(new Pair<string, string>(array[1], array[0]));
-                            dic[entity] = types;
-                        }
+                        dic[array[0]] = array[1];
                     }
                     reader.Close();
                     dbpediaEntity2Type = dic;
@@ -1179,9 +1104,9 @@ namespace msra.nlp.tr
 
         private static void LoadPageAbstract()
         {
-            lock(pageAbstractLocker)
+            lock (pageAbstractLocker)
             {
-                if(pageAbstract == null)
+                if (pageAbstract == null)
                 {
                     var path = (string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_abstract_file);
                     var dic = new Dictionary<string, Dictionary<int, double>>();
@@ -1190,11 +1115,11 @@ namespace msra.nlp.tr
                     System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
 
 
-                    while((line = reader.ReadLine())!=null)
+                    while ((line = reader.ReadLine()) != null)
                     {
                         var array = line.Split('\t');
                         var dic2 = new Dictionary<int, double>();
-                        for(var i = 1;i<array.Length;i++)
+                        for (var i = 1; i < array.Length; i++)
                         {
                             var array2 = array[i].Split(':');
                             dic2[int.Parse(array2[0])] = double.Parse(array2[1]);
@@ -1210,49 +1135,72 @@ namespace msra.nlp.tr
 
         private static void LoadPageIndegree()
         {
-             lock(pageIndegreeLocker)
-             {
-                 if(pageIndegree == null)
-                 {
-                     var source = (string)GlobalParameter.Get(DefaultParameter.Field.page_indegree_file);
-                     var reader = new LargeFileReader(source);
-                     var dic = new Dictionary<string, int>();
-                     string line;
-                     while ((line = reader.ReadLine()) != null)
-                     {
-                         line = line.ToLower();
-                         var array = line.Split('\t');                       // array[0]: entity array[1]:type              
-                         dic[array[0]] = int.Parse(array[1]);
-                     }
-                     reader.Close();
-                     pageIndegree = dic;
-                 }
-             }
+            lock (pageIndegreeLocker)
+            {
+                if (pageIndegree == null)
+                {
+                    var source = (string)GlobalParameter.Get(DefaultParameter.Field.page_indegree_file);
+                    var reader = new LargeFileReader(source);
+                    var dic = new Dictionary<string, int>();
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        line = line.ToLower();
+                        var array = line.Split('\t');                       // array[0]: entity array[1]:type 
+                        int indegree = LogIndegree(int.Parse(array[1]));
+                        if (dic.ContainsKey(array[0]))
+                        {
+                            if (dic[array[0]] < indegree)
+                            {
+                                dic[array[0]] = indegree;
+                            }
+                        }
+                        else
+                        {
+                            dic[array[0]] = indegree;
+                        }
+                    }
+                    reader.Close();
+                    pageIndegree = dic;
+                }
+            }
+        }
+
+        private static int LogIndegree(int indegree)
+        {
+            var value = (int)Math.Ceiling(Math.Log(indegree));
+            if (value > 12)
+            {
+                value = 12;
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Tranform the format of query making if meet the requirement of dbpedia data.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        private static string TransformQuery(string input)
+        {
+            input = input.ToLower().Replace("-lrb-", "(");   // recover input
+            input = input.Replace("-rrb-", ")");
+            input = input.Replace(" ", "_");
+            return input;
         }
 
         #endregion
 
-        #region DBpedia redirects TODO: add anchor to title redirects.
+        #region DBpedia redirects
 
-        static Dictionary<string, string> redirects = null;
-        static Dictionary<string, string> redirectsWithoutSpace = null;
-        static Dictionary<string, string> redirectsWithoutSpace2WithSpace = null;
-        static object dbpediaRedirectLocker = new object();
+        static Dictionary<string, HashSet<string>> redirects = null;
+        static object redirectLocker = new object();
 
-        public static string GetRedirect(string mention)
+        private static HashSet<string> GetRedirect(string mention)
         {
-            if(mention != null)
-            {
-                mention = mention.ToLower().Replace("-lrb-", "(");
-                mention = mention.Replace("-rrb-", ")");
-            }
-            else
-            {
-                return null;
-            }
             if (redirects == null)
             {
-                LoadDBpediaRedirect();
+                LoadRedirect();
             }
             try
             {
@@ -1260,66 +1208,61 @@ namespace msra.nlp.tr
             }
             catch (Exception)
             {
-                try
-                {
-                    mention = deleteSpace.Replace(mention, "");
-                    return redirectsWithoutSpace2WithSpace[mention];
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
-            }
-        }
-
-        private static string GetRedirectWithoutSpace(string mention)
-        {
-            if (redirects == null)
-            {
-                LoadDBpediaRedirect();
-            }
-            try
-            {
-                return redirectsWithoutSpace[mention];
-            }
-            catch (Exception)
-            {
                 return null;
             }
         }
 
-        public static void LoadDBpediaRedirect()
+        public static void LoadRedirect()
         {
-            lock (dbpediaRedirectLocker)
+            lock (redirectLocker)
             {
                 if (redirects == null)
                 {
-                    var dic = new Dictionary<string, string>();
-                    var dic2 = new Dictionary<string, string>();
-                    var dic3 = new Dictionary<string, string>();
+                    var dic = new Dictionary<string, HashSet<string>>();
+                    var set = new HashSet<string>();
                     var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_redirect_file));
                     var line = "";
-                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
-                    System.Text.RegularExpressions.Regex deleteBrace = new System.Text.RegularExpressions.Regex(@"\(\w+\)");
+                    System.Text.RegularExpressions.Regex braceRegex = new System.Text.RegularExpressions.Regex(@"\(\w+\)");
 
                     while ((line = reader.ReadLine()) != null)
                     {
                         line = line.ToLower();
                         var array = line.Split('\t');
-                        var source = deleteBrace.Replace(array[0], "");
-                        source = regex.Replace(source, " ").Trim();
-                        var des = deleteBrace.Replace(array[1], "");
-                        des = regex.Replace(des, " ").Trim();
-                        dic[source] = des;
-                        var source2 = deleteSpace.Replace(source, "");
-                        var des2 = deleteSpace.Replace(des, "");
-                        dic2[source2] = des2;
-                        dic3[source2] = des;
+
+                        if (dic.TryGetValue(array[0], out set))
+                        {
+                            set.Add(array[1]);
+                        }
+                        else
+                        {
+                            set = new HashSet<string>();
+                            set.Add(array[1]);
+                            dic[array[0]] = set;
+                        }
+                    }
+                    reader.Close();
+                    reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_type_file));
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        line = line.ToLower();
+                        var array = line.Split('\t');
+                        var temp = braceRegex.Replace(array[0], "");
+                        if (array[0].Length != temp.Length)
+                        {
+                            if (dic.TryGetValue(temp, out set))
+                            {
+                                set.Add(array[0]);
+                            }
+                            else
+                            {
+                                set = new HashSet<string>();
+                                set.Add(array[0]);
+                                dic[temp] = set;
+                            }
+                        }
                     }
                     reader.Close();
                     redirects = dic;
-                    redirectsWithoutSpace = dic2;
-                    redirectsWithoutSpace2WithSpace = dic3;
                 }
             }
         }
