@@ -66,7 +66,8 @@ namespace msra.nlp.tr
             // opennlp ner output
             opennlpNerType,
             // dbpedia type
-            dbpediaTypes,
+            dbpediaTypesWithIndegree,
+            dbpediaTypesWithAbstract,
             // key words
             keyWords,
             // mention context

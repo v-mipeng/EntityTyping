@@ -327,7 +327,9 @@ namespace msra.nlp.tr
             #region DBpedia dictionary
             if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateDbpedia))
             {
-                var types = string.Join(",", DataCenter.GetDBpediaType(this.instance.Mention));
+                var types = string.Join(",", DataCenter.GetDBpediaTypeWithIndegree(this.instance.Mention));
+                feature.Add(types);
+                types = string.Join(",", DataCenter.GetDBpediaTypeWithAbstract(this.instance.Mention, this.instance.Context));
                 feature.Add(types);
             }
             #endregion
@@ -378,8 +380,10 @@ namespace msra.nlp.tr
             #region DBpedia dictionary
             if(true)
             {
-                var types = string.Join(",", DataCenter.GetDBpediaType(mention, context));
-                rawFeature[(int)Event.Field.dbpediaTypes] = types;
+                var types = string.Join(",", DataCenter.GetDBpediaTypeWithIndegree(mention));
+                rawFeature[(int)Event.Field.dbpediaTypesWithIndegree] = types;
+                types = string.Join(",", DataCenter.GetDBpediaTypeWithAbstract(mention, context));
+                rawFeature[(int)Event.Field.dbpediaTypesWithAbstract] = types;
             }
             #endregion
 

@@ -858,8 +858,124 @@ namespace msra.nlp.tr
             }
         }
 
+        public static List<string> GetDBpediaTypeWithIndegree(string mention)
+        {
+            if (dbpediaEntity2Type == null)
+            {
+                LoadDBpediaType();
+            }
+            var list = new List<string>();
+            if (mention != null)
+            {
+                mention = TransformQuery(mention); // preprocess mention to meet the format of dbpedia data.
+                var redirects = GetRedirect(mention);
+                if (redirects == null)
+                {
+                    redirects = new HashSet<string>();
+                    redirects.Add(mention);
+                }
+                else
+                {
+                    redirects.Add(mention);
+                }
+                foreach (var m in redirects)
+                {
+                    try
+                    {
+                        var indegree = GetPageIndegree(m);
+                        var type = dbpediaEntity2Type[m];
+                        list.Add(type + ":" + indegree);
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
+                }
+               
+                if (list.Count > 0)
+                {
+                    return list;
+                }
+                else
+                {
+                    list.Add("UNKNOW");
+                    return list;
+                }
+            }
+            else
+            {
+                throw new Exception("Mention is null for finding dbpedia type!");
+            }
+        }
+
         public static List<string> GetDBpediaTypeWithAbstract(string mention, string context)
         {
+            if (dbpediaEntity2Type == null)
+            {
+                LoadDBpediaType();
+            }
+            var list = new List<string>();
+            if (mention != null)
+            {
+                mention = TransformQuery(mention); // preprocess mention to meet the format of dbpedia data.
+                var redirects = GetRedirect(mention);
+                if (redirects == null)
+                {
+                    redirects = new HashSet<string>();
+                    redirects.Add(mention);
+                }
+                else
+                {
+                    redirects.Add(mention);
+                }
+                var maxValue = -1.0;
+                var contextVec = TfIdf.GetDocTfIdf(context.Split(' ').ToList());
+                var types = new List<string>();
+                var matchValues = new List<double>();
+                foreach(var entity in redirects)
+                {
+                    try
+                    {
+                        var type = dbpediaEntity2Type[entity];
+                        if(redirects.Count == 1)
+                        {
+                            types.Add(type);
+                            matchValues.Add(1);
+                            maxValue = 1;
+                            break;
+                        }
+                        var entityVec = GetPageAbstract(entity);
+                        var matchValue = pml.math.VectorDistance.SparseCosinDistance(contextVec, entityVec);
+                        if (maxValue < matchValue)
+                        {
+                            maxValue = matchValue;
+                        }
+                        types.Add(type);
+                        matchValues.Add(matchValue);
+                    }
+                    catch(Exception)
+                    {
+                        continue;
+                    }
+                }
+                for(var i = 0;i<types.Count;i++)
+                {
+                    list.Add(types[i] + ":" + (matchValues[i] / maxValue));
+                }
+                if (list.Count > 0)
+                {
+                    return list;
+                }
+                else
+                {
+                    list.Add("UNKNOW");
+                    return list;
+                }
+            }
+            else
+            {
+                throw new Exception("Mention is null for finding dbpedia type!");
+            }
 
         }
 
@@ -1117,8 +1233,6 @@ namespace msra.nlp.tr
                     var dic = new Dictionary<string, Dictionary<int, double>>();
                     var reader = new LargeFileReader(path);
                     string line;
-                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
-
 
                     while ((line = reader.ReadLine()) != null)
                     {
@@ -1129,7 +1243,7 @@ namespace msra.nlp.tr
                             var array2 = array[i].Split(':');
                             dic2[int.Parse(array2[0])] = double.Parse(array2[1]);
                         }
-                        array[0] = regex.Replace(array[0], "").ToLower();
+                        array[0] = array[0].ToLower();
                         dic[array[0]] = dic2;
                     }
                     reader.Close();

@@ -237,7 +237,7 @@ namespace msra.nlp.tr
                     total++;
                     var event1 = reader.GetNextEvent();
                     var rawFeature = event1.Feature.ToList();
-                    if(!rawFeature[(int)Event.Field.dbpediaTypes].Equals("UNKNOW"))
+                    if(!rawFeature[(int)Event.Field.dbpediaTypesWithAbstract].Equals("UNKNOW"))
                     {
                         count++;
                     }
@@ -270,7 +270,7 @@ namespace msra.nlp.tr
                 {
                     totals[event1.Label.ToString()] = 1;
                 }
-                if (!rawFeature[(int)Event.Field.dbpediaTypes].Equals("UNKNOW"))
+                if (!rawFeature[(int)Event.Field.dbpediaTypesWithAbstract].Equals("UNKNOW"))
                 {
                     try
                     {
@@ -615,13 +615,63 @@ namespace msra.nlp.tr
             Console.ReadKey();
         }
 
-        public static void Mains(string[] args)
+        public static void Temp18()
         {
+            var source = @"D:\Temp\sina\sina_text.txt";
+            var posFile = @"D:\Temp\sina\sina_text_pos.txt";
+            var nerFile = @"D:\Temp\sina\sina_text_ner.txt";
+            var reader = new LargeFileReader(source);
+            var posWriter = new LargeFileWriter(posFile, FileMode.Create);
+            var nerWriter = new LargeFileWriter(nerFile, FileMode.Create);
+            var tagger = new PosTagger();
+            var ner = new StanfordNer();
+            var line = "";
+            
+            while((line = reader.ReadLine())!=null)
+            {
+                try
+                {
+                    var pairs = tagger.TagString(line);
+                    foreach (var pair in pairs)
+                    {
+                        posWriter.Write(string.Format("{0}({1}) ", pair.first, pair.second));
+                    }
+                    posWriter.WriteLine("");
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    posWriter.WriteLine("");
+                }
+                try
+                {
+                    ner.FindNer(line);
+                    var pairs = ner.GetEntities();
+                    foreach (var pair in pairs)
+                    {
+                        nerWriter.Write(string.Format("{0}({1}) ", pair.first, pair.second));
+                    }
+                    nerWriter.WriteLine("");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    nerWriter.WriteLine("");
+                }
+            }
+            reader.Close();
+            posWriter.Close();
+            nerWriter.Close();
+        }
+        public static void Main(string[] args)
+        {
+            //pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll", @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\train.txt");
+            Temp18();
             //var commentRegex = new System.Text.RegularExpressions.Regex(@"\\\*(.(?!\\\*))+\\\*");
             //string str = "I like \\*lskdjlfd\\*lskdl\\*";
             //str = commentRegex.Replace(str, "");
             //Console.WriteLine(str);
-            Temp17();
+            //Temp17();
             //Temp12();
             //Temp10(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300-seleted.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\centroids-1000.txt", @"D:\Data\Google-word2vec\KMeans on selected vectors\cluster IDs-1000.txt");
             //var pipeline = new Pipeline();
