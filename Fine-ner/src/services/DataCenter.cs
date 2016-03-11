@@ -858,6 +858,11 @@ namespace msra.nlp.tr
             }
         }
 
+        public static List<string> GetDBpediaTypeWithAbstract(string mention, string context)
+        {
+
+        }
+
 
         /// <summary>
         /// Get the index of type in the dbpedia type set.

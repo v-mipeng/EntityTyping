@@ -63,7 +63,7 @@ namespace User.src
             Console.WriteLine("Clustering...");
             Stopwatch watcher = new Stopwatch();
             watcher.Start();
-            this.labels = kmeans.Compute(100, vectors);
+            this.labels = kmeans.Compute(k, vectors);
             //this.labels = kmeans.Compute(vectors);
             watcher.Stop();
             int seconds = (int)watcher.ElapsedMilliseconds/1000;
