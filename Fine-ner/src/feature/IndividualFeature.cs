@@ -534,13 +534,13 @@ namespace msra.nlp.tr
             #region   Modify mention ID
             if (false)
             {
-                var mentionID = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionID));
-                var mentionClusterNum = DataCenter.GetMentionClusterNumber();
-                if (mentionID == mentionClusterNum)
-                {
-                    mentionID = DataCenter.GetMentionClusterID(mention);
-                    rawFeature[(int)Event.Field.mentionID] = mentionID.ToString();
-                }
+                //var mentionID = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionID));
+                //var mentionClusterNum = DataCenter.GetMentionClusterNumber();
+                //if (mentionID == mentionClusterNum)
+                //{
+                var mentionID = DataCenter.GetMentionClusterID(mention);
+                rawFeature[(int)Event.Field.mentionID] = mentionID.ToString();
+                //}
             }
             #endregion
 
