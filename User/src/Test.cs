@@ -626,9 +626,14 @@ namespace msra.nlp.tr
             var tagger = new PosTagger();
             var ner = new StanfordNer();
             var line = "";
+            int count = 0;
             
             while((line = reader.ReadLine())!=null)
             {
+                if(count++%100==0)
+                {
+                    Console.WriteLine(count);
+                }
                 try
                 {
                     var pairs = tagger.TagString(line);
@@ -663,10 +668,10 @@ namespace msra.nlp.tr
             posWriter.Close();
             nerWriter.Close();
         }
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
-            //pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll", @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\train.txt");
-            Temp18();
+            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll", @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\train.txt");
+            //Temp18();
             //var commentRegex = new System.Text.RegularExpressions.Regex(@"\\\*(.(?!\\\*))+\\\*");
             //string str = "I like \\*lskdjlfd\\*lskdl\\*";
             //str = commentRegex.Replace(str, "");

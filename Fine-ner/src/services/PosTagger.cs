@@ -40,7 +40,7 @@ namespace msra.nlp.tr
                 try
                 {
                     var word = w.trim();
-                    var array2 = word.split("_");
+                    var array2 = word.Split(new char[]{'#'},2);
                     var pair = new Pair<string, string>(array2[0], array2[1]);
                     list.Add(pair);
                 }
@@ -54,8 +54,8 @@ namespace msra.nlp.tr
 
         void Initial(string modelFile = null)
         {
-            //tagger = new MaxentTagger(modelFile ?? Path.Combine((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir), "edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger"));
-            tagger = new MaxentTagger(modelFile ?? Path.Combine(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\stanford models\", "edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger"));
+            tagger = new MaxentTagger(modelFile ?? @"D:\Software Install\StanfordCoreNLP\edu\stanford\nlp\models\pos-tagger\chinese-distsim.tagger");
+            //tagger = new MaxentTagger(modelFile ?? Path.Combine(@"E:\Users\v-mipeng\Codes\Projects\EntityTyping\Fine-ner\input\stanford models\", "edu/stanford/nlp/models/pos-tagger/chinese-distsim.tagger"));
 
         }
 

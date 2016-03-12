@@ -13,7 +13,7 @@ namespace User
 {
     class UnitTest
     {
-        static void Mains(string[] args)
+        static void Main(string[] args)
         {
             //Temp();
             //Analyse();
@@ -97,19 +97,19 @@ namespace User
                 //props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\feature\temp test\"));
                 //pipeline = new Pipeline(props);
                 //pipeline.Execute();
-                props.SetProperty("method", @"/ef -svm -all");
-                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\feature\temp train\"));
-                props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\svm\train\"));
-                props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\temp develop\"));
-                props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\svm\develop\"));
-                props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\temp test\"));
-                props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\svm\test\"));
+                props.SetProperty("method", @"/ef -svm -dev");
+                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\satori+conll\"));
+                props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\satori+conll\train\"));
+                props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\satori+conll\develop\"));
+                props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\satori+conll\develop\"));
+                props.SetProperty("test_data_file", Path.Combine(basedir, @"output\conll feature\raw\"));
+                props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\conll feature\svm\"));
                 //props.Set("activateMIKeyword", false);
                 pipeline = new Pipeline(props);
                 pipeline.Execute();
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\train\"), Path.Combine(basedir, @"output\svm\train.txt"));
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\develop\"), Path.Combine(basedir, @"output\svm\develop.txt"));
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\test\"), Path.Combine(basedir, @"output\svm\test.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori+conll\train\"), Path.Combine(basedir, @"output\satori+conll\train.txt"));
+                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori+conll\develop\"), Path.Combine(basedir, @"output\satori+conll\develop.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\test\"), Path.Combine(basedir, @"output\svm\test.txt"));
             }
             /************************************************************************/
             /* Bayes train and test                                                                     */
