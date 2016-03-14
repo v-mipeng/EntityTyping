@@ -838,7 +838,7 @@ namespace msra.nlp.tr
                         continue;
                     }
                 }
-                for (var i = 0; i < types.Count;i++ )
+                for (var i = 0; i < types.Count; i++)
                 {
                     list.Add(types[i] + ":" + (1.0 * indegrees[i] / totalIndegree));
                 }
@@ -865,6 +865,9 @@ namespace msra.nlp.tr
                 LoadDBpediaType();
             }
             var list = new List<string>();
+            var maxIndegree = -1;
+            var types = new List<string>();
+            var indegrees = new List<int>();
             if (mention != null)
             {
                 mention = TransformQuery(mention); // preprocess mention to meet the format of dbpedia data.
@@ -884,14 +887,23 @@ namespace msra.nlp.tr
                     {
                         var indegree = GetPageIndegree(m);
                         var type = dbpediaEntity2Type[m];
-                        list.Add(type + ":" + indegree);
+                        if (indegree > maxIndegree)
+                        {
+                            maxIndegree = indegree;
+                        }
+                        types.Add(type);
+                        indegrees.Add(indegree);
                     }
                     catch (Exception)
                     {
                         continue;
                     }
                 }
-               
+                for (var i = 0; i < types.Count; i++)
+                {
+                    list.Add(types[i] + ":" + (1.0 * indegrees[i] / maxIndegree));
+                }
+
                 if (list.Count > 0)
                 {
                     return list;
@@ -932,12 +944,12 @@ namespace msra.nlp.tr
                 var contextVec = TfIdf.GetDocTfIdf(context.Split(' ').ToList());
                 var types = new List<string>();
                 var matchValues = new List<double>();
-                foreach(var entity in redirects)
+                foreach (var entity in redirects)
                 {
                     try
                     {
                         var type = dbpediaEntity2Type[entity];
-                        if(redirects.Count == 1)
+                        if (redirects.Count == 1)
                         {
                             types.Add(type);
                             matchValues.Add(1);
@@ -945,6 +957,16 @@ namespace msra.nlp.tr
                             break;
                         }
                         var entityVec = GetPageAbstract(entity);
+                        if (entityVec == null)
+                        {
+                            types.Add(type);
+                            matchValues.Add(1);
+                            if (maxValue < 1)
+                            {
+                                maxValue = 1;
+                            }
+                            continue;
+                        }
                         var matchValue = pml.math.VectorDistance.SparseCosinDistance(contextVec, entityVec);
                         if (maxValue < matchValue)
                         {
@@ -953,12 +975,12 @@ namespace msra.nlp.tr
                         types.Add(type);
                         matchValues.Add(matchValue);
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         continue;
                     }
                 }
-                for(var i = 0;i<types.Count;i++)
+                for (var i = 0; i < types.Count; i++)
                 {
                     list.Add(types[i] + ":" + (matchValues[i] / maxValue));
                 }
@@ -1138,11 +1160,11 @@ namespace msra.nlp.tr
                         LoadDBpediaType();
                     }
                     var set = new HashSet<string>();
-                    foreach(var type in dbpediaEntity2Type.Values)
+                    foreach (var type in dbpediaEntity2Type.Values)
                     {
                         set.Add(type);
                     }
-                    foreach(var type in set)
+                    foreach (var type in set)
                     {
                         dic[type] = dic.Count;
                     }
@@ -1288,6 +1310,10 @@ namespace msra.nlp.tr
         private static int LogIndegree(int indegree)
         {
             var value = (int)Math.Ceiling(Math.Log(indegree));
+            if(value == 0)
+            {
+                value = 1;
+            }
             if (value > 12)
             {
                 value = 12;

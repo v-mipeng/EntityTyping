@@ -262,42 +262,42 @@ namespace msra.nlp.tr
             {
                 #region DBpedia types
                 {
-                    //var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypesWithIndegree).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    //if (types.Count() == 1 && !types[0].Contains(":"))
-                    //{
-                    //    var index = DataCenter.GetDBpediaTypeIndex(types[0]);
-                    //    feature.Add((offset + index) + ":1");
-                    //}
-                    //else
-                    //{
-                    //    var dic = new Dictionary<int, string>();
-                    //    foreach (var item in types)    // UNKNOW
-                    //    {
-                    //        var array = item.Split(':');
-                    //        var type = array[0];
-                    //        var distance = array[1];
-                    //        try
-                    //        {
-                    //            var index = DataCenter.GetDBpediaTypeIndex(type);
-                    //            dic[index] = distance;
+                    var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypesWithIndegree).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (types.Count() == 1 && !types[0].Contains(":"))
+                    {
+                        var index = DataCenter.GetDBpediaTypeIndex(types[0]);
+                        feature.Add((offset + index) + ":1");
+                    }
+                    else
+                    {
+                        var dic = new Dictionary<int, string>();
+                        foreach (var item in types)    // UNKNOW
+                        {
+                            var array = item.Split(':');
+                            var type = array[0];
+                            var distance = array[1];
+                            try
+                            {
+                                var index = DataCenter.GetDBpediaTypeIndex(type);
+                                dic[index] = distance;
 
-                    //        }
-                    //        catch (Exception)
-                    //        {
-                    //            Console.WriteLine(item);
-                    //            Console.WriteLine(type);
-                    //            Console.ReadKey();
-                    //        }
-                    //    }
-                    //    var indexes = dic.Keys.ToList();
-                    //    indexes.Sort();
-                    //    foreach (var index in indexes)
-                    //    {
-                    //        feature.Add((offset + index) + ":" + dic[index]);
-                    //    }
-                    //}
-                    //offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
-                    var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypesWithAbstract).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            }
+                            catch (Exception)
+                            {
+                                Console.WriteLine(item);
+                                Console.WriteLine(type);
+                                Console.ReadKey();
+                            }
+                        }
+                        var indexes = dic.Keys.ToList();
+                        indexes.Sort();
+                        foreach (var index in indexes)
+                        {
+                            feature.Add((offset + index) + ":" + dic[index]);
+                        }
+                    }
+                    offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
+                    types = rawFeature.ElementAt((int)Event.Field.dbpediaTypesWithAbstract).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                     if (types.Count() == 1 && !types[0].Contains(":"))
                     {
                         var index = DataCenter.GetDBpediaTypeIndex(types[0]);

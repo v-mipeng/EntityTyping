@@ -668,9 +668,10 @@ namespace msra.nlp.tr
             posWriter.Close();
             nerWriter.Close();
         }
-        public static void Mains(string[] args)
+        public static void Main(string[] args)
         {
-            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll", @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\train.txt");
+            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\train\", @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\train.txt");
+            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\develop\", @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\develop.txt");
             //Temp18();
             //var commentRegex = new System.Text.RegularExpressions.Regex(@"\\\*(.(?!\\\*))+\\\*");
             //string str = "I like \\*lskdjlfd\\*lskdl\\*";
