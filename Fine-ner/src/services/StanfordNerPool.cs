@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
-    class StanfordNerPool
+    public class StanfordNerPool
     {
         static List<StanfordNer> ners = new List<StanfordNer>();
         static HashSet<int> availableNers = new HashSet<int>();

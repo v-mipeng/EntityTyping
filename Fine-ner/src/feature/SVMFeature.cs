@@ -276,17 +276,19 @@ namespace msra.nlp.tr
                             var array = item.Split(':');
                             var type = array[0];
                             var distance = array[1];
+                            if(distance.ToLower().Equals("nan"))
+                            {
+                                continue;
+                            }
                             try
                             {
                                 var index = DataCenter.GetDBpediaTypeIndex(type);
                                 dic[index] = distance;
-
                             }
                             catch (Exception)
                             {
                                 Console.WriteLine(item);
                                 Console.WriteLine(type);
-                                Console.ReadKey();
                             }
                         }
                         var indexes = dic.Keys.ToList();

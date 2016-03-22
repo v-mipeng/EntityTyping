@@ -38,7 +38,7 @@ namespace msra.nlp.tr
             public const string dbpedia_abstract_df_file    = "dbpedia_abstract_df_file";
             public const string dbpedia_abstract_word_table = "dbpedia_abstract_word_table";
             public const string dbpedia_abstract_num        = "dbpedia_abstract_num";
-            public const string page_indegree_file           = "page_indegree_file";
+            public const string page_indegree_file          = "page_indegree_file";
             public const string keyword_file                = "keyword_file";
             public const string disambiguous_file           = "disambiguous_file";
             public const string page_anchor_file            = "page_anchor_file";
@@ -106,8 +106,8 @@ namespace msra.nlp.tr
             parameters[Field.stem_map]                  = Path.Combine(basedir, @"input\tables\stem-word-table.txt");
             parameters[Field.word_shape_table_file]     = Path.Combine(basedir, @"input\tables\shape-table.txt");
             parameters[Field.posTag_table_file]         = Path.Combine(basedir, @"input\tables\pos-tag-table.txt");
-            parameters[Field.word_id_file]              = Path.Combine(basedir, @"input\tables\wordID.txt");
-            parameters[Field.mention_id_file]           = Path.Combine(basedir, @"input\tables\mentionID.txt");
+            parameters[Field.word_id_file]              = Path.Combine(basedir, @"input\tables\word cluster ID.txt");
+            parameters[Field.mention_id_file]           = Path.Combine(basedir, @"input\tables\mention cluster ID.txt");
             parameters[Field.train_feature_file]        = Path.Combine(basedir, @"output\train\trainFeature.txt");
             parameters[Field.develop_feature_file]      = Path.Combine(basedir, @"output\satori\developFeature.txt");
             parameters[Field.test_feature_file]         = Path.Combine(basedir, @"output\satori\testFeature.txt");

@@ -57,7 +57,8 @@ namespace msra.nlp.tr
             this.instance = instance;
             this.feature.Clear();
             Tokenizer();
-            FilterContext();
+            //FilterContext();
+            this.context = instance.Context;
             DependencyParser parser = null;
 
             #region Dependency parser
@@ -353,7 +354,7 @@ namespace msra.nlp.tr
             var mention = rawFeature.ElementAt((int)Event.Field.mentionSurfaces).Replace(',', ' ');
             var context = rawFeature.ElementAt((int)Event.Field.sentenceContext);
             #region Stanford NER
-            if (false)
+            if (true)
             {
 
                 var ner = StanfordNerPool.GetStanfordNer();
@@ -378,7 +379,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region DBpedia dictionary
-            if(true)
+            if(false)
             {
                 var types = string.Join(",", DataCenter.GetDBpediaTypeWithIndegree(mention));
                 rawFeature[(int)Event.Field.dbpediaTypesWithIndegree] = types;
@@ -558,6 +559,63 @@ namespace msra.nlp.tr
             }
             #endregion
 
+            #region Word ID
+            if(false)
+            {
+                var word = rawFeature[(int)Event.Field.lastWord];
+                if (!word.Equals("NULL"))
+                {
+                    var id = DataCenter.GetWordClusterID(word);
+                    rawFeature[(int)Event.Field.lastWordID] = id.ToString();
+                }
+                word = rawFeature[(int)Event.Field.nextWord];
+                if (!word.Equals("NULL"))
+                {
+                    var id = DataCenter.GetWordClusterID(word);
+                    rawFeature[(int)Event.Field.nextWordID] = id.ToString();
+                } 
+                word = rawFeature[(int)Event.Field.mentionAction];
+                if (!word.Equals("NULL"))
+                {
+                    var id = DataCenter.GetWordClusterID(word);
+                    rawFeature[(int)Event.Field.mentionActionID] = id.ToString();
+                } 
+                word = rawFeature[(int)Event.Field.mentionAdjModifier];
+                if (!word.Equals("NULL"))
+                {
+                    var id = DataCenter.GetWordClusterID(word);
+                    rawFeature[(int)Event.Field.mentionAdjModifierID] = id.ToString();
+                } 
+                word = rawFeature[(int)Event.Field.mentionDriver];
+                if (!word.Equals("NULL"))
+                {
+                    var id = DataCenter.GetWordClusterID(word);
+                    rawFeature[(int)Event.Field.mentionDriverID] = id.ToString();
+                } 
+                word = rawFeature[(int)Event.Field.mentionHead];
+                if (!word.Equals("NULL"))
+                {
+                    var id = DataCenter.GetWordClusterID(word);
+                    rawFeature[(int)Event.Field.mentionHeadID] = id.ToString();
+                }
+                var words = rawFeature[(int)Event.Field.mentionSurfaces].Split(',');
+                var ids = new StringBuilder();
+                foreach(var w in words)
+                {
+                    var id = DataCenter.GetWordClusterID(w);
+                    if (ids.Length == 0)
+                    {
+                        ids.Append(id);
+                    }
+                    else
+                    {
+                        ids.Append("," + id);
+                    }
+                }
+                rawFeature[(int)Event.Field.mentionIDs] = ids.ToString(); ;
+            }
+            #endregion
+
             return rawFeature;
         }
 
@@ -592,6 +650,8 @@ namespace msra.nlp.tr
         private void Tokenizer()
         {
             var tokenizer = TokenizerPool.GetTokenizer();
+            this.mentionTokens = new List<string>();
+            this.contextTokens = new List<string>();
             try
             {
                 var ts = tokenizer.Tokenize(this.instance.Mention);

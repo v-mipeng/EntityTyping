@@ -37,15 +37,17 @@ namespace msra.nlp.tr.eval
             var line = "";
             var result = new Dictionary<string, Dictionary<string, int>>();  // class-->(predicted class --> number)
             int times = 0;
-            var trueLabelIndex = 1;
-            var predictLabelIndex = 2;
+            var trueLabelIndex = 0;
+            var predictLabelIndex = (int)(Event.Field.stanfordNerType+1);
             var writer = new LargeFileWriter(evaluationFile, FileMode.Create);
             Dictionary<string, int> dic = null;
-            line = reader.ReadLine();
-
+            //line = reader.ReadLine();
+            var keys = new HashSet<string>();
             while ((line = reader.ReadLine()) != null)
             {
                 var array = line.Split('\t');
+                keys.Add(array[trueLabelIndex]);
+                keys.Add(array[predictLabelIndex]);
                 try
                 {
                     dic = result[array[trueLabelIndex]];
@@ -62,13 +64,12 @@ namespace msra.nlp.tr.eval
                 catch (Exception)
                 {
                     dic = new Dictionary<string, int>();
-                    dic[array[2]] = 1;
+                    dic[array[predictLabelIndex]] = 1;
                     result[array[trueLabelIndex]] = dic;
                 }
             }
             reader.Close();
             writer.Write("True|Predict");
-            var keys = result.Keys;
             foreach (var key in keys)
             {
                 writer.Write("\t" + key);
@@ -76,6 +77,10 @@ namespace msra.nlp.tr.eval
             writer.WriteLine("");
             foreach (var key in keys)
             {
+                if(!result.ContainsKey(key))
+                {
+                    continue;
+                }
                 writer.Write(key);
                 var info = result[key];
 
@@ -92,14 +97,14 @@ namespace msra.nlp.tr.eval
                 }
                 writer.WriteLine("");
             }
-            var macroPre = Util.GetMacroPrecision(result);
-            var macroRec = Util.GetMacroRecall(result);
-            var macroF1 = Util.GetF1(macroPre, macroRec);
-            writer.WriteLine("macro-precision: " + macroPre);
-            writer.WriteLine("macro-recall   : " + macroRec);
-            writer.WriteLine("macro-F1       : " + macroF1);
-            var microPre = Util.GetMicroPrecision(result);
-            writer.WriteLine("micro-precision: " + microPre);
+            //var macroPre = Util.GetMacroPrecision(result);
+            //var macroRec = Util.GetMacroRecall(result);
+            //var macroF1 = Util.GetF1(macroPre, macroRec);
+            //writer.WriteLine("macro-precision: " + macroPre);
+            //writer.WriteLine("macro-recall   : " + macroRec);
+            //writer.WriteLine("macro-F1       : " + macroF1);
+            //var microPre = Util.GetMicroPrecision(result);
+            //writer.WriteLine("micro-precision: " + microPre);
             writer.Close();
         }
 

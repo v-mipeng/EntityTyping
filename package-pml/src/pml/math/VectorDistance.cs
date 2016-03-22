@@ -60,7 +60,14 @@ namespace pml.math
             {
                 vectorTwoLength += vector.Value * vector.Value;
             }
-            return distance / vectorOneLength / vectorTwoLength;
+            if (distance == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return distance / vectorOneLength / vectorTwoLength;
+            }
         }
 
         public static double SparseCosinDistance(Dictionary<object, double> vectorOne, Dictionary<object, double> vectorTwo)

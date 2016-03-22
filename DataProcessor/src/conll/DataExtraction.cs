@@ -84,7 +84,7 @@ namespace msra.nlp.tr.dp
             writer.Close();
         }
 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             var sourceDir = @"D:\Data\CoNLL";
            var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\input\conll\";

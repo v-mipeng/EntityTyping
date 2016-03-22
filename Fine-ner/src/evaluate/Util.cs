@@ -73,6 +73,7 @@ namespace msra.nlp.tr.eval
 
             for (var i = 0; i < keys.Count; i++)
             {
+                positiveNumDic[keys[i]] = 0;
                 var dic = result[keys[i]];
                 foreach (var key in dic.Keys)
                 {

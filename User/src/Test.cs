@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using msra.nlp.tr.eval;
 using User.src;
+using pml.type;
 
 
 namespace msra.nlp.tr
@@ -668,10 +669,233 @@ namespace msra.nlp.tr
             posWriter.Close();
             nerWriter.Close();
         }
-        public static void Main(string[] args)
+
+        public static void StatisticPrecisionOfNer()
         {
-            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\train\", @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\train.txt");
-            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\develop\", @"D:\Codes\Project\EntityTyping\Fine-ner\input\satori+conll\develop.txt");
+            var source = @"D:\Temp\sina\sina_text.txt";
+            var reader = new LargeFileReader(source);
+            var des = "";
+            var writer = new LargeFileWriter(des, FileMode.Create);
+            string line;
+            int count = 0;
+            int total = 0 ;
+
+            while((line = reader.ReadLine())!=null)
+            {
+                total++;
+                var array = line.Split('\t');
+            }
+        }
+
+        public static void StatisticCoverageOfDbpedia()
+        {
+            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\individual\test.txt";
+            var reader = new LargeFileReader(source);
+            string line;
+            int count = 0;
+            int total = 0;
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                total++;
+                var array = line.Split('\t');
+                var index = (int)Event.Field.dbpediaTypesWithIndegree+1;
+                var type = array[index];
+                if(!array[index].Equals("UNKNOW"))
+                {
+                    count++;
+                }
+            }
+            reader.Close();
+            Console.WriteLine("The coverage of dbpedia on BBN is:"+(1.0*count/total));
+            Console.ReadKey();
+        }
+
+        public static void Temp19(string source, string des)
+        {
+            var reader = new pml.file.reader.LargeFileReader(source);
+            var writer = new LargeFileWriter(des, FileMode.Create);
+            var dic = new Dictionary<string, int>();
+            string line;
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                var array = line.Split('\t');
+                try
+                {
+                    dic[array[0]] += 1;
+                }
+                catch (Exception)
+                {
+                    dic[array[0]] = 1;
+                }
+            }
+            reader.Close();
+            foreach (var item in dic)
+            {
+                writer.WriteLine(item.Key + "\t" + item.Value);
+            }
+            writer.Close();
+        }
+
+        public static void Temp20(string source1, string source2)
+        {
+            var files = Directory.GetFiles(source1);
+            var reader = new LargeFileReader();
+            var set = new HashSet<string>();
+            string line;
+            int count = 0;
+            int total = 0;
+            foreach(var file in files)
+            {
+                reader.Open(file);
+                while((line = reader.ReadLine())!=null)
+                {
+                    set.Add(line.Split('\t')[(int)Event.Field.mentionSurfacesStemmed]);
+                }
+            }
+            reader.Close();
+            files = Directory.GetFiles(source2);
+            foreach (var file in files)
+            {
+                reader.Open(file);
+                while ((line = reader.ReadLine()) != null)
+                {
+                    total++;
+                   if(set.Contains(line.Split('\t')[(int)Event.Field.mentionSurfacesStemmed]))
+                   {
+                       count++;
+                   }
+                }
+            }
+            reader.Close();
+            Console.WriteLine(1.0 * count / total);
+            Console.ReadKey();
+        }
+
+        public static void CompareWithStanfordNer(string result, string raw)
+        {
+            var reader = new LargeFileReader(raw);
+            var indexes = new HashSet<int>();
+            var dic = new Dictionary<string, Dictionary<string,int>>();
+            int index = 0;
+            string line;
+
+
+            while((line=reader.ReadLine())!=null)
+            {
+                var array = line.Split('\t');
+                if(!array[(int)Event.Field.stanfordNerType+1].Equals("UNKNOW"))
+                {
+                    indexes.Add(index);
+                    try
+                    {
+                        var d = dic[array[0]];
+                        try
+                        {
+                            d[array[(int)Event.Field.stanfordNerType+1]] += 1;
+                        }
+                        catch (Exception)
+                        {
+                            d[array[(int)Event.Field.stanfordNerType+1]] = 1;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        var d = new Dictionary<string, int>();
+                        d[array[(int)Event.Field.stanfordNerType+1]] = 1;
+                        dic[array[0]] = d;
+                    }
+                }
+                index++;
+            }
+            reader.Open(result);
+            var writer = new LargeFileWriter(@"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\backup\ners dbpedia-abstract-indegree keyword\stanford result.txt", FileMode.Create);
+            writer.Write("True|Predicted\t");
+            var keys = dic[dic.Keys.ToArray()[0]].Keys;
+            writer.WriteLine(string.Join("\t", keys));
+            foreach (var key in dic.Keys)
+            {
+                var d = dic[key];
+                writer.Write(key);
+                foreach (var k in keys)
+                {
+                    try
+                    {
+                        writer.Write("\t" + d[k]);
+                    }
+                    catch (Exception)
+                    {
+                        writer.Write("\t" + 0);
+                    }
+                }
+                writer.WriteLine("");
+            }
+            writer.Close();
+            dic.Clear();
+            index = 0;
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (indexes.Contains(index))
+                {
+                    var array = line.Split('\t');
+                    try
+                    {
+                        var d = dic[array[1]];
+                        try
+                        {
+                            d[array[2]] += 1;
+                        }
+                        catch(Exception)
+                        {
+                            d[array[2]] = 1;
+                        }
+                    }
+                    catch(Exception)
+                    {
+                        var d = new Dictionary<string, int>();
+                        d[array[2]] = 1;
+                        dic[array[1]] = d;
+                    }
+                }
+                index++;
+            }
+            reader.Close();
+            writer = new LargeFileWriter(@"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\backup\ners dbpedia-abstract-indegree keyword\system result.txt",FileMode.Create);
+            writer.Write("True|Predicted\t");
+            writer.WriteLine(string.Join("\t", dic.Keys));
+            foreach(var key in dic.Keys)
+            {
+                var d = dic[key];
+                writer.Write(key);
+                foreach (var k in dic.Keys)
+                {
+                    try
+                    {
+                        writer.Write("\t" + d[k]);
+                    }
+                    catch (Exception)
+                    {
+                        writer.Write("\t" + 0);
+                    }
+                }
+                writer.WriteLine("");
+            }
+            writer.Close();
+        }
+
+        public static void Mains(string[] args)
+        {
+            temp(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test new.txt");
+            //pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test\", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt");
+            //CompareWithStanfordNer(@"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\backup\ners dbpedia-abstract-indegree keyword\test result.txt",
+            //    @"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\backup\ners dbpedia-abstract-indegree keyword\stanford on test.txt");
+            //Temp20(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\train", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test");
+            //StatisticCoverageOfDbpedia();
+            //EvaluateResult();
+            //Temp19(@"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\individual\test.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\individual\test info.txt");
+            //pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\output\satori+bbn\train\", @"D:\Codes\Project\EntityTyping\Fine-ner\output\satori+bbn\train.txt");
+            //pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\output\satori+conll\train\", @"D:\Codes\Project\EntityTyping\Fine-ner\output\satori+conll\train.txt");
             //Temp18();
             //var commentRegex = new System.Text.RegularExpressions.Regex(@"\\\*(.(?!\\\*))+\\\*");
             //string str = "I like \\*lskdjlfd\\*lskdl\\*";
@@ -752,8 +976,8 @@ namespace msra.nlp.tr
         public static void EvaluateResult()
         {
             var evaluator = new ClassByClassEvaluator();
-            var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\output\svm\inst.txt";
-            var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\output\svm\result.txt";
+            var sourceDir = @"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\test.txt";
+            var desDir = @"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\stanford ner on test.txt";
             //var sourceFiles = Directory.GetFiles(sourceDir).ToList();
             //var desFile = "";
             //foreach (var file in sourceFiles)
@@ -764,6 +988,34 @@ namespace msra.nlp.tr
          
         }
 
+        public static void temp(string raw, string des)
+        {
+            Pipeline pipeline = new Pipeline();
+            var reader = new LargeFileReader(raw);
+            var writer = new LargeFileWriter(des, FileMode.Create);
+            string line;
+            var ner =  StanfordNerPool.GetStanfordNer();
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                var array = line.Split('\t');
+                if (array[(int)Event.Field.stanfordNerType + 1].Equals("UNKNOW"))
+                {
+                    var mention = array[(int)Event.Field.mentionSurfaces + 1].Replace(",", " ");
+                    var context = array[(int)Event.Field.sentenceContext + 1];
+                    ner.FindNer(context);
+                    var type = ner.GetNerType(mention);
+                    array[(int)Event.Field.stanfordNerType + 1] = type;
+                    writer.WriteLine(string.Join("\t", array));
+                }
+                else
+                {
+                    writer.WriteLine(string.Join("\t", array));
+                }
+            }
+            reader.Close();
+            writer.Close();
+        }
 
         /// <summary>
         /// pair.first: word

@@ -36,10 +36,9 @@ namespace msra.nlp.tr
             props.setProperty("tokenizer.whitespace", "true");
             props.setProperty("ssplit.eolonly", "true");
             props.setProperty("ner.useSUTime", "0");
-            props.setProperty("pos.model", @"D:\Software Install\StanfordCoreNLP\edu\stanford\nlp\models\pos-tagger\chinese-distsim.tagger");
-            props.setProperty("ner.model", @"D:\Software Install\StanfordCoreNLP\edu\stanford\nlp\models\ner\chinese.misc.distsim.crf.ser.gz");
+            //props.setProperty("ner.model", @"D:\Codes\C#\EntityTyping\Fine-ner\input\stanford models\edu\stanford\nlp\models\ner\english.all.3class.distsim.crf.ser.gz");
             var dir = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(@"D:\Software Install\StanfordCoreNLP\");
+            Directory.SetCurrentDirectory((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir));
             pipeline = new StanfordCoreNLP(props);
             Directory.SetCurrentDirectory(dir);
         }
@@ -79,7 +78,7 @@ namespace msra.nlp.tr
                     {
                         if (!prevNerToken.Equals("O") && (buffer.Length > 0))
                         {
-                            if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION"))
+                            if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION") || prevNerToken.Equals("MISC"))
                             {
                                 nerPairs.Add(new Pair<string, string>(buffer.ToString(), prevNerToken));
                             }
@@ -105,7 +104,7 @@ namespace msra.nlp.tr
                     {
                         // We're done with the current entity - print it out and reset
                         // TODO save this token into an appropriate ADT to return for useful processing..
-                        if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION"))
+                        if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION") || prevNerToken.Equals("MISC"))
                         {
                             nerPairs.Add(new Pair<string, string>(buffer.ToString(), prevNerToken));
                         }
@@ -117,7 +116,7 @@ namespace msra.nlp.tr
                 }
                 if (!prevNerToken.Equals("O") && buffer.Length > 0)
                 {
-                    if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION"))
+                    if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION") || prevNerToken.Equals("MISC"))
                     {
                         nerPairs.Add(new Pair<string, string>(buffer.ToString(), prevNerToken));
                     }

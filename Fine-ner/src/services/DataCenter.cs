@@ -886,6 +886,10 @@ namespace msra.nlp.tr
                     try
                     {
                         var indegree = GetPageIndegree(m);
+                        if(indegree == 0)
+                        {
+                            continue;
+                        }
                         var type = dbpediaEntity2Type[m];
                         if (indegree > maxIndegree)
                         {
@@ -898,6 +902,11 @@ namespace msra.nlp.tr
                     {
                         continue;
                     }
+                }
+                if (maxIndegree == 0)
+                {
+                    Console.WriteLine("max indegree is 0!");
+                    Console.ReadKey();
                 }
                 for (var i = 0; i < types.Count; i++)
                 {
@@ -959,15 +968,13 @@ namespace msra.nlp.tr
                         var entityVec = GetPageAbstract(entity);
                         if (entityVec == null)
                         {
-                            types.Add(type);
-                            matchValues.Add(1);
-                            if (maxValue < 1)
-                            {
-                                maxValue = 1;
-                            }
                             continue;
                         }
                         var matchValue = pml.math.VectorDistance.SparseCosinDistance(contextVec, entityVec);
+                        if(matchValue == 0)
+                        {
+                            continue;
+                        }
                         if (maxValue < matchValue)
                         {
                             maxValue = matchValue;
@@ -1309,6 +1316,10 @@ namespace msra.nlp.tr
 
         private static int LogIndegree(int indegree)
         {
+            if(indegree == 0)
+            {
+                return 0;
+            }
             var value = (int)Math.Ceiling(Math.Log(indegree));
             if(value == 0)
             {
