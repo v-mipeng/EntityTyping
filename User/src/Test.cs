@@ -672,19 +672,61 @@ namespace msra.nlp.tr
 
         public static void StatisticPrecisionOfNer()
         {
-            var source = @"D:\Temp\sina\sina_text.txt";
+            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\temp test.txt";
             var reader = new LargeFileReader(source);
-            var des = "";
+            var des = @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\Stanford on temp test.txt";
             var writer = new LargeFileWriter(des, FileMode.Create);
             string line;
-            int count = 0;
-            int total = 0 ;
+            var dic = new Dictionary<string, Dictionary<string, int>>();
 
-            while((line = reader.ReadLine())!=null)
+
+            while ((line = reader.ReadLine()) != null)
             {
-                total++;
                 var array = line.Split('\t');
+                if (!array[(int)Event.Field.stanfordNerType + 1].Equals("UNKNOW"))
+                {
+                    try
+                    {
+                        var d = dic[array[0]];
+                        try
+                        {
+                            d[array[(int)Event.Field.stanfordNerType + 1]] += 1;
+                        }
+                        catch (Exception)
+                        {
+                            d[array[(int)Event.Field.stanfordNerType + 1]] = 1;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        var d = new Dictionary<string, int>();
+                        d[array[(int)Event.Field.stanfordNerType + 1]] = 1;
+                        dic[array[0]] = d;
+                    }
+                }
             }
+            reader.Close();
+            writer.Write("True|Predicted\t");
+            var keys = dic[dic.Keys.ToArray()[0]].Keys;
+            writer.WriteLine(string.Join("\t", keys));
+            foreach (var key in dic.Keys)
+            {
+                var d = dic[key];
+                writer.Write(key);
+                foreach (var k in keys)
+                {
+                    try
+                    {
+                        writer.Write("\t" + d[k]);
+                    }
+                    catch (Exception)
+                    {
+                        writer.Write("\t" + 0);
+                    }
+                }
+                writer.WriteLine("");
+            }
+            writer.Close();
         }
 
         public static void StatisticCoverageOfDbpedia()
@@ -884,9 +926,10 @@ namespace msra.nlp.tr
             writer.Close();
         }
 
-        public static void Mains(string[] args)
+        public static void Main(string[] args)
         {
-            temp(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test new.txt");
+            StatisticPrecisionOfNer();
+            //temp(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test new.txt");
             //pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test\", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt");
             //CompareWithStanfordNer(@"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\backup\ners dbpedia-abstract-indegree keyword\test result.txt",
             //    @"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\backup\ners dbpedia-abstract-indegree keyword\stanford on test.txt");
