@@ -27,7 +27,7 @@ namespace msra.nlp.tr
             public const string test_result_file            = "result_file";
             public const string stanford_model_dir          = "stanford_model_dir";
             public const string method                      = "method";
-            public const string word_shape_table_file       = "shape_table_file";
+            public const string word_shape_table_file       = "word_shape_table_file";
             public const string posTag_table_file           = "posTag_table_file";
             public const string word_id_file                = "word_id_file";
             public const string mention_id_file             = "mention_id_file";
@@ -63,7 +63,7 @@ namespace msra.nlp.tr
           *     / ts
           *          -b      : test extracted features with Bayes Model
           */
-         const string Method = "/ef -all /ewt /out -dt";
+        const string Method = "/ef -all /ewt /out -dt";
 
         static Dictionary<object, object> parameters = null;
 
@@ -90,45 +90,9 @@ namespace msra.nlp.tr
         static void Initial()
         {
             parameters = new Dictionary<object, object>();
-            var currentFolderPath = Environment.CurrentDirectory;
-            var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
-            var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
-            basedir = Path.Combine(basedir,"Fine-ner");
-            parameters[Field.stanford_model_dir]        = Path.Combine(basedir, @"input\stanford models");
-            parameters[Field.opennlp_model_dir]         = Path.Combine(basedir, @"input\opennlp models");
-            parameters[Field.method]                    = Method;
-            parameters[Field.train_data_file]           = Path.Combine(basedir, @"input\satori\train.txt");
-            parameters[Field.develop_data_file]         = Path.Combine(basedir, @"input\satori\develop.txt");
-            parameters[Field.test_data_file]            = Path.Combine(basedir, @"input\satori\test.txt");
-            parameters[Field.dic_file]                  = Path.Combine(basedir, @"input\dictionary\UIUC.txt");
-            parameters[Field.dic_type_value_file]       = Path.Combine(basedir, @"input\dictionary\UIUC-Type-Value.txt");
-            parameters[Field.word_table_file]           = Path.Combine(basedir, @"input\tables\wordTable.txt");
-            parameters[Field.stem_map]                  = Path.Combine(basedir, @"input\tables\stem-word-table.txt");
-            parameters[Field.word_shape_table_file]     = Path.Combine(basedir, @"input\tables\shape-table.txt");
-            parameters[Field.posTag_table_file]         = Path.Combine(basedir, @"input\tables\pos-tag-table.txt");
-            parameters[Field.word_id_file]              = Path.Combine(basedir, @"input\tables\word cluster ID.txt");
-            parameters[Field.mention_id_file]           = Path.Combine(basedir, @"input\tables\mention cluster ID.txt");
-            parameters[Field.train_feature_file]        = Path.Combine(basedir, @"output\train\trainFeature.txt");
-            parameters[Field.develop_feature_file]      = Path.Combine(basedir, @"output\satori\developFeature.txt");
-            parameters[Field.test_feature_file]         = Path.Combine(basedir, @"output\satori\testFeature.txt");
-            parameters[Field.model_file]                = Path.Combine(basedir, @"output\model\logistic model.zip");
-            parameters[Field.test_result_file]          = Path.Combine(basedir, @"output\result\result.txt");
-            parameters[Field.dbpedia_type_file]         = Path.Combine(basedir, @"input\dictionaries\dbpedia\dbpedia entity type.txt");
-            parameters[Field.dbpedia_redirect_file]     = Path.Combine(basedir, @"input\dictionaries\dbpedia\redirects.txt");
-            parameters[Field.dbpedia_abstract_file]     = Path.Combine(basedir, @"input\dictionaries\dbpedia\abstract vector trimed.txt");
-            parameters[Field.dbpedia_abstract_df_file]  = Path.Combine(basedir, @"input\dictionaries\dbpedia\abstract df.txt");
-            parameters[Field.dbpedia_abstract_word_table] = Path.Combine(basedir, @"input\dictionaries\dbpedia\abstract word table.txt");
-            parameters[Field.dbpedia_abstract_num]      = 4305029;
-            parameters[Field.page_indegree_file]        = Path.Combine(basedir, @"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\page indegree.txt");    //TODO!
-            parameters[Field.disambiguous_file]         = Path.Combine(basedir, @"input\dictionaries\disambiguation mapping.txt");
-            parameters[Field.page_anchor_file]          = Path.Combine(basedir, @"input\dictionaries\page anchor.txt");
-            parameters[Field.keyword_file]              = Path.Combine(basedir, @"input\tables\keywords.txt");
-            parameters[Field.activateParser]              = true;
-            parameters[Field.activateNer]                 = true;
-            parameters[Field.activateDbpedia]             = true;
-            parameters[Field.activateMIKeyword]           = true;
 
         }
+
         private DefaultParameter() { }
     }
 

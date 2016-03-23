@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Demo.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="src\Test.cs" />
     <Compile Include="src\Unit test.cs" />

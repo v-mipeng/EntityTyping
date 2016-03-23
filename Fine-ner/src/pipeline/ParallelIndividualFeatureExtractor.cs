@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 using pml.file.writer;
+using pml.type;
 
 namespace msra.nlp.tr
 {
@@ -15,11 +16,9 @@ namespace msra.nlp.tr
         string des = null;
         List<string> sourceFiles = null;
         List<string> desFiles = null;
-        // define number each thread to deal with
-        static int numPerThread = 50000;
+        int numPerThread = 0;
 
-
-        public ParallelIndividualFeatureExtractor(string source, string des)
+        public ParallelIndividualFeatureExtractor(string source, string des, int numPerThread = 2000)
         {
             this.source = source;
             this.des = des;
@@ -37,8 +36,8 @@ namespace msra.nlp.tr
                     this.desFiles.Add(Path.Combine(des, Path.GetFileName(file)));
                 }
             }
+            this.numPerThread = numPerThread;
         }
-
 
         public override void ExtractFeature()
         {
@@ -66,6 +65,34 @@ namespace msra.nlp.tr
             {
                 threads[i].Join();
             }
+        }
+
+        public List<string> ExtractFeatureForQuery(List<Pair<string, string>> queries, int numPerThread = 2000)
+        {
+            List<string> events = new List<string>();
+            for(var i = 0;i<queries.Count;i++)
+            {
+                events.Add(null);
+            }
+            var ThreadClasses = new List<IndividualFeature>((int)Math.Ceiling(1.0*queries.Count/numPerThread));
+            var threads = new List<Thread>(sourceFiles.Count);
+
+            for (var i = 0; i < sourceFiles.Count; i++)
+            {
+                var threadClass = new IndividualFeatureExtractor(queries, i*numPerThread, (i+1)*numPerThread-1, events);
+                var thread = new Thread(threadClass.ExtractFeatureForQuery);
+                thread.Name = "Thread " + i;
+                threads.Add(thread);
+                thread.Start();
+                Console.Clear();
+                Console.WriteLine("Thread {0} start.", i);
+            }
+            // Wait until all the threads complete work
+            for (var i = 0; i < threads.Count; i++)
+            {
+                threads[i].Join();
+            }
+            return events;
         }
 
         public void AddFeature()

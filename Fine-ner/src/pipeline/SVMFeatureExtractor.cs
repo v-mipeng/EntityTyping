@@ -54,22 +54,24 @@ namespace msra.nlp.tr
              writer.Close();
         }
 
-       internal static string[] types = new string[] {
-                "music.music",
-                "broadcast.content",
-                "book.written_work",
-                "award.award",
-                "body.part",
-                "chemicstry.chemistry",
-                "time.event",
-                "food.food",
-                "language.language",
-                "location.location",
-                "organization.organization",
-                "people.person",
-                "computer.software",
-                "commerce.electronics_product",
-                "commerce.consumer_product",
+       
+
+        internal static string[] types = new string[] {
+                "music",
+                "broadcast",
+                "book",
+                "award",
+                "body part",
+                "chemicstry",
+                "time event",
+                "food",
+                "language",
+                "location",
+                "organization",
+                "people",
+                "software",
+                "electronics product",
+                "vehicle",
         };
 
     }

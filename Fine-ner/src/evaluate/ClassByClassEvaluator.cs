@@ -25,7 +25,6 @@ namespace msra.nlp.tr.eval
             this.evaluationFile = evaluationFile;
         }
 
-
         public void EvaluateResult()
         {
             EvaluateResult(this.resultFile, this.evaluationFile);
@@ -38,7 +37,7 @@ namespace msra.nlp.tr.eval
             var result = new Dictionary<string, Dictionary<string, int>>();  // class-->(predicted class --> number)
             int times = 0;
             var trueLabelIndex = 0;
-            var predictLabelIndex = (int)(Event.Field.stanfordNerType+1);
+            var predictLabelIndex = 1;
             var writer = new LargeFileWriter(evaluationFile, FileMode.Create);
             Dictionary<string, int> dic = null;
             //line = reader.ReadLine();

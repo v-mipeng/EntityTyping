@@ -13,7 +13,7 @@ namespace User
 {
     class UnitTest
     {
-        static void Main(string[] args)
+        static void Mains(string[] args)
         {
             //Temp();
             //Analyse();
@@ -216,9 +216,6 @@ namespace User
             /************************************************************************/                                                          
             if (false)
             {
-                pipeline = new Pipeline();
-                pipeline.Predict(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\inst.txt");
-                pipeline.Evaluate(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\inst.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\result.txt");
             }
 
         }

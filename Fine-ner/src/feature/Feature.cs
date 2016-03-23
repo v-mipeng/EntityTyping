@@ -18,49 +18,6 @@ namespace msra.nlp.tr
         protected Feature() { }
 
         /// <summary>
-        ///     Stem word
-        /// </summary> 
-        /// <remarks>
-        ///     Input: string type original word
-        /// </remarks>
-        /// <returns>
-        ///     stemmed word or null if word is null
-        /// </returns>
-        ///
-        protected string StemWord(string word)
-        {
-            return word == null ? null : DataCenter.GetStemmedWord(word);
-        }
-
-        /*Get last token of the mention
-         */
-        static  Regex regex = new Regex(@",[^,]*,");
-        string[] seperator = new string[] { " ", "\t" };
-        public static string GetLastToken(string mention, string context)
-        {
-            lock (regex)
-            {
-                var head = context.Substring(0, context.IndexOf(mention));
-                head = regex.Replace(head, " ").TrimEnd();
-                string lastToken = null;
-                for (var i = head.Length - 1; i >= 0; i--)
-                {
-                    if (head[i] == ' ' || head[i] == '\t')
-                    {
-                        lastToken = head.Substring(i + 1);
-                        break;
-                    }
-                }
-                return lastToken;
-            }
-        }
-
-        public static string GetSentenceCoverMention(IEnumerable<string> sentences, string mention)
-        {
-            return sentences.FirstOrDefault(sentence => sentence.Contains(mention));
-        }
-
-        /// <summary>
         /// Get the first sentence contains mention.
         /// </summary>
         /// <param name="sentences"></param>
@@ -86,25 +43,6 @@ namespace msra.nlp.tr
             return null;
         }
 
-
-        /* Get next token of the mention
-         */
-        public static string GetNextToken(string mention, string context)
-        {
-            context = context.Trim();
-            mention = mention.Trim();
-            string tail = context.Substring(context.LastIndexOf(mention) + mention.Length);
-            tail = tail.TrimStart();
-            if (tail.StartsWith(",") || tail.Length == 0)
-            {
-                return null;
-            }
-            else
-            {
-                int index;
-                return (index = tail.IndexOf(' ')) == -1 ? tail : tail.Substring(0, index);
-            }
-        }
 
         /* Map 
                     uppercase letter to "A"                      
@@ -134,49 +72,7 @@ namespace msra.nlp.tr
                 return word;
             }
         }
-
-        /// <summary>
-        /// Get pos tag informaiton of mention and its context. The context is limited to a sentence contains this mention.
-        /// </summary>
-        /// <param name="context">The context of mention</param>
-        /// <param name="mention">Mention</param>
-        /// <returns>
-        /// A pair with pair.first storing the pos tag information of mention's limited context(a sentence) 
-        /// The tag informaiton is stored as a list of pairs with pair.first the string and pair.second the corresponding pos tag
-        /// of the string.
-        ///  And pair.second of the return is the index of mention counted by pairs number in pair.first.
-        /// </returns>
-        /// <example>
-        /// context:I like Beijing  mention:Beijing
-        /// ((I, NP) (like, VP) (Beijing, Np), 2)
-        /// </example>
-        protected IEnumerable<Pair<string, string>> GetPosTags(string mention, string context)
-        {
-            if (context == null)
-            {
-                return null;
-            }
-            context = context.Trim();
-            if (mention == null)
-            {
-                return null;
-            }
-            mention = mention.Trim();
-            var sspliter = SSpliterPool.GetSSpliter();
-            var sentences = sspliter.SplitSequence(context);
-            SSpliterPool.ReturnSSpliter(sspliter);
-            sspliter = null;
-            var sentence = sentences.FirstOrDefault(item => item.Contains(mention));
-            if (sentence == null)
-            {
-                return null;
-            }
-            var posTagger = PosTaggerPool.GetPosTagger();
-            var pairs = posTagger.TagString(sentence);
-            PosTaggerPool.ReturnPosTagger(posTagger);
-            return pairs;
-        }
-
+     
         protected Pair<int, int> GetIndexOfMention(IEnumerable<Pair<string, string>> ps, string mention)
         {
             var words = mention.Split(' ');
@@ -246,83 +142,6 @@ namespace msra.nlp.tr
             return new Pair<int, int>(-1, -1);
         }
 
-        protected int GetLastWordIndex(IEnumerable<Pair<string, string>> ps, string lastWord, int end)
-        {
-            var pairs = ps.ToList();
-            if (end > pairs.Count())
-            {
-                throw new Exception("End index > pair.Cound()");
-            }
-            var builder = new StringBuilder();
-            for (var i = 0; i < end; i++)
-            {
-                builder.Append(pairs[i].first);
-            }
-            var start = builder.ToString().LastIndexOf(lastWord, StringComparison.Ordinal);
-            var offset = 0;
-            var index = -1;
-            for (var i = 0; i <end; i++)
-            {
-                if (offset == start)
-                {
-                    index = i;
-                    break;
-                }
-                offset += pairs[i].first.Length;
-            }
-            return index;
-        }
-
-        protected int GetNextWordIndex(IEnumerable<Pair<string, string>> ps, string nextWord, int begin)
-        {
-            var pairs = ps.ToList();
-            if (begin > pairs.Count())
-            {
-                throw new Exception("End index > pair.Cound()");
-            }
-            var builder = new StringBuilder();
-            for (var i = begin+1; i < pairs.Count(); i++)
-            {
-                builder.Append(pairs[i].first);
-            }
-            var start = builder.ToString().IndexOf(nextWord, StringComparison.Ordinal);
-            var offset = 0;
-            var index = 0;
-            for (var i = begin+1; i < pairs.Count(); i++)
-            {
-                if (offset == start)
-                {
-                    index = i;
-                    break;
-                }
-                offset += pairs[i].first.Length;
-            }
-            return index;
-        }
-
-
-        protected IEnumerable<string> GetNGram(IEnumerable<object> ws, int n)
-        {
-            var words = ws.ToList();
-                for (var i = words.Count(); i < n; i++)
-                {
-                    words.Add("null");
-                }
-            var nGrams = new List<string>();
-            var buffer = new StringBuilder();
-            for (var i = 0; i <= words.Count() - n; i++)
-            {
-                buffer.Clear();
-                buffer.Append(words[i]);
-                for (var j = i+1; j < i+n; j++)
-                {
-                    buffer.Append(" "+words[j]);
-                }
-                    nGrams.Add(buffer.ToString());
-            }
-                return nGrams;
-        }
-
         /************************************************************************/
         /* Sort the dictionary's keys by their mapped int value                                                                     */
         /************************************************************************/
@@ -347,34 +166,6 @@ namespace msra.nlp.tr
             }
         }
 
-        static string[] types = { 
-                                    "people.person", 
-                                    "location.location", 
-                                    "organization.organization" ,
-                                    "award.award",
-                                    "body.part",
-                                    "book.written_work",
-                                    "broadcast.content",
-                                    "chemicstry.chemistry",
-                                    "commerce.consumer_product",
-                                    "commerce.electronics_product",
-                                    "computer.software",
-                                    "food.food",
-                                    "language.language",
-                                    "music.music",
-                                    "time.event"
-                                };
 
-        static protected int GetTypeValue(string type)
-        {
-          for(int i = 0;i<types.Length;i++)
-          {
-              if(type.Equals(types[i]))
-              {
-                  return i;
-              }
-          }
-          return -1;
-        }
     }
 }

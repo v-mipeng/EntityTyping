@@ -17,7 +17,7 @@ namespace msra.nlp.tr
 {
     public class Tokenizer
     {
-        public Tokenizer() 
+        internal Tokenizer() 
         {
             Initial();
         }

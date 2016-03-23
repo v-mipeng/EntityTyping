@@ -7,7 +7,13 @@ using pml.file.reader;
 
 namespace msra.nlp.tr
 {
-    class InstanceReaderByLine : InstanceReader
+    /// <summary>
+    /// Read instances by line. File format of an instance is:
+    /// Mention     TAB     Context     (for query)    or
+    /// Mention     TAB     Label       Context     (for test)
+    /// </summary>
+    /// <returns></returns>
+    public class InstanceReaderByLine : InstanceReader
     {
         // instance reader        
         FileReader reader = null;
@@ -43,10 +49,10 @@ namespace msra.nlp.tr
         }
 
         /// <summary>
-        ///  Read Event from file by line. So file format should be:
-        ///    Mention [TAB] Type [TAB]  Context
-        ///  Check if reaching file end with HashNext() function.
-        /// <returns></returns>
+        /// Read a instance by line. File format of an instance is:
+        /// Mention     TAB     Context     (for query)    or
+        /// Mention     TAB     Label       Context     (for test)
+        /// </summary>
         /// <exception>
         ///     If the format of a line is wrong or file reaches end.
         /// </exception>
@@ -79,7 +85,9 @@ namespace msra.nlp.tr
         }
 
         /// <summary>
-        /// Read a instance by line
+        /// Read a instance by line. File format of an instance is:
+        /// Mention     TAB     Context     (for query)    or
+        /// Mention     TAB     Label       Context     (for test)
         /// </summary>
         /// <returns></returns>
         private Instance ReadInstance()
@@ -90,6 +98,10 @@ namespace msra.nlp.tr
                 return null;
             }
             var array = line.Split('\t');
+            if(array.Length == 2)
+            {
+                return new Instance(array[0], array[1]);   // create instance for test
+            }
             if (array.Length == 3)
             {
                 return new Instance(array[0], array[1], array[2]);
@@ -104,6 +116,10 @@ namespace msra.nlp.tr
             }
         }
 
+        /// <summary>
+        /// Check if reaching file end
+        /// </summary>
+        /// <returns></returns>
         public bool HasNext()
         {
             if (nextInstance != null)

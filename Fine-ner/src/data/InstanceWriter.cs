@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
+    /// <summary>
+    /// Write instance by line into file
+    /// </summary>
     interface InstanceWriter
     {
         void WriteInstance(Instance instance);

@@ -30,6 +30,26 @@ namespace msra.nlp.tr
             Initial(props);
         }
 
+        public Pipeline(string configFile)
+        {
+            var reader = new LargeFileReader(configFile);
+            var dic = new Dictionary<string, string>();
+            string line;
+
+            while((line = reader.ReadLine())!=null)
+            {
+                var array = line.Split('=');
+                dic[array[0].Trim()]= array[1].Trim();
+            }
+            reader.Close();
+            var basedir = dic["basedir"];
+            dic.Remove("basedir");
+            foreach(var key in dic.Keys)
+            {
+                GlobalParameter.Set(key, Path.Combine(basedir, dic[key]));
+            }
+        }
+
         private static void Initial(Property props)
         {
             foreach (var key in DefaultParameter.GetParameterSet())
@@ -38,60 +58,21 @@ namespace msra.nlp.tr
             }
         }
 
-        #region API : TODO
-
-        public void SetProperty(Property props)
-        {
-            foreach(var key in props.Keys)
-            {
-                GlobalParameter.Set(key, props.GetOrDefault(key, DefaultParameter.Get(key)));
-            }
-        }
-
-        public void ExtractRawFeature()
-        {
-
-        }
-
-        public void ExtractSVMFeature()
-        {
-
-        }
-
-        //public string Predict(string mention, string context)
-        //{
-        //    return null;
-        //}
-
-        public List<Pair<string,double>> PredictWithProbability(string mention, string context)
-        {
-            return null;
-        }
-
-        #endregion
 
 
-        #region Command Line Operation
+        #region Command Line Operations
         /*********************Interactive Interfac***********************/
-
-        //!! These only command line usage but not API. So I should implement some API
 
         /// <summary>
         ///    /* Methods:
-        ///      /ewt                 : extract word table
-        ///      /ef         : extract feature
-        ///         -b               :    extract feature for bayes model (default)
-        ///         -s                :    extract feature for svm model
-        ///         -all             :    extract all data feature (default)
-        ///         -train         :    extract train data feature
-        ///         -dev           :    extract develop data feature
-        ///         -test           :    extract test data feature
-        ///     /out
-        ///        -dt     : output dictionary type and value
-        ///     /tr
-        ///        -b      : train extracted feature with Bayes Model (default)
-        ///     /ts
-        ///       -b      : test extracted features with Bayes Model (default)
+        ///      /ewt                       : extract word table
+        ///      /ef                        : extract feature
+        ///         -raw                    : extract raw features of queries     
+        ///         -svm                    : extract vector features for model training
+        ///         -all                    : extract featurs for training, develop and test data
+        ///         -train                  : extract train data feature
+        ///         -dev                    : extract develop data feature
+        ///         -test                   : extract test data feature
         /// </summary>
         public void Execute()
         {
@@ -212,25 +193,19 @@ namespace msra.nlp.tr
             if (options == null)
             {
                 // set default options
-                options = new HashSet<string>(new string[] {"bayes","all"});
+                options = new HashSet<string>(new string[] {"svm","all"});
             }
             if (options.Contains("bayes"))
             {
                 // extract features for bayes model
                 if (options.Contains("train") || options.Contains("all"))
                 {
-                    ExtractBayesFeature((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
                 }
                 if (options.Contains("dev") || options.Contains("all"))
                 {
-                    ExtractBayesFeature((string) GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
-                        (string) GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
                 }
                 if (options.Contains("test") || options.Contains("all"))
                 {
-                    ExtractBayesFeature((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
                 }
             }
             else if (options.Contains("svm"))
@@ -261,21 +236,12 @@ namespace msra.nlp.tr
                 if (options.Contains("train") || options.Contains("all"))
                 {
 
-                    var extractor = new ParallelMaxEntFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
-                    extractor.ExtractFeature();
                 }
                 if (options.Contains("dev") || options.Contains("all"))
                 {
-                    var extractor = new ParallelMaxEntFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
-                    extractor.ExtractFeature();
                 }
                 if (options.Contains("test") || options.Contains("all"))
                 {
-                    var extractor = new ParallelMaxEntFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
-                    extractor.ExtractFeature();
                 }
             }
             else if (options.Contains("raw"))
@@ -323,180 +289,17 @@ namespace msra.nlp.tr
             }
         }
 
-        #region Extract Bayes Feature
-        /// <summary>
-         ///    Extract features for bayes model
-         /// </summary>
-         /// <param name="source">
-         ///    File path storing the data from which this program extract features.
-         /// </param>
-         /// <param name="des">
-         ///    File path to store the extracted features.
-         /// </param>
-        private static void ExtractBayesFeature(string source, string des)
-        {
-            FileReader reader = new LargeFileReader(source);
-            FileWriter writer = new LargeFileWriter(des, FileMode.Create);
-            var lines = reader.ReadAllLines().ToList();
-            const int numPerThread = 10000;
-            var threadNum = (int)Math.Ceiling(1.0*lines.Count/ numPerThread);
-            var childThreads = new Thread[threadNum];
-             var tmpFiles = new string[threadNum];
-            for (var i = 0; i < threadNum; i++)
-            {
-                tmpFiles[i] = "./tmp" + i+".txt";
-                var threadClass = new BayesFeatureThread(lines.GetRange(numPerThread*i, Math.Min(numPerThread, lines.Count-numPerThread*i)), tmpFiles[i]);
-                childThreads[i] = new Thread(threadClass.ThreadMain);
-                childThreads[i].Name = "thread " + i;
-                childThreads[i].Start();
-            }
-            for (var i = 0; i < threadNum; i++)
-            {
-                childThreads[i].Join();
-            }
-             foreach (var tmpFile in tmpFiles)
-             {
-                 var text = File.ReadAllText(tmpFile);
-                writer.Write(text);
-                File.Delete(tmpFile);
-             }
-        }
-
-        private class BayesFeatureThread
-        {
-            readonly IEnumerable<string> lines = null;
-            readonly string des = null;
-
-            public BayesFeatureThread(IEnumerable<string> lines, string des)
-            {
-                this.lines = lines;
-                this.des = des;
-            }
-
-            public void ThreadMain()
-            {
-                FileWriter writer = new LargeFileWriter(this.des, FileMode.Create);
-                var count = 0;
-                foreach (var line in this.lines)
-                {
-                    if ((++count)%1000 == 0)
-                    {
-                        Console.WriteLine(Thread.CurrentThread.Name+" has processed "+count);
-                    }
-                    try
-                    {
-                        var feature = ExtractBayesFeature(line);
-                        writer.Cache(feature.first);
-                        var dic = feature.second;
-                        foreach (var field in dic.Keys)
-                        {
-                            writer.Cache("\t" + field + ":{");
-                            var values = dic[field];
-                            if (values is IEnumerable && !(values is string))
-                            {
-                                var begin = true;
-                                foreach (var value in (IEnumerable)values)
-                                {
-                                    if (begin)
-                                    {
-                                        writer.Cache(value);
-                                        begin = false;
-                                    }
-                                    else
-                                    {
-                                        writer.Cache("," + value);
-                                    }
-                                }
-                                writer.Cache("}");
-                            }
-                            else
-                            {
-                                writer.Cache(values + "}");
-                            }
-                        }
-                        writer.Cache("\r");
-                        writer.WriteCache();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(line);
-                        Console.WriteLine(e.Message);
-                        writer.ClearCache();
-                    }
-                }
-                writer.Close();
-            }
-            }
-
-        private static Pair<string,Dictionary<string,object>>  ExtractBayesFeature(string line)
-        {
-            //if(!(featureExtractor is BayesFeature))
-            //{
-            //    featureExtractor = new BayesFeature();
-            //}
-            //try
-            //{
-            //   return ((BayesFeature)featureExtractor).GetFeatureWithLabel(line.Split('\t'));
-            //}
-            //catch (Exception e)
-            //{
-            //    throw e;
-            //}
-            return null;
-        }
 
         #endregion
 
-
-        #endregion
-
-        #region Train or Test
+        #region Train or Test: TODO
 
         private void Train(HashSet<string> options)
         {
-            if (options == null)
-            {
-                options = new HashSet<string>(new string [] {"b"});
-            }
-            // train with bayes model
-            if (options.Contains("b"))
-            {
-                var trainer = new BayesModel((string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file),
-                   (string)GlobalParameter.Get(DefaultParameter.Field.model_file));
-                try
-                {
-                    trainer.Train();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error occur during train for "+e.Message);
-                    throw new Exception();
-                }
-            }
         }
 
         private void Test(HashSet<string> options)
         {
-            if (options == null)
-            {
-                options = new HashSet<string>(new string[] { "b" });
-            }
-            // test with bayes model        
-            if (options.Contains("b"))
-            {
-                var tester = new BayesTest((string)GlobalParameter.Get(DefaultParameter.Field.model_file),
-                   (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file),
-                  (string)GlobalParameter.Get(DefaultParameter.Field.test_result_file));
-                try
-                {
-                    tester.Test();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error occurs during test for "+e.Message);
-                    throw new Exception();
-                }
-            }
         }
 
         #endregion
@@ -583,68 +386,19 @@ namespace msra.nlp.tr
         #endregion
 
 
-        #region Development
-
-        static BoostrapPredictor predictorWithoutKeyword = new BoostrapPredictor(@"D:\Codes\Project\EntityTyping\Fine-ner\output\model\with ners dbpedia-abstract\svm model.zip");
-        static BoostrapPredictor predictorWithKeyword = new BoostrapPredictor(@"D:\Codes\Project\EntityTyping\Fine-ner\output\model\with ners dbpedia-abstract keyword\one-vs-one svm\svm model.zip");
-        static SVMFeature featureExtractor = new SVMFeature();
-
-        public void Predict(string sourceFile, string resultFile)
-        {
-            var reader = new LargeFileReader(sourceFile);
-            var writer = new LargeFileWriter(resultFile, FileMode.Create);
-            string line;
-            int count = 1;
-
-            while((line = reader.ReadLine())!=null)
-            {
-                var array = line.Split('\t');
-                var type = array[0];
-                var a = new string[array.Length - 1];
-                for(var i = 0;i<a.Length-1;i++)
-                {
-                    a[i] = array[i+1];
-                }
-                var predictedType = Predict(a);
-                writer.WriteLine(count + "\t" + type + "\t" + predictedType);
-            }
-            reader.Close();
-            writer.Close();
-        }
-
-        public string Predict(IEnumerable<string> feature)
-        {
-            // Make prediction
-            var e = new Event(feature);
-            GlobalParameter.Set("activateMIKeyword", false);
-            var featureWithoutKeyword = featureExtractor.ExtractFeature(e);
-            var label = predictorWithoutKeyword.Predict(featureWithoutKeyword);
-            if (label.Equals("people.person") || label.Equals("location.location") || label.Equals("organization.organization"))
-            {
-                return label;
-            }
-            else
-            {
-                GlobalParameter.Set("activateMIKeyword", true);
-                var featureWithKeyword = featureExtractor.ExtractFeature(e);
-                return predictorWithoutKeyword.Predict(featureWithoutKeyword);
-            }
-        }
-
-        public void Evaluate(string resultFile, string statisticResultFile)
-        {
-            var evaluator = new ClassByClassEvaluator();
-            evaluator.EvaluateResult(resultFile, statisticResultFile);
-        }
-
-        #endregion
-
-
-        /* Refresh the data, learn daily
-         */
+        /// <summary>
+        ///Refresh the data, learn daily
+        /// </summary>
         ~Pipeline()
         {
-            //DataCenter.RefreshStemDic();
+            try
+            {
+                DataCenter.RefreshStemDic();
+            }
+            catch(Exception)
+            {
+
+            }
         }
 
     }

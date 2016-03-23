@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
-    class Instance
+    /// <summary>
+    /// An instance of query with: mention , context and label for test.
+    /// </summary>
+    public class Instance
     {
         protected string mention = null;
 

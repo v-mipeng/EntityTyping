@@ -234,26 +234,21 @@
     <Compile Include="src\evaluate\ClassByClassEvaluator.cs" />
     <Compile Include="src\evaluate\Evaluator.cs" />
     <Compile Include="src\evaluate\Util.cs" />
-    <Compile Include="src\feature\BayesFeature.cs" />
-    <Compile Include="src\feature\EmbedFeature.cs" />
     <Compile Include="src\feature\Feature.cs" />
     <Compile Include="src\feature\IndividualFeature.cs" />
-    <Compile Include="src\feature\MaxEntFeature.cs" />
+    <Compile Include="src\feature\NotFindMentionException.cs" />
     <Compile Include="src\feature\SVMFeature.cs" />
     <Compile Include="src\pipeline\FeatureExtractor.cs" />
     <Compile Include="src\pipeline\IndivisualFeatureExtractor.cs" />
-    <Compile Include="src\pipeline\MaxEntFeatureExtractor.cs" />
     <Compile Include="src\pipeline\ParallelFeatureExtractor.cs" />
     <Compile Include="src\pipeline\ParallelIndividualFeatureExtractor.cs" />
-    <Compile Include="src\pipeline\ParallelMaxEntFeatureExtractor.cs" />
     <Compile Include="src\pipeline\ParallelSVMFeatureExtractor.cs" />
     <Compile Include="src\pipeline\Pipeline.cs" />
     <Compile Include="src\pipeline\SVMFeatureExtractor.cs" />
-    <Compile Include="src\predict\BoostrapPredictor.cs" />
-    <Compile Include="src\predict\Predictor.cs" />
-    <Compile Include="src\predict\FullFeaturePredictor.cs" />
-    <Compile Include="src\script\Script.cs" />
-    <Compile Include="src\script\Statistic.cs" />
+    <Compile Include="src\services\predict\BoostrapPredictor.cs" />
+    <Compile Include="src\services\predict\FullFeaturePredictorPool.cs" />
+    <Compile Include="src\services\predict\Predictor.cs" />
+    <Compile Include="src\services\predict\FullFeaturePredictor.cs" />
     <Compile Include="src\services\DataCenter.cs" />
     <Compile Include="src\services\DependencyParser.cs" />
     <Compile Include="src\services\Generalizer.cs" />
@@ -271,13 +266,9 @@
     <Compile Include="src\services\StemmerPool.cs" />
     <Compile Include="src\services\Tokenizer.cs" />
     <Compile Include="src\services\TokenizerPool.cs" />
-    <Compile Include="src\share\DefaultParameter.cs" />
-    <Compile Include="src\share\GlobalParameter - Copy.cs" />
-    <Compile Include="src\share\GlobalParameter.cs" />
+    <Compile Include="src\parameter\DefaultParameter.cs" />
+    <Compile Include="src\parameter\GlobalParameter.cs" />
     <Compile Include="src\services\TfIdf.cs" />
-    <Compile Include="src\test\BayesTest.cs" />
-    <Compile Include="src\train\BayesModel.cs" />
-    <Compile Include="src\train\Trainer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

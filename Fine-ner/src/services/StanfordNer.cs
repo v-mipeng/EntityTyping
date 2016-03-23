@@ -22,7 +22,7 @@ namespace msra.nlp.tr
         edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation textObj = new edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation();
 
 
-        public StanfordNer()
+        internal StanfordNer()
         {
         }
 

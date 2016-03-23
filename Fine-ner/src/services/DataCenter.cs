@@ -455,8 +455,7 @@ namespace msra.nlp.tr
                 {
                     if (des == null)
                     {
-                        des = (string)DefaultParameter.Get(DefaultParameter.Field.stem_map);
-                        //des = (string)GlobalParameter.Get(DefaultParameter.stem_map);
+                        des = (string)GlobalParameter.Get(DefaultParameter.Field.stem_map);
                     }
                     if (stemWordDic == null) return;
                     FileWriter writer = new LargeFileWriter(des, FileMode.Create);
@@ -1457,7 +1456,7 @@ namespace msra.nlp.tr
             var set = new HashSet<string>();
             foreach (var token in tokens)
             {
-                var tokenStemmed = Generalizer.Generalize(token).ToLower();
+                var tokenStemmed = Generalizer.Generalize(token);
                 if (keyWords.ContainsKey(tokenStemmed))
                 {
                     set.Add(tokenStemmed);

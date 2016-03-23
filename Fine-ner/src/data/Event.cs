@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr
 {
+    /// <summary>
+    /// An event storing query's features and label(for test)
+    /// </summary>
    public class Event
     {
         // feature of event
@@ -29,42 +32,16 @@ namespace msra.nlp.tr
             mentionHeadTag,
             mentionHeadID,
             mentionHeadShape,
-            // mention driver
-            mentionDriver,
-            mentionDriverStemmed,
-            mentionDriverTag,
-            mentionDriverID,
-            mentionDriverShape,
-            // mention adjective modifier
-            mentionAdjModifier,
-            mentionAdjModifierStemmed,
-            mentionAdjModifierTag,
-            mentionAdjModifierID,
-            mentionAdjModifierShape,
-            // mention action
-            mentionAction,
-            mentionActionStemmed,
-            mentionActionTag,
-            mentionActionID,
-            mentionActionShape,
             // mention words
             mentionSurfaces,
             mentionSurfacesStemmed,
             mentionTags,
             mentionIDs,
             mentionShapes,
-            // context document
-            //documentID,
-            // if name list contains
-
             // mention level
             mentionID,
             // mention length
             mentionLength,
-            // stanford ner output
-            stanfordNerType,
-            // opennlp ner output
-            opennlpNerType,
             // dbpedia type
             dbpediaTypesWithIndegree,
             dbpediaTypesWithAbstract,
@@ -72,9 +49,7 @@ namespace msra.nlp.tr
             keyWords,
             // mention context
             sentenceContext
-
         }
-
 
         private IEnumerable<string> feature = null;
 
