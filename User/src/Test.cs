@@ -926,7 +926,7 @@ namespace msra.nlp.tr
             writer.Close();
         }
 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             StatisticPrecisionOfNer();
             //temp(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test new.txt");
