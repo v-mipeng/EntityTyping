@@ -24,13 +24,12 @@ namespace msra.nlp.tr.predict
         /// <summary>
         /// Create type predictor with defaul model file.
         /// </summary>
-        public FullFeaturePredictor()
+        internal FullFeaturePredictor()
         {
-            this.modelFile = (string)DefaultParameter.Get(DefaultParameter.Field.model_file);
-
+            this.modelFile = (string)GlobalParameter.Get(DefaultParameter.Field.model_file);
         }
 
-        public FullFeaturePredictor(string modelFile)
+        internal FullFeaturePredictor(string modelFile)
         {
             this.modelFile = modelFile;
         }
@@ -46,18 +45,18 @@ namespace msra.nlp.tr.predict
             {
                 Initial();
             }
-            var rawFeature = rawFeatureExtractor.ExtractFeature(new Instance(mention, context));
+            List<string> rawFeature = null;
+            try
+            {
+                rawFeature = rawFeatureExtractor.ExtractFeature(new Instance(mention, context));
+            }
+            catch (NotFindMentionException)
+            {
+                rawFeature = rawFeatureExtractor.ExtractFeature(new Instance(mention, context),false);
+            }
             var e = new Event(rawFeature);
             var svmFeature = svmFeatureExtractor.ExtractFeature(e);
-            var dimention = int.Parse(svmFeature[0]);  // get the dimension of feature
-            var floatFeature = new float[dimention];   // convert sparse feature to dense feature representation
-            for (var i = 1; i < svmFeature.Count; i++)
-            {
-                var array = svmFeature[i].Split(':');
-                var index = int.Parse(array[0]);
-                var value = float.Parse(array[1]);
-                floatFeature[index] = value;
-            }
+            var floatFeature = ExpandFeatureToVector(svmFeature);
             var predictions = Predict(floatFeature);
             var pairs = new List<pml.type.Pair<string, float>>();
             try
@@ -69,12 +68,26 @@ namespace msra.nlp.tr.predict
             }
             catch (Exception)
             {
-                throw new Exception("The versions of model and feature extraction do not match!");
+                throw new Exception("Feature dimension is not compatible to current model");
             }
             pairs.Sort(pairs[0].GetBySecondReverseComparer());
             return pairs;
         }
-                                                  
+
+        private float[] ExpandFeatureToVector(List<string> svmFeature)
+        {
+            var dimention = int.Parse(svmFeature[0]);  // get the dimension of feature
+            var floatFeature = new float[dimention];   // convert sparse feature to dense feature representation
+            for (var i = 1; i < svmFeature.Count; i++)
+            {
+                var array = svmFeature[i].Split(':');
+                var index = int.Parse(array[0]);
+                var value = float.Parse(array[1]);
+                floatFeature[index] = value;
+            }
+            return floatFeature;
+        }
+                           
         private void Initial()
         {
             rawFeatureExtractor = new IndividualFeature();
@@ -87,7 +100,14 @@ namespace msra.nlp.tr.predict
         /// </summary>
         private void LoadModel()
         {
-            this.predictor = PredictorUtils.LoadPredictor<float[]>(out dataModel, out dataStats, modelFile);
+            try
+            {
+                this.predictor = PredictorUtils.LoadPredictor<float[]>(out dataModel, out dataStats, modelFile);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             if (predictor == null)
             {
                 throw new Exception("Predictor is not a binary classifier");

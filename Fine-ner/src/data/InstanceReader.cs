@@ -10,6 +10,7 @@ namespace msra.nlp.tr
     {
 
         void Open(string filePath);
+
         Instance GetNextInstance();
 
         bool HasNext();

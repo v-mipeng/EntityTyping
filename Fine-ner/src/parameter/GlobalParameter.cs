@@ -14,6 +14,7 @@ namespace msra.nlp.tr
     /// </summary>
     class GlobalParameter
     {
+
         internal static Dictionary<object, object> parameters = new Dictionary<object, object>();
 
         internal static void Set(Object key, Object value)

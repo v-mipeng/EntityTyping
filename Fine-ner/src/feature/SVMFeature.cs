@@ -31,27 +31,28 @@ namespace msra.nlp.tr
         }
 
 
-        /*   Extract feature from the input, and the feature is clustered by field
-         *   The input should contains two items:
-         *      Mention surface:   the surface text of the mention             // input[0]
-         *      Mention context:   the context contains the mention         // input[1]
-         *   The output are a list of pairs store the features' index and value:                                   
-         *      Mention surface  
-         *      Mention Shape
-         *      Cluster ID of mention words     
-         *      Mention length         
-         *      Mention ID                      
-         *      Last token
-         *      Last token pos tag
-         *      Last token ID                   
-         *      Next token
-         *      Next token pos tag
-         *      Next token ID                   
-         *      Parent in dependency tree(stanford corenlp) : driver, action, adject modifier(TO USE)  
-         *      Dictionary                      :TODO
-         *      Topic(Define topic)             :TODO: I am going to work with document cluster
-         * 
-         */
+        /// <summary>
+        ///  Extract feature from the input, and the feature is clustered by field
+        /// </summary>
+        /// <param name="Event">
+        /// An Envent with features of query.
+        /// </param>
+        /// <returns>
+        /// A list of features including: Please refer Event to get the order of features
+        ///     Mention words  
+        ///     Mention shapes
+        ///     Mention word cluster IDs
+        ///     Mention length         
+        ///     Mention cluster ID                      
+        ///     Last token
+        ///     Last token pos tag
+        ///     Last token cluster ID                   
+        ///     Next token
+        ///     Next token pos tag
+        ///     Next token cluster ID                   
+        ///     Dictionary                      :Dbpedia
+        ///     Topic(Define topic)             :MI keyword
+        /// </returns>
         public List<string> ExtractFeature(Event e)
         {
 
@@ -86,37 +87,6 @@ namespace msra.nlp.tr
                      rawFeature.ElementAt((int)Event.Field.mentionHeadTag));
             }
             #endregion
-
-            if((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
-            {
-                #region mention driver
-                {
-                    AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionDriverStemmed),
-                         rawFeature.ElementAt((int)Event.Field.mentionDriverID),
-                         rawFeature.ElementAt((int)Event.Field.mentionDriverShape),
-                         rawFeature.ElementAt((int)Event.Field.mentionDriverTag));
-                }
-                #endregion
-
-                #region mention adjective modifer
-                {
-                    AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionAdjModifierStemmed),
-                          rawFeature.ElementAt((int)Event.Field.mentionAdjModifierID),
-                          rawFeature.ElementAt((int)Event.Field.mentionAdjModifierShape),
-                          rawFeature.ElementAt((int)Event.Field.mentionAdjModifierTag));
-
-                }
-                #endregion
-
-                #region mention action
-                {
-                    AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionActionStemmed),
-                            rawFeature.ElementAt((int)Event.Field.mentionActionID),
-                            rawFeature.ElementAt((int)Event.Field.mentionActionShape),
-                            rawFeature.ElementAt((int)Event.Field.mentionActionTag));
-                }
-                #endregion
-            }
 
             #region mention words
             {
@@ -237,117 +207,90 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateNer))
+            #region DBpedia types
             {
-                #region Stanford Ner system
+                var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypesWithIndegree).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (types.Count() == 1 && !types[0].Contains(":"))
                 {
-                    var stanfordNerType = rawFeature.ElementAt((int)Event.Field.stanfordNerType);
-                    var index = DataCenter.GetStanfordTypeIndex(stanfordNerType);
+                    var index = DataCenter.GetDBpediaTypeIndex(types[0]);
                     feature.Add((offset + index) + ":1");
-                    offset += DataCenter.GetStanfordNerNumber() + 1;
                 }
-                #endregion
-
-                #region OpenNLP Ner system
+                else
                 {
-                    var openNLPNerType = rawFeature.ElementAt((int)Event.Field.opennlpNerType);
-                    var index = DataCenter.GetOpenNLPTypeIndex(openNLPNerType);
-                    feature.Add((offset + index) + ":1");
-                    offset += DataCenter.GetOpenNLPNerNumber() + 1;
-                }
-                #endregion
-            }
-
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateDbpedia))
-            {
-                #region DBpedia types
-                {
-                    var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypesWithIndegree).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (types.Count() == 1 && !types[0].Contains(":"))
+                    var dic = new Dictionary<int, string>();
+                    foreach (var item in types)    // UNKNOW
                     {
-                        var index = DataCenter.GetDBpediaTypeIndex(types[0]);
-                        feature.Add((offset + index) + ":1");
-                    }
-                    else
-                    {
-                        var dic = new Dictionary<int, string>();
-                        foreach (var item in types)    // UNKNOW
+                        var array = item.Split(':');
+                        var type = array[0];
+                        var distance = array[1];
+                        if (distance.ToLower().Equals("nan"))
                         {
-                            var array = item.Split(':');
-                            var type = array[0];
-                            var distance = array[1];
-                            if(distance.ToLower().Equals("nan"))
-                            {
-                                continue;
-                            }
-                            try
-                            {
-                                var index = DataCenter.GetDBpediaTypeIndex(type);
-                                dic[index] = distance;
-                            }
-                            catch (Exception)
-                            {
-                                Console.WriteLine(item);
-                                Console.WriteLine(type);
-                            }
+                            continue;
                         }
-                        var indexes = dic.Keys.ToList();
-                        indexes.Sort();
-                        foreach (var index in indexes)
+                        try
                         {
-                            feature.Add((offset + index) + ":" + dic[index]);
-                        }
-                    }
-                    offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
-                    types = rawFeature.ElementAt((int)Event.Field.dbpediaTypesWithAbstract).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (types.Count() == 1 && !types[0].Contains(":"))
-                    {
-                        var index = DataCenter.GetDBpediaTypeIndex(types[0]);
-                        feature.Add((offset + index) + ":1");
-                    }
-                    else
-                    {
-                        var dic = new Dictionary<int, string>();
-                        foreach (var item in types)    // UNKNOW
-                        {
-                            var array = item.Split(':');
-                            var type = array[0];
-                            var distance = array[1];
                             var index = DataCenter.GetDBpediaTypeIndex(type);
                             dic[index] = distance;
                         }
-                        var indexes = dic.Keys.ToList();
-                        indexes.Sort();
-                        foreach (var index in indexes)
+                        catch (Exception)
                         {
-                            feature.Add((offset + index) + ":" + dic[index]);
+                            Console.WriteLine(item);
+                            Console.WriteLine(type);
                         }
                     }
-                    offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
+                    var indexes = dic.Keys.ToList();
+                    indexes.Sort();
+                    foreach (var index in indexes)
+                    {
+                        feature.Add((offset + index) + ":" + dic[index]);
+                    }
                 }
-                #endregion
-            }
-
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateMIKeyword))
-            {
-                #region Key words
+                offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
+                types = rawFeature.ElementAt((int)Event.Field.dbpediaTypesWithAbstract).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (types.Count() == 1 && !types[0].Contains(":"))
                 {
-                    var keywords = rawFeature.ElementAt((int)Event.Field.keyWords).Split(',');
-                    var list = new List<int>();
-                    foreach (var word in keywords)
-                    {
-                        var index = DataCenter.GetKeyWordIndex(word);
-                        list.Add(offset + index);
-                    }
-                    list.Sort();
-                    foreach (var index in list)
-                    {
-                        feature.Add(index + ":1");
-                    }
-                    offset += DataCenter.GetKeyWordNumber();
+                    var index = DataCenter.GetDBpediaTypeIndex(types[0]);
+                    feature.Add((offset + index) + ":1");
                 }
-                #endregion
+                else
+                {
+                    var dic = new Dictionary<int, string>();
+                    foreach (var item in types)    // UNKNOW
+                    {
+                        var array = item.Split(':');
+                        var type = array[0];
+                        var distance = array[1];
+                        var index = DataCenter.GetDBpediaTypeIndex(type);
+                        dic[index] = distance;
+                    }
+                    var indexes = dic.Keys.ToList();
+                    indexes.Sort();
+                    foreach (var index in indexes)
+                    {
+                        feature.Add((offset + index) + ":" + dic[index]);
+                    }
+                }
+                offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
             }
+            #endregion
+
+            #region Key words
+            {
+                var keywords = rawFeature.ElementAt((int)Event.Field.keyWords).Split(',');
+                var list = new List<int>();
+                foreach (var word in keywords)
+                {
+                    var index = DataCenter.GetKeyWordIndex(word);
+                    list.Add(offset + index);
+                }
+                list.Sort();
+                foreach (var index in list)
+                {
+                    feature.Add(index + ":1");
+                }
+                offset += DataCenter.GetKeyWordNumber();
+            }
+            #endregion
 
             //set feature dimension
             feature[0] = FeatureDimension.ToString();

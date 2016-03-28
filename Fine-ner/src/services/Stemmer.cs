@@ -16,7 +16,7 @@ namespace msra.nlp.tr
     {                                                                
        StanfordCoreNLP pipeline = null;
 
-        public Stemmer()
+       internal Stemmer()
         {
         }
 
@@ -26,7 +26,7 @@ namespace msra.nlp.tr
             // (required for lemmatization), and lemmatization
             Properties props;
             props = new Properties();
-            props.put("annotators", "tokenize, ssplit, pos,lemma");
+            props.put("annotators", "tokenize, ssplit, pos, lemma");
             props.setProperty("tokenizer.whitespace", "true");
             props.setProperty("ssplit.eolonly", "true");
             var dir = Directory.GetCurrentDirectory();

@@ -157,6 +157,7 @@ namespace msra.nlp.tr.eval
         {
             return GetFn(precision, recall, 1);
         }
+
         public static double GetFn(double precision, double recall, double belta)
         {
             return (1 + belta * belta) * precision * recall / (belta * belta * precision + recall);

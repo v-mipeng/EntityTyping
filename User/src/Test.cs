@@ -1060,35 +1060,6 @@ namespace msra.nlp.tr
             writer.Close();
         }
 
-        /// <summary>
-        /// pair.first: word
-        /// pair.second: pos tag of word
-        /// </summary>
-        /// <param name="pairs"></param>
-        public pml.type.Pair<string,string> GetMentionHead(List<pml.type.Pair<string, string>> pairs)
-        {
-            string head = null, posTag = null;
-            for (int i = 0; i <= pairs.Count; i++)
-            {
-                if (pairs.ElementAt(i).second.StartsWith("N"))
-                {
-                    // last noun
-                    head = pairs.ElementAt(i).first;
-                    posTag = pairs.ElementAt(i).second;
-                }
-                else if (pairs.ElementAt(i).second.Equals("IN") || pairs.ElementAt(i).second.Equals(","))
-                {
-                    // before IN
-                    break;
-                }
-            }
-            if(head == null)
-            {
-                head = pairs[pairs.Count - 1].first;
-                posTag = pairs[pairs.Count - 1].second;
-            }
-            return new pml.type.Pair<string, string>(head, posTag);
         }
-
     }
 }

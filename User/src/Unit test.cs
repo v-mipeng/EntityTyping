@@ -13,7 +13,7 @@ namespace User
 {
     class UnitTest
     {
-        static void Main(string[] args)
+        static void Mains(string[] args)
         {
             //Temp();
             //Analyse();
@@ -88,6 +88,7 @@ namespace User
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
                 var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
                 basedir = Path.Combine(basedir, "Fine-ner/");
+<<<<<<< HEAD
                 props.SetProperty("method", @"/ef -raw -add -train -dev");
                 props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\satori\train\"));
                 props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\features\satori\temp train\"));
@@ -104,15 +105,39 @@ namespace User
                 props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\svm\develop\"));
                 props.SetProperty("test_data_file", Path.Combine(basedir, @"input\features\satori\temp test\"));
                 props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\satori feature\test\"));
+=======
+                //props.SetProperty("method", @"/ef -raw -add -test");
+                //props.SetProperty("train_data_file", Path.Combine(basedir, @"input\feature\train\"));
+                //props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\feature\temp train\"));
+                //props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\develop\"));
+                //props.SetProperty("develop_feature_file", Path.Combine(basedir, @"input\feature\temp develop\"));
+                //props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\test\"));
+                //props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\feature\temp test\"));
+                //pipeline = new Pipeline(props);
+                //pipeline.Execute();
+                props.SetProperty("method", @"/ef -svm -train");
+                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\satori+conll\"));
+                props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\satori+conll\"));
+                props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\temp develop\"));
+                props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\svm\develop\"));
+                props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\temp test\"));
+                props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\svm\test\"));
+>>>>>>> release
                 //props.Set("activateMIKeyword", false);
                 //props.Set("activateDbpedia", false);
                 props.Set("activateNer", false);
                 props.Set("activateParser", false);
                 pipeline = new Pipeline(props);
                 pipeline.Execute();
+<<<<<<< HEAD
                 pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori feature\train\"), Path.Combine(basedir, @"output\satori feature\train.txt"));
                 pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori feature\develop\"), Path.Combine(basedir, @"output\satori feature\develop.txt"));
                 pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori feature\test\"), Path.Combine(basedir, @"output\satori feature\test.txt"));
+=======
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\train\"), Path.Combine(basedir, @"output\svm\train.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\develop\"), Path.Combine(basedir, @"output\svm\develop.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\svm\test\"), Path.Combine(basedir, @"output\svm\test.txt"));
+>>>>>>> release
             }
             /************************************************************************/
             /* Feature extractor  for conll                                                                   */
@@ -216,9 +241,6 @@ namespace User
             /************************************************************************/                                                          
             if (false)
             {
-                pipeline = new Pipeline();
-                pipeline.Predict(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\inst.txt");
-                pipeline.Evaluate(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\inst.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\result.txt");
             }
 
         }

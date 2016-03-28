@@ -16,7 +16,7 @@ namespace msra.nlp.tr
     {
         StanfordCoreNLP pipeline = null;
         List<string[]> tokensBySentence = null;
-        public SentenceSpliter()
+        internal SentenceSpliter()
         {
         }
 

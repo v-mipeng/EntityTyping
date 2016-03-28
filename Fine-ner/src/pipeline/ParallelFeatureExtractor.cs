@@ -15,7 +15,7 @@ namespace msra.nlp.tr
 
         public void AddFeature() { }
 
-        public Pair<List<string>, List<string>> SplitData(string source, string des, int numPerThread)
+        public Pair<List<string>, List<string>> SplitData(string source, string des, int numPerThread=5000)
         {
             var reader = new InstanceReaderByLine(source);
             var writer = new InstanceWriterByLine(des);
@@ -78,7 +78,6 @@ namespace msra.nlp.tr
             reader.Close();
             return new Pair<List<string>, List<string>>(sourceFiles, desFiles);
         }
- 
 
     }
 }

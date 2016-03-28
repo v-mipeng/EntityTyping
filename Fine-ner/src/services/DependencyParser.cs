@@ -32,9 +32,9 @@ namespace msra.nlp.tr
         edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation tokenObj = new edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation();
         edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
         edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.BasicDependenciesAnnotation depObj = new edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.BasicDependenciesAnnotation();
-        
 
-        public DependencyParser()
+
+        internal DependencyParser()
         {
         }
 

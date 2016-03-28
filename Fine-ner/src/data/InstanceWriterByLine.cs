@@ -11,11 +11,10 @@ namespace msra.nlp.tr
     /// <summary>
     /// Write instance by line
     /// </summary>
-    class InstanceWriterByLine : InstanceWriter
+    public class InstanceWriterByLine : InstanceWriter
     {
 
         FileWriter writer = null;
-
 
         public InstanceWriterByLine(string filePath)
         {

@@ -6,45 +6,67 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
+using pml.type;
 
 namespace msra.nlp.tr
 {
+    /// <summary>
+    /// Extract features of queries stored in file and store the features into given file
+    /// </summary>
     class IndividualFeatureExtractor : FeatureExtractor
     {
-        IndividualFeature extractor = null;
+        IndividualFeature extractor = new IndividualFeature();
         string source = null;
         string des = null;
+        List<Pair<string, string>> queries = null;
+        int begin=0, end = 0;
+        List<string> events;
+
+        public IndividualFeatureExtractor(List<Pair<string, string>> queries, List<string> events)
+            :this(queries,0,queries.Count-1,events)
+        {
+
+        }
+
+        public IndividualFeatureExtractor(List<Pair<string, string>> queries, int begin, int end, List<string> events) 
+        {
+            this.queries = queries;
+            this.begin = begin;
+            this.end = end;
+            this.events = events;
+        }
 
         public IndividualFeatureExtractor(string sourceFilePath, string desFilePath)
         {
             source = sourceFilePath;
             des = desFilePath;
-            extractor = new IndividualFeature();
         }
 
         public override void ExtractFeature()
         {
-            int count = 0;
             var reader = new InstanceReaderByLine(source);
             var writer = new EventWriterByLine(des);
             while (reader.HasNext())
             {
-                if (++count % 1000 == 0)
-                {
-                    Console.Clear();
-                    Console.WriteLine("{0} has processed {1}", Thread.CurrentThread.Name, count);
-                }
                 var instance = reader.GetNextInstance();
                 try
                 {
-                    var feature = extractor.ExtractFeature(instance);
+                    List<string> feature = null;
+                    try
+                    {
+                        feature = extractor.ExtractFeature(instance);
+                    }
+                    catch (Exception)
+                    {
+                        feature = extractor.ExtractFeature(instance, false);
+                    }
                     var e = new Event(instance.Label, feature);
                     writer.WriteEvent(e);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
-                    //Console.WriteLine(e.StackTrace);
+                    Console.WriteLine(e.StackTrace);
                     Console.WriteLine(instance);
                 }
             }
@@ -52,56 +74,37 @@ namespace msra.nlp.tr
             writer.Close();
         }
 
-        public void AddFeature()
+        public void ExtractFeatureForQuery()
         {
-            var reader = new EventReaderByLine(source);
-            var writer = new EventWriterByLine(des);
-            int count = 0;
-            //var dic = new Dictionary<string, int>();
-
-            while (reader.HasNext())
+            var events = new List<Event>();
+            for (var i = this.begin; i <= this.end && i<queries.Count; i++)
             {
-                if (++count % 1000 == 0)
-                {
-                    Console.Clear();
-                    Console.WriteLine("{0} has processed {1}", Thread.CurrentThread.Name, count);
-                }
-                if(count > 100000)
-                {
-                    break;
-                }
-                var e = reader.GetNextEvent();
+                var instance = new Instance(this.queries[i].first, this.queries[i].second);
                 try
                 {
-                    var feature = extractor.AddFeature(e);
-                    e = new Event(e.Label, feature);
-                    //try
-                    //{
-                    //    dic[feature[feature.Count - 2]] += 1;
-                    //}
-                    //catch (Exception)
-                    //{
-                    //    dic[feature[feature.Count - 2]] = 0;
-
-                    //}
-                    writer.WriteEvent(e);
+                    List<string> feature = null;
+                    try
+                    {
+                        feature = extractor.ExtractFeature(instance);
+                    }
+                    catch (Exception)
+                    {
+                        feature = extractor.ExtractFeature(instance, false);
+                    }
+                    var e = new Event(instance.Label, feature);
+                    events[i] = e;
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    Console.WriteLine(ex.Message);
-                    Console.WriteLine(ex.StackTrace);
-                    Console.WriteLine(e);
+                    Console.WriteLine(e.Message+"for instance\n"+instance);
+                    Console.WriteLine("Skip this query!");
+                    events.Add(null);
                 }
             }
-            //Console.WriteLine("Effect for file {0}", Path.GetFileName(source));
-            //foreach (var item in dic)
-            //{
-            //    Console.WriteLine(item.Key + ":" + item.Value);
-            //}
-            //Console.WriteLine();
-            //Console.ReadKey();
-            reader.Close();
-            writer.Close();
+        }
+
+        public void AddFeature()
+        {
         }
 
 

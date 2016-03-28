@@ -31,7 +31,8 @@ namespace msra.nlp.tr
         {
             if(df == null)
             {
-                docNum = (int)GlobalParameter.Get(DefaultParameter.Field.dbpedia_abstract_num);
+                //docNum = (int)GlobalParameter.Get(DefaultParameter.Field.dbpedia_abstract_num);
+                docNum = 4305029;
                 LoadDf();
             }
             if(wordTable == null)

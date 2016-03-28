@@ -12,12 +12,10 @@ namespace msra.nlp.tr
     {
         // feature list
         private List<string> feature = new List<string>();
-
         // input instance
         Instance instance = null;
-
+        // context of mention
         string context = null;
-
         // context surface and pos tag pairs
         List<Pair<string, string>> contextTokenPairs = null;
 
@@ -29,79 +27,63 @@ namespace msra.nlp.tr
 
         static System.Text.RegularExpressions.Regex allCharRegex = new System.Text.RegularExpressions.Regex(@"\W");
 
+
         public IndividualFeature() : base() { }
 
-        /*   Extract feature from the input, and the feature is clustered by field
-         *   The input should contains two items:
-         *      Mention surface:   the surface text of the mention             // input[0]
-         *      Mention context:   the context contains the mention         // input[1]
-         *   The output are a list of pairs store the features' index and value:                                   
-         *      Mention surface  
-         *      Mention Shape
-         *      Cluster ID of mention words     
-         *      Mention length         
-         *      Mention ID                      
-         *      Last token
-         *      Last token pos tag
-         *      Last token ID                   
-         *      Next token
-         *      Next token pos tag
-         *      Next token ID                   
-         *      Parent in dependency tree(stanford corenlp)   
-         *      Dictionary                      :TODO
-         *      Topic(Define topic)             :TODO: I am going to work with document cluster
-         * 
-         */
-        public List<string> ExtractFeature(Instance instance)
+
+        /// <summary>
+        ///  Extract feature from the input, and the feature is clustered by field
+        /// </summary>
+        /// <param name="instance">
+        /// An instance of query with label or not.
+        /// </param>
+        /// <returns>
+        /// A list of features including: Please refer Event to get the order of features
+        ///     Mention words  
+        ///     Mention shapes
+        ///     Mention word cluster IDs
+        ///     Mention length         
+        ///     Mention cluster ID                      
+        ///     Last token
+        ///     Last token pos tag
+        ///     Last token cluster ID                   
+        ///     Next token
+        ///     Next token pos tag
+        ///     Next token cluster ID                   
+        ///     Dictionary                      :Dbpedia
+        ///     Topic(Define topic)             :MI keyword
+        /// </returns>
+        public List<string> ExtractFeature(Instance instance, bool filterContext = true)
         {
             this.instance = instance;
             this.feature.Clear();
             Tokenizer();
-            //FilterContext();
-            this.context = instance.Context;
-            DependencyParser parser = null;
-
-            #region Dependency parser
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
+            if (filterContext)
             {
-                parser = ParserPool.GetParser();
-                try
-                {
-                    parser.Parse(context);
-                }
-                catch (Exception e)
-                {
-                    ParserPool.ReturnParser(parser);
-                    parser = null;
-                    throw e;
-                }
-                contextTokenPairs = parser.GetPosTags();
-                mentionIndexPair = GetIndexOfMention(contextTokenPairs, mentionTokens);
-                if (mentionIndexPair.first == -1)
-                {
-                    throw new Exception("Cannot find mention by token within context!");
-                }
+                FilterContext();
             }
             else
             {
-                var posTagger = PosTaggerPool.GetPosTagger();
-                try
-                {
-                    contextTokenPairs = posTagger.TagString(context);
-                    mentionIndexPair = GetIndexOfMention(contextTokenPairs, mentionTokens);
-                }
-                catch (Exception e)
-                {
-                    PosTaggerPool.ReturnPosTagger(posTagger);
-                    posTagger = null;
-                    throw e;
-                }
-                if (mentionIndexPair.first == -1)
-                {
-                    throw new Exception("Cannot find mention by token within context!");
-                }
+                this.context = instance.Context;
             }
-            #endregion
+
+            var posTagger = PosTaggerPool.GetPosTagger();
+            try
+            {
+                contextTokenPairs = posTagger.TagString(context);
+                mentionIndexPair = GetIndexOfMention(contextTokenPairs, mentionTokens);
+                PosTaggerPool.ReturnPosTagger(posTagger);
+            }
+            catch (Exception e)
+            {
+                PosTaggerPool.ReturnPosTagger(posTagger);
+                posTagger = null;
+                throw e;
+            }
+            if (mentionIndexPair.first == -1)
+            {
+                throw new NotFindMentionException("Cannot find mention by token within context!");
+            }
 
             #region last word
             {
@@ -162,65 +144,6 @@ namespace msra.nlp.tr
                 AddFieldToFeture(head, posTag);
             }
             #endregion
-
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
-            {
-                #region mention driver
-                {
-                    int index = parser.GetDriver(mentionIndexPair.first, mentionIndexPair.second);
-                    if (index > 0)
-                    {
-                        var driver = contextTokenPairs.ElementAt(index).first;
-                        var posTag = contextTokenPairs.ElementAt(index).second;
-                        AddFieldToFeture(driver, posTag);
-                    }
-                    else
-                    {
-                        AddFieldToFeture(null, null);
-                    }
-                }
-                #endregion
-
-                #region mention adjective modifer
-                if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
-                {
-                    int index = parser.GetAdjModifier(mentionIndexPair.first, mentionIndexPair.second);
-                    if (index > 0)
-                    {
-                        var adjModifier = contextTokenPairs.ElementAt(index).first;
-                        var posTag = contextTokenPairs.ElementAt(index).second;
-                        AddFieldToFeture(adjModifier, posTag);
-                    }
-                    else
-                    {
-                        AddFieldToFeture(null, null);
-                    }
-                }
-                #endregion
-
-                #region mention action
-                if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateParser))
-                {
-                    int index = parser.GetAction(mentionIndexPair.first, mentionIndexPair.second);
-                    if (index > 0)
-                    {
-                        var action = contextTokenPairs.ElementAt(index).first;
-                        var posTag = contextTokenPairs.ElementAt(index).second;
-                        AddFieldToFeture(action, posTag);
-                    }
-                    else
-                    {
-                        AddFieldToFeture(null, null);
-                    }
-                }
-                #endregion
-            }
-
-            if (parser != null)
-            {
-                ParserPool.ReturnParser(parser);
-                parser = null;
-            }
 
             #region Mention Words
             {
@@ -298,35 +221,7 @@ namespace msra.nlp.tr
             }
             #endregion
 
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateNer))
-            {
-                #region Stanford NER
-                {
-
-                    var ner = StanfordNerPool.GetStanfordNer();
-                    ner.FindNer(context);
-                    var type = ner.GetNerType(this.instance.Mention);
-                    StanfordNerPool.ReturnStanfordNer(ner);
-                    ner = null;
-                    feature.Add(type);
-                }
-                #endregion
-
-                #region OpenNLP NER
-                if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateNer))
-                {
-                    var ner = OpenNerPool.GetOpenNer();
-                    ner.FindNer(context);
-                    var type = ner.GetNerType(this.instance.Mention);
-                    OpenNerPool.ReturnOpenNer(ner);
-                    ner = null;
-                    feature.Add(type);
-                }
-                #endregion
-            }
-
             #region DBpedia dictionary
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateDbpedia))
             {
                 var types = string.Join(",", DataCenter.GetDBpediaTypeWithIndegree(this.instance.Mention));
                 feature.Add(types);
@@ -336,7 +231,6 @@ namespace msra.nlp.tr
             #endregion
 
             #region Key words
-            if ((bool)GlobalParameter.Get(DefaultParameter.Field.activateMIKeyword))
             {
                 var keyWords = DataCenter.ExtractKeyWords(context);
                 feature.Add(string.Join(",", keyWords));
@@ -344,7 +238,6 @@ namespace msra.nlp.tr
             #endregion
 
             feature.Add(context);
-
             return feature;
         }
 
@@ -619,6 +512,7 @@ namespace msra.nlp.tr
             return rawFeature;
         }
 
+        #region Private Methods
         private void AddFieldToFeture(string word, string posTag)
         {
             if (word != null)
@@ -673,7 +567,6 @@ namespace msra.nlp.tr
                     this.contextTokens.Add(ts[i]);
                 }
                 TokenizerPool.ReturnTokenizer(tokenizer);
-                tokenizer = null;
             }
             catch (Exception e)
             {
@@ -697,12 +590,6 @@ namespace msra.nlp.tr
             catch (Exception e)
             {
                 SSpliterPool.ReturnSSpliter(sspliter);
-#if debug
-                {
-                    Console.Clear();
-                    Console.WriteLine("Error in sentence spliter.");
-                }
-#endif
                 throw e;
             }
             this.context = GetSentenceCoverMention(sentences, mentionTokens);
@@ -757,5 +644,6 @@ namespace msra.nlp.tr
             return index;
         }
 
+        #endregion
     }
 }

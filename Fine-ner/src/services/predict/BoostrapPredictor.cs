@@ -24,7 +24,7 @@ namespace msra.nlp.tr.predict
         /// </summary>
         public BoostrapPredictor()
         {
-            this.modelFile = (string)DefaultParameter.Get(DefaultParameter.Field.model_file);
+            this.modelFile = (string)GlobalParameter.Get(DefaultParameter.Field.model_file);
 
         }
 

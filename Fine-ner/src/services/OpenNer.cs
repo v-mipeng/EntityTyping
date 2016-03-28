@@ -15,7 +15,7 @@ namespace msra.nlp.tr
         opennlp.tools.namefind.NameFinderME organizationNameFinder = null;
         List<pml.type.Pair<string, string>> entities = null;
 
-        public OpenNer() { }
+        internal OpenNer() { }
 
         System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\s+");
         public void FindNer(string context)
