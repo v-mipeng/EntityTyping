@@ -928,9 +928,9 @@ namespace msra.nlp.tr
 
         public static void Mains(string[] args)
         {
-            StatisticPrecisionOfNer();
+            //StatisticPrecisionOfNer();
             //temp(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test new.txt");
-            //pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test\", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test.txt");
+            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\output\satori+conll\train", @"D:\Codes\Project\EntityTyping\Fine-ner\output\satori+conll\train.txt");
             //CompareWithStanfordNer(@"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\backup\ners dbpedia-abstract-indegree keyword\test result.txt",
             //    @"D:\Codes\Project\EntityTyping\Fine-ner\output\conll feature\raw\backup\ners dbpedia-abstract-indegree keyword\stanford on test.txt");
             //Temp20(@"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\train", @"D:\Codes\Project\EntityTyping\Fine-ner\input\feature\test");

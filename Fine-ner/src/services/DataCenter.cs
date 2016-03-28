@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.IO;
 using pml.file.reader;
 using pml.file.writer;
 using pml.file;
 using pml.type;
+
 
 namespace msra.nlp.tr
 {
@@ -455,8 +457,7 @@ namespace msra.nlp.tr
                 {
                     if (des == null)
                     {
-                        des = (string)DefaultParameter.Get(DefaultParameter.Field.stem_map);
-                        //des = (string)GlobalParameter.Get(DefaultParameter.stem_map);
+                        des = (string)GlobalParameter.Get(DefaultParameter.Field.stem_map);
                     }
                     if (stemWordDic == null) return;
                     FileWriter writer = new LargeFileWriter(des, FileMode.Create);
@@ -791,6 +792,7 @@ namespace msra.nlp.tr
         static object pageAbstractLocker = new object();
         static object pageIndegreeLocker = new object();
 
+        static Regex turnDigit = new Regex(@"\d+$");
 
         /// <summary>
         /// Get mention's type in dbpedia database.
@@ -886,7 +888,7 @@ namespace msra.nlp.tr
                     try
                     {
                         var indegree = GetPageIndegree(m);
-                        if(indegree == 0)
+                        if (indegree == 0)
                         {
                             continue;
                         }
@@ -971,7 +973,7 @@ namespace msra.nlp.tr
                             continue;
                         }
                         var matchValue = pml.math.VectorDistance.SparseCosinDistance(contextVec, entityVec);
-                        if(matchValue == 0)
+                        if (matchValue == 0)
                         {
                             continue;
                         }
@@ -1316,12 +1318,12 @@ namespace msra.nlp.tr
 
         private static int LogIndegree(int indegree)
         {
-            if(indegree == 0)
+            if (indegree == 0)
             {
                 return 0;
             }
             var value = (int)Math.Ceiling(Math.Log(indegree));
-            if(value == 0)
+            if (value == 0)
             {
                 value = 1;
             }
@@ -1342,7 +1344,7 @@ namespace msra.nlp.tr
             input = input.ToLower().Replace("-lrb-", "(");   // recover input
             input = input.Replace("-rrb-", ")");
             input = input.Replace(" ", "_");
-            return input;
+            return turnDigit.Replace(input, "0");
         }
 
         #endregion
@@ -1384,6 +1386,7 @@ namespace msra.nlp.tr
                     {
                         line = line.ToLower();
                         var array = line.Split('\t');
+                        array[0] = turnDigit.Replace(array[0], "0");
 
                         if (dic.TryGetValue(array[0], out set))
                         {
@@ -1403,6 +1406,7 @@ namespace msra.nlp.tr
                         line = line.ToLower();
                         var array = line.Split('\t');
                         var temp = braceRegex.Replace(array[0], "");
+                        temp = turnDigit.Replace(temp, "0");
                         if (array[0].Length != temp.Length)
                         {
                             if (dic.TryGetValue(temp, out set))
@@ -1457,7 +1461,7 @@ namespace msra.nlp.tr
             var set = new HashSet<string>();
             foreach (var token in tokens)
             {
-                var tokenStemmed = Generalizer.Generalize(token).ToLower();
+                var tokenStemmed = Generalizer.Generalize(token);
                 if (keyWords.ContainsKey(tokenStemmed))
                 {
                     set.Add(tokenStemmed);

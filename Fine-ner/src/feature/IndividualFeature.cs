@@ -354,7 +354,7 @@ namespace msra.nlp.tr
             var mention = rawFeature.ElementAt((int)Event.Field.mentionSurfaces).Replace(',', ' ');
             var context = rawFeature.ElementAt((int)Event.Field.sentenceContext);
             #region Stanford NER
-            if (true)
+            if (false)
             {
 
                 var ner = StanfordNerPool.GetStanfordNer();
@@ -379,7 +379,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region DBpedia dictionary
-            if(false)
+            if(true)
             {
                 var types = string.Join(",", DataCenter.GetDBpediaTypeWithIndegree(mention));
                 rawFeature[(int)Event.Field.dbpediaTypesWithIndegree] = types;
