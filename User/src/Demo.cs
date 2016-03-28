@@ -168,27 +168,27 @@ namespace User.src
         {
             var pipeline = new Pipeline(@"D:\Codes\Project\package\config.txt");
             var demo = new Demo();
-            Console.WriteLine(demo.Predict("House Ways and Means Committee", "Influential members of the House Ways and Means Committee introduced legislation that would restrict how the new savings-and-loan bailout agency can raise capital , creating another potential obstacle to the government 's sale of sick thrifts ."));
-            Console.ReadKey();
-            //var source = @"D:\Codes\Project\EntityTyping\Fine-ner\input\conll\test.txt";
-            //var reader = new pml.file.reader.LargeFileReader(source);
-            //var des = @"D:\Codes\Project\EntityTyping\Fine-ner\input\conll\prediction for test.txt";
-            //var writer = new pml.file.writer.LargeFileWriter(des, System.IO.FileMode.Create);
-            //string line;
-            //var queries = new List<Pair<string, string>>();
+            //Console.WriteLine(demo.Predict("House Ways and Means Committee", "Influential members of the House Ways and Means Committee introduced legislation that would restrict how the new savings-and-loan bailout agency can raise capital , creating another potential obstacle to the government 's sale of sick thrifts ."));
+            //Console.ReadKey();
+            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\input.txt";
+            var reader = new pml.file.reader.LargeFileReader(source);
+            var des = @"D:\Codes\Project\EntityTyping\Fine-ner\output.txt";
+            var writer = new pml.file.writer.LargeFileWriter(des, System.IO.FileMode.Create);
+            string line;
+            var queries = new List<Pair<string, string>>();
 
-            //while ((line = reader.ReadLine()) != null)
-            //{
-            //    var array = line.Split('\t');
-            //    queries.Add(new pml.type.Pair<string, string>(array[0], array[2]));
-            //}
-            //reader.Close();
-            //var types = demo.Predict(queries);
-            //for (var i = 0; i < queries.Count; i++)
-            //{
-            //    writer.WriteLine(string.Format("{0}\t{1}\t{2}", queries[i].first,types[i],queries[i].second));
-            //}
-            //writer.Close();
+            while ((line = reader.ReadLine()) != null)
+            {
+                var array = line.Split('\t');
+                queries.Add(new pml.type.Pair<string, string>(array[0], array[1]));
+            }
+            reader.Close();
+            var types = demo.Predict(queries);
+            for (var i = 0; i < queries.Count; i++)
+            {
+                writer.WriteLine(string.Format("{0}\t{1}\t{2}", queries[i].first, types[i], queries[i].second));
+            }
+            writer.Close();
         }
     }
 }

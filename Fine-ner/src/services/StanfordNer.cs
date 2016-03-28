@@ -78,7 +78,7 @@ namespace msra.nlp.tr
                     {
                         if (!prevNerToken.Equals("O") && (buffer.Length > 0))
                         {
-                            if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION") || prevNerToken.Equals("MISC"))
+                            if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION"))// || prevNerToken.Equals("MISC"))
                             {
                                 nerPairs.Add(new Pair<string, string>(buffer.ToString(), prevNerToken));
                             }
@@ -104,7 +104,7 @@ namespace msra.nlp.tr
                     {
                         // We're done with the current entity - print it out and reset
                         // TODO save this token into an appropriate ADT to return for useful processing..
-                        if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION") || prevNerToken.Equals("MISC"))
+                        if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION"))// || prevNerToken.Equals("MISC"))
                         {
                             nerPairs.Add(new Pair<string, string>(buffer.ToString(), prevNerToken));
                         }
@@ -116,7 +116,7 @@ namespace msra.nlp.tr
                 }
                 if (!prevNerToken.Equals("O") && buffer.Length > 0)
                 {
-                    if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION") || prevNerToken.Equals("MISC"))
+                    if (prevNerToken.Equals("LOCATION") || prevNerToken.Equals("PERSON") || prevNerToken.Equals("ORGANIZATION"))// || prevNerToken.Equals("MISC"))
                     {
                         nerPairs.Add(new Pair<string, string>(buffer.ToString(), prevNerToken));
                     }
