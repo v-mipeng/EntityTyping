@@ -50,7 +50,7 @@ namespace User.src
             {
                 predictor = FourClassPredictorPool.GetFourClassPredictor();   // Get Predictor from predictor pool
                 var type = predictor.Predict(mention, context);
-                FullFeaturePredictorPool.ReturnFullFeaturePredictor(predictor);       // Rember return the predictor back to the pool
+                FourClassPredictorPool.ReturnFourClassPredictor(predictor);       // Rember return the predictor back to the pool
                 return type;
             }
             catch (Exception ex)
@@ -121,7 +121,7 @@ namespace User.src
             {
                 for (var i = 0; i < queries.Count; i++)
                 {
-                    types.Add(Predict(queries[i].first, queries[i].second));
+                    types.Add(FourClassPredict(queries[i].first, queries[i].second));
                 }
             }
             else
@@ -272,7 +272,7 @@ namespace User.src
             }
         }
 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             //Test();
             pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\output\features\satori with only product\train", @"D:\Codes\Project\EntityTyping\Fine-ner\output\features\satori with only product\train.txt");
@@ -293,10 +293,18 @@ namespace User.src
                 queries.Add(new pml.type.Pair<string, string>(array[0], array[1]));
             }
             reader.Close();
-            var types = demo.FourClassPredict(queries);
+            var types = demo.Predict(queries);
             for (var i = 0; i < queries.Count; i++)
             {
                 writer.WriteLine(string.Format("{0}\t{1}\t{2}", queries[i].first, types[i], queries[i].second));
+            }
+            types = demo.FourClassPredict(queries);
+            writer.WriteLine("");
+            writer.WriteLine("Predict by predictor trained on 4 classes:");
+            writer.WriteLine("");
+            for (var i = 0; i < queries.Count; i++)
+            {
+                writer.WriteLine(string.Format("{0}\t\t{1}\t\t{2}", queries[i].first, types[i], queries[i].second));
             }
             writer.Close();
         }

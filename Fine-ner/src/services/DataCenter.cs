@@ -63,7 +63,7 @@ namespace msra.nlp.tr
                 if (word2index == null)
                 {
                     FileReader reader = null;
-                    reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_table_file));
+                    reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.word_table_file));
                     String line;
                     var dic = new Dictionary<string, int>();
 
@@ -133,7 +133,7 @@ namespace msra.nlp.tr
                 {
                     var dic = new Dictionary<string, int>();
 
-                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_shape_table_file));
+                    FileReader reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.word_shape_table_file));
                     String line;
 
                     while ((line = reader.ReadLine()) != null)
@@ -200,7 +200,7 @@ namespace msra.nlp.tr
                 {
                     var dic = new Dictionary<string, int>();
 
-                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.posTag_table_file));
+                    FileReader reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.posTag_table_file));
                     String line;
 
                     while ((line = reader.ReadLine()) != null)
@@ -282,7 +282,7 @@ namespace msra.nlp.tr
             {
                 if (dicTypeMap == null)
                 {
-                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dic_file));
+                    FileReader reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.dic_file));
                     String line;
                     List<String> list;
                     dics = new Dictionary<string, List<string>>();
@@ -349,7 +349,7 @@ namespace msra.nlp.tr
         {
             fullNameSet = new HashSet<string>();
             partNameSet = new HashSet<string>();
-            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.name_list_file));
+            FileReader reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.name_list_file));
             String line;
             String[] array;
 
@@ -426,7 +426,7 @@ namespace msra.nlp.tr
                 if (stemWordDic == null)
                 {
                     var dic = new Dictionary<string, string>();
-                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.stem_map));
+                    FileReader reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.stem_map));
                     //FileReader reader = new LargeFileReader(@"D:\Codes\Project\EntityTyping\Fine-ner\input\tables\stem-word-table.txt");
                     string line;
                     string[] array;
@@ -457,7 +457,7 @@ namespace msra.nlp.tr
                 {
                     if (des == null)
                     {
-                        des = (string)GlobalParameter.Get(DefaultParameter.Field.stem_map);
+                        des = (string)Parameter.GetParameter(Parameter.Field.stem_map);
                     }
                     if (stemWordDic == null) return;
                     FileWriter writer = new LargeFileWriter(des, FileMode.Create);
@@ -521,7 +521,7 @@ namespace msra.nlp.tr
                 if (wordIdDic == null)
                 {
                     var dic = new Dictionary<string, int>();
-                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.word_id_file));
+                    FileReader reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.word_id_file));
                     string line;
                     string[] array;
                     HashSet<int> ids = new HashSet<int>();
@@ -611,7 +611,7 @@ namespace msra.nlp.tr
                 if (mentionIdDic == null)
                 {
                     var dic = new Dictionary<string, int>();
-                    FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.mention_id_file));
+                    FileReader reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.mention_id_file));
                     string line;
                     string[] array;
                     HashSet<int> ids = new HashSet<int>();
@@ -1191,7 +1191,7 @@ namespace msra.nlp.tr
                 {
                     var dic = new Dictionary<string, string>();
                     LinkedList<Pair<string, string>> types = null;             // type<-->entity surface
-                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_type_file));
+                    var reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.dbpedia_type_file));
                     var line = "";
 
                     while ((line = reader.ReadLine()) != null)
@@ -1212,7 +1212,7 @@ namespace msra.nlp.tr
             {
                 if (pageAnchorsDic == null)
                 {
-                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.page_anchor_file));
+                    var reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.page_anchor_file));
                     var line = "";
                     var dic = new Dictionary<string, List<string>>();
                     System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"_+");
@@ -1237,7 +1237,7 @@ namespace msra.nlp.tr
                 if (disambiguousDic == null)
                 {
                     var dic = new Dictionary<string, List<string>>();
-                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.disambiguous_file));
+                    var reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.disambiguous_file));
                     var line = "";
                     System.Text.RegularExpressions.Regex deleteUnderline = new System.Text.RegularExpressions.Regex(@"_+");
 
@@ -1260,7 +1260,7 @@ namespace msra.nlp.tr
             {
                 if (pageAbstract == null)
                 {
-                    var path = (string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_abstract_file);
+                    var path = (string)Parameter.GetParameter(Parameter.Field.dbpedia_abstract_file);
                     var dic = new Dictionary<string, Dictionary<int, double>>();
                     var reader = new LargeFileReader(path);
                     string line;
@@ -1289,7 +1289,7 @@ namespace msra.nlp.tr
             {
                 if (pageIndegree == null)
                 {
-                    var source = (string)GlobalParameter.Get(DefaultParameter.Field.page_indegree_file);
+                    var source = (string)Parameter.GetParameter(Parameter.Field.page_indegree_file);
                     var reader = new LargeFileReader(source);
                     var dic = new Dictionary<string, int>();
                     string line;
@@ -1378,7 +1378,7 @@ namespace msra.nlp.tr
                 {
                     var dic = new Dictionary<string, HashSet<string>>();
                     var set = new HashSet<string>();
-                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_redirect_file));
+                    var reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.dbpedia_redirect_file));
                     var line = "";
                     System.Text.RegularExpressions.Regex braceRegex = new System.Text.RegularExpressions.Regex(@"\(\w+\)");
 
@@ -1400,7 +1400,7 @@ namespace msra.nlp.tr
                         }
                     }
                     reader.Close();
-                    reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_type_file));
+                    reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.dbpedia_type_file));
                     while ((line = reader.ReadLine()) != null)
                     {
                         line = line.ToLower();
@@ -1510,7 +1510,7 @@ namespace msra.nlp.tr
             {
                 if (keyWords == null)
                 {
-                    var reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.keyword_file));
+                    var reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.keyword_file));
                     var line = "";
                     var dic = new Dictionary<string, int>();
                     var token = "";

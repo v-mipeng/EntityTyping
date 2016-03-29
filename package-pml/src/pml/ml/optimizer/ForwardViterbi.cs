@@ -115,56 +115,5 @@ namespace pml.ml.optimizer
             }
             return VNodes[maxIndex].GetPath();
         }
-
-        //Weather states
-        static String HEALTHY = "Healthy";
-        static String FEVER = "Fever";
-        //Dependable actions (observations)
-        static String DIZZY = "dizzy";
-        static String COLD = "cold";
-        static String NORMAL = "normal";
-
-
-        static void Main(string[] args)
-        {
-            //initialize our arrays of states and observations
-            String[] states = { HEALTHY, FEVER };
-            String[] observations = { DIZZY, COLD};
-
-            var start_probability = new Dictionary<String, double>();
-            start_probability.Add(HEALTHY, 0.6f);
-            start_probability.Add(FEVER, 0.4f);
-            //Transition probability
-            var transition_probability = new Dictionary<String, Dictionary<String, double>>();
-            var t1 = new Dictionary<String, double>();
-            t1.Add(HEALTHY, 0.7f);
-            t1.Add(FEVER, 0.3f);
-            Dictionary<String, double> t2 = new Dictionary<String, double>();
-            t2.Add(HEALTHY, 0.4f);
-            t2.Add(FEVER, 0.6f);
-            transition_probability.Add(HEALTHY, t1);
-            transition_probability.Add(FEVER, t2);
-
-            //emission_probability
-            var emission_probability = new Dictionary<String, Dictionary<String, double>>();
-            var e1 = new Dictionary<String, double>();
-            e1.Add(DIZZY, 0.1f);
-            e1.Add(COLD, 0.4f);
-            e1.Add(NORMAL, 0.5f);
-
-            Dictionary<String, double> e2 = new Dictionary<String, double>();
-            e2.Add(DIZZY, 0.6f);
-            e2.Add(COLD, 0.3f);
-            e2.Add(NORMAL, 0.1f);
-
-            emission_probability.Add(HEALTHY, e1);
-            emission_probability.Add(FEVER, e2);
-
-            var ret = ForwardViterbi(observations, states, start_probability, transition_probability, emission_probability);
-            Console.WriteLine(string.Join(",",ret));
-            Console.ReadLine();
-
-        }
-
     }
 }

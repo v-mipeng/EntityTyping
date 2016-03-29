@@ -9,7 +9,7 @@ namespace msra.nlp.tr.predict
    public class FourClassPredictor : FullFeaturePredictor
     {
         internal FourClassPredictor()
-            : base(Parameter.Field.four_classes_model_file)
+            : base((string)Parameter.GetParameter(Parameter.Field.four_classes_model_file))
         {
         }
 
