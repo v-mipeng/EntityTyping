@@ -54,7 +54,7 @@ namespace msra.nlp.tr
 
         void Initial(string modelFile = null)
         {
-            var path = Path.Combine((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir), @"edu\stanford\nlp\models\pos-tagger\english-left3words\english-left3words-distsim.tagger");
+            var path = Path.Combine((string)Parameter.GetParameter(Parameter.Field.stanford_model_dir), @"edu\stanford\nlp\models\pos-tagger\english-left3words\english-left3words-distsim.tagger");
             tagger = new MaxentTagger(modelFile ?? path);
 
         }

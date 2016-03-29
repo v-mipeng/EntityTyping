@@ -26,7 +26,7 @@ namespace msra.nlp.tr.predict
         /// </summary>
         internal FullFeaturePredictor()
         {
-            this.modelFile = (string)GlobalParameter.Get(DefaultParameter.Field.model_file);
+            this.modelFile = (string)Parameter.GetParameter(Parameter.Field.model_file);
         }
 
         internal FullFeaturePredictor(string modelFile)
@@ -63,7 +63,7 @@ namespace msra.nlp.tr.predict
             {
                 for (var index = 0; index < predictions.Length; index++)
                 {
-                    pairs.Add(new pml.type.Pair<string, float>(SVMFeatureExtractor.types[index], predictions[index]));
+                    pairs.Add(new pml.type.Pair<string, float>(Parameter.GetTypeByLabel(index), predictions[index]));
                 }
             }
             catch (Exception)
@@ -88,7 +88,7 @@ namespace msra.nlp.tr.predict
             return floatFeature;
         }
                            
-        private void Initial()
+        protected void Initial()
         {
             rawFeatureExtractor = new IndividualFeature();
             svmFeatureExtractor = new SVMFeature();

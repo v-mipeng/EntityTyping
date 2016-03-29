@@ -246,6 +246,8 @@
     <Compile Include="src\pipeline\Pipeline.cs" />
     <Compile Include="src\pipeline\SVMFeatureExtractor.cs" />
     <Compile Include="src\services\predict\BoostrapPredictor.cs" />
+    <Compile Include="src\services\predict\FourClassPredictor.cs" />
+    <Compile Include="src\services\predict\FourClassPredictorPool.cs" />
     <Compile Include="src\services\predict\FullFeaturePredictorPool.cs" />
     <Compile Include="src\services\predict\Predictor.cs" />
     <Compile Include="src\services\predict\FullFeaturePredictor.cs" />
@@ -266,8 +268,7 @@
     <Compile Include="src\services\StemmerPool.cs" />
     <Compile Include="src\services\Tokenizer.cs" />
     <Compile Include="src\services\TokenizerPool.cs" />
-    <Compile Include="src\parameter\DefaultParameter.cs" />
-    <Compile Include="src\parameter\GlobalParameter.cs" />
+    <Compile Include="src\parameter\Parameter.cs" />
     <Compile Include="src\services\TfIdf.cs" />
   </ItemGroup>
   <ItemGroup>
