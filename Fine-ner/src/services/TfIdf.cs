@@ -55,7 +55,12 @@ namespace msra.nlp.tr
             var tokenizer = msra.nlp.tr.TokenizerPool.GetTokenizer();
             var doc = tokenizer.Tokenize(document);
             msra.nlp.tr.TokenizerPool.ReturnTokenizer(tokenizer);
-            return GetTfIdf(doc);
+            var list = new List<string>();
+            foreach(var token in doc)
+            {
+                list.Add(token.first);
+            }
+            return GetTfIdf(list);
         }
 
         private static void LoadDf()

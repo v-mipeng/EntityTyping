@@ -19,15 +19,17 @@ namespace msra.nlp.tr
 
         // Label mention index
         // Mention start from with offset which begins with 0 in the context
-        protected int mentionOffset = 0;
+        protected int mentionOffset = -1;
 
-        protected int mentionLength = 0;
+        protected int mentionLength = -1;
 
 
         public Instance(string mention, string context) 
         {
             this.mention = mention;
             this.context = context;
+            this.mentionLength = mention.Length;
+            this.mentionOffset = context.IndexOf(mention);
         }
 
         public Instance(string context, int mentionOffset, int mentionLength)
@@ -99,7 +101,7 @@ namespace msra.nlp.tr
         {
             get
             {
-                return MentionLength;
+                return mentionLength;
             }
         }
 

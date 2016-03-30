@@ -53,25 +53,16 @@ namespace msra.nlp.tr
         ///     Dictionary                      :Dbpedia
         ///     Topic(Define topic)             :MI keyword
         /// </returns>
-        public List<string> ExtractFeature(Instance instance, bool filterContext = true)
+        public List<string> ExtractFeature(Instance instance, bool filterContext = false)
         {
             this.instance = instance;
             this.feature.Clear();
             Tokenizer();
-            if (filterContext)
-            {
-                FilterContext();
-            }
-            else
-            {
-                this.context = instance.Context;
-            }
 
             var posTagger = PosTaggerPool.GetPosTagger();
             try
             {
-                contextTokenPairs = posTagger.TagString(context);
-                mentionIndexPair = GetIndexOfMention(contextTokenPairs, mentionTokens);
+                contextTokenPairs = posTagger.TagString(string.Join(" ", contextTokens));
                 PosTaggerPool.ReturnPosTagger(posTagger);
             }
             catch (Exception e)
@@ -546,26 +537,41 @@ namespace msra.nlp.tr
             var tokenizer = TokenizerPool.GetTokenizer();
             this.mentionTokens = new List<string>();
             this.contextTokens = new List<string>();
+            int begin = -1;
+            int end = -1;
             try
             {
                 var ts = tokenizer.Tokenize(this.instance.Mention);
                 for (var i = 0; i < ts.Count; i++)
                 {
-                    if (ts[i].Equals(".") && i > 0 && ts[i - 1].EndsWith("."))
+                    if (ts[i].first.Equals(".") && i > 0 && ts[i - 1].first.EndsWith("."))
                     {
                         continue;
                     }
-                    this.mentionTokens.Add(ts[i]);
+                    this.mentionTokens.Add(ts[i].first);
                 }
                 ts = tokenizer.Tokenize(this.instance.Context);
                 for (var i = 0; i < ts.Count; i++)
                 {
-                    if (ts[i].Equals(".") && i > 0 && ts[i - 1].EndsWith("."))
+                    if (ts[i].first.Equals(".") && i > 0 && ts[i - 1].first.EndsWith("."))
                     {
                         continue;
                     }
-                    this.contextTokens.Add(ts[i]);
+                    if(ts[i].second<=instance.MentionOffset && (ts[i].second+ts[i].first.Length) > instance.MentionOffset)
+                    {
+                        begin = i;
+                    }
+                    if(begin>-1 && end == -1)
+                    {
+                        if((ts[i].second+ts[i].first.Length)>=(instance.MentionOffset+instance.MentionLength))
+                        {
+                            end = i;
+                            this.mentionIndexPair = new Pair<int, int>(begin, end);
+                        }
+                    }
+                    this.contextTokens.Add(ts[i].first);
                 }
+
                 TokenizerPool.ReturnTokenizer(tokenizer);
             }
             catch (Exception e)

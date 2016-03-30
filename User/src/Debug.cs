@@ -15,9 +15,9 @@ namespace User
     {
         static void Main(string[] args)
         {
-            var tokenizer = new Tokenizer(@"D:\Codes\Project\EntityTyping\Fine-ner\input\stanford models");
-            var toknized = tokenizer.Tokenize("I like Beijing(China). J. Smith went with me.");
-            //Run();
+            //var tokenizer = new Tokenizer(@"D:\Codes\Project\EntityTyping\Fine-ner\input\stanford models");
+            //var toknized = tokenizer.Tokenize("I like Beijing(China). J. Smith went with me.");
+            Run();
         }
 
         public static void Run()
@@ -27,57 +27,60 @@ namespace User
             /************************************************************************/
             /* Feature extractor  for satori                                                                   */
             /************************************************************************/
-            if (false)
+            if (true)
             {
                 var currentFolderPath = Environment.CurrentDirectory;
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
                 var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
                 basedir = Path.Combine(basedir, "Fine-ner/");
-                props.SetProperty("method", @"/ef -raw -add -train -dev");
-                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\satori\train\"));
-                props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\features\satori\temp train\"));
+                var configFile = Path.Combine(basedir, "config.xml");
+                props.SetProperty("method", @"/ef -raw -train");
+                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\datasets\satori\train\award_award.txt"));
+                props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\features\satori\temp train\award_award.txt"));
                 props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\features\satori\develop\"));
                 props.SetProperty("develop_feature_file", Path.Combine(basedir, @"input\features\satori\temp develop\"));
                 props.SetProperty("test_data_file", Path.Combine(basedir, @"input\features\satori\test\"));
                 props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\features\satori\temp test\"));
-                pipeline = new Pipeline(props);
+                pipeline = new Pipeline(configFile, props);
                 pipeline.Execute();
-                props.SetProperty("method", @"/ef -svm -all");
-                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\satori\temp train\"));
-                props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\features\satori\train\"));
-                props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\features\satori\temp develop\"));
-                props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\features\satori\develop\"));
-                props.SetProperty("test_data_file", Path.Combine(basedir, @"input\features\satori\temp test\"));
-                props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\satori feature\test\"));
-                //props.SetProperty("method", @"/ef -raw -add -test");
-                //props.SetProperty("train_data_file", Path.Combine(basedir, @"input\feature\train\"));
-                //props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\feature\temp train\"));
-                //props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\develop\"));
-                //props.SetProperty("develop_feature_file", Path.Combine(basedir, @"input\feature\temp develop\"));
-                //props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\test\"));
-                //props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\feature\temp test\"));
-                //pipeline = new Pipeline(props);
-                //pipeline.Execute();
-                props.SetProperty("method", @"/ef -svm -train");
-                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\satori+conll\"));
-                props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\satori+conll\"));
-                props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\temp develop\"));
-                props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\svm\develop\"));
-                props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\temp test\"));
-                props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\svm\test\"));
-                props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\features\satori\test\"));
-                //props.Set("activateMIKeyword", false);
-                //props.Set("activateDbpedia", false);
-                props.Set("activateNer", false);
-                props.Set("activateParser", false);
-                pipeline = new Pipeline(props);
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori feature\train\"), Path.Combine(basedir, @"output\satori feature\train.txt"));
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori feature\develop\"), Path.Combine(basedir, @"output\satori feature\develop.txt"));
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori feature\test\"), Path.Combine(basedir, @"output\satori feature\test.txt"));
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\features\satori\train\"), Path.Combine(basedir, @"output\satori feature\train.txt"));
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\features\satori\develop\"), Path.Combine(basedir, @"output\satori feature\develop.txt"));
-                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\features\satori\test\"), Path.Combine(basedir, @"output\satori feature\test.txt"));
 
+                #region
+                //props.SetProperty("method", @"/ef -svm -all");
+                //props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\satori\temp train\"));
+                //props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\features\satori\train\"));
+                //props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\features\satori\temp develop\"));
+                //props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\features\satori\develop\"));
+                //props.SetProperty("test_data_file", Path.Combine(basedir, @"input\features\satori\temp test\"));
+                //props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\satori feature\test\"));
+                ////props.SetProperty("method", @"/ef -raw -add -test");
+                ////props.SetProperty("train_data_file", Path.Combine(basedir, @"input\feature\train\"));
+                ////props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\feature\temp train\"));
+                ////props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\develop\"));
+                ////props.SetProperty("develop_feature_file", Path.Combine(basedir, @"input\feature\temp develop\"));
+                ////props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\test\"));
+                ////props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\feature\temp test\"));
+                ////pipeline = new Pipeline(props);
+                ////pipeline.Execute();
+                //props.SetProperty("method", @"/ef -svm -train");
+                //props.SetProperty("train_data_file", Path.Combine(basedir, @"input\satori+conll\"));
+                //props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\satori+conll\"));
+                //props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\feature\temp develop\"));
+                //props.SetProperty("develop_feature_file", Path.Combine(basedir, @"output\svm\develop\"));
+                //props.SetProperty("test_data_file", Path.Combine(basedir, @"input\feature\temp test\"));
+                //props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\svm\test\"));
+                //props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\features\satori\test\"));
+                ////props.Set("activateMIKeyword", false);
+                ////props.Set("activateDbpedia", false);
+                //props.Set("activateNer", false);
+                //props.Set("activateParser", false);
+                //pipeline = new Pipeline(props);
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori feature\train\"), Path.Combine(basedir, @"output\satori feature\train.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori feature\develop\"), Path.Combine(basedir, @"output\satori feature\develop.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\satori feature\test\"), Path.Combine(basedir, @"output\satori feature\test.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\features\satori\train\"), Path.Combine(basedir, @"output\satori feature\train.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\features\satori\develop\"), Path.Combine(basedir, @"output\satori feature\develop.txt"));
+                //pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\features\satori\test\"), Path.Combine(basedir, @"output\satori feature\test.txt"));
+                #endregion
             }
             /************************************************************************/
             /* Feature extractor  for conll                                                                   */
@@ -230,7 +233,7 @@ namespace User
             /************************************************************************/
             /* Feature extractor  for 5 classes: product and other                                                                   */
             /************************************************************************/
-            if (true)
+            if (false)
             {
                 var currentFolderPath = Environment.CurrentDirectory;
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));

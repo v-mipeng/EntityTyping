@@ -235,7 +235,7 @@ namespace msra.nlp.tr
                 // extract raw features
                 if (options.Contains("train") || options.Contains("all"))
                 {
-                    var extractor = new ParallelIndividualFeatureExtractor((string)Parameter.GetParameter(Parameter.Field.train_data_file),
+                    var extractor = new IndividualFeatureExtractor((string)Parameter.GetParameter(Parameter.Field.train_data_file),
                        (string)Parameter.GetParameter(Parameter.Field.train_feature_file));
                     if (options.Contains("add"))
                     {
@@ -318,15 +318,15 @@ namespace msra.nlp.tr
                     foreach (var w in words)
                     {
 
-                        if (!string.IsNullOrEmpty(w))   // w should not be empty
+                        if (!string.IsNullOrEmpty(w.first))   // w should not be empty
                         {
-                            var shape = Feature.GetWordShape(w);
+                            var shape = Feature.GetWordShape(w.first);
                             if (!wordShapeTable.Contains(shape))
                             {
                                 wordShapeWriter.WriteLine(shape);
                                 wordShapeTable.Add(shape);
                             }
-                            var word = Generalizer.Generalize(w);
+                            var word = Generalizer.Generalize(w.first);
                             if (!wordTable.Contains(word))
                             {
                                 writer.WriteLine(word);

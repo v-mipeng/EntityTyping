@@ -25,7 +25,7 @@ namespace msra.nlp.tr
 
         StanfordCoreNLP pipeline = null;
         edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation tokenObj = new edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation();
-        edu.stanford.nlp.ling.CoreAnnotations.BeginIndexAnnotation offsetObj = new edu.stanford.nlp.ling.CoreAnnotations.BeginIndexAnnotation();
+        edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation offsetObj = new edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation();
 
         public  List<Pair<string, int>> Tokenize(string sequence)
         {
@@ -44,7 +44,7 @@ namespace msra.nlp.tr
             var list = new List<Pair<string, int>>();
             foreach (edu.stanford.nlp.ling.CoreLabel token in tokens)
             {
-                var offset = (int)token.get(offsetObj.getClass());
+                var offset = int.Parse(token.get(offsetObj.getClass()).ToString());
                 var text = token.toString();
                 list.Add(new Pair<string, int>(text, offset));
             }

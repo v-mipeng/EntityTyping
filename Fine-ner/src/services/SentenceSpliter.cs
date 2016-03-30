@@ -64,7 +64,7 @@ namespace msra.nlp.tr
         {
             var props = new Properties();
             props.put("annotators", "tokenize,ssplit");
-            props.put("tokenizer.whitespace", "true");
+            //props.put("tokenizer.whitespace", "true");
 
             var dir = Directory.GetCurrentDirectory();
             Directory.SetCurrentDirectory(modelDir ?? (string)Parameter.GetParameter(Parameter.Field.stanford_model_dir));
