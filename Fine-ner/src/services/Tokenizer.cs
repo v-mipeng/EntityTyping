@@ -12,6 +12,7 @@ using java.util;
 using pml.collection.map;
 using pml.file.reader;
 using pml.file.writer;
+using pml.type;
 
 namespace msra.nlp.tr
 {
@@ -24,8 +25,9 @@ namespace msra.nlp.tr
 
         StanfordCoreNLP pipeline = null;
         edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation tokenObj = new edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation();
+        edu.stanford.nlp.ling.CoreAnnotations.BeginIndexAnnotation offsetObj = new edu.stanford.nlp.ling.CoreAnnotations.BeginIndexAnnotation();
 
-        public  List<string> Tokenize(string sequence)
+        public  List<Pair<string, int>> Tokenize(string sequence)
         {
             if(sequence == null)
             {
@@ -39,7 +41,14 @@ namespace msra.nlp.tr
             pipeline.annotate(document);
 
             var tokens = (ArrayList)document.get(tokenObj.getClass());
-            return (from CoreMap token in tokens select token.ToString()).ToList();
+            var list = new List<Pair<string, int>>();
+            foreach (edu.stanford.nlp.ling.CoreLabel token in tokens)
+            {
+                var offset = (int)token.get(offsetObj.getClass());
+                var text = token.toString();
+                list.Add(new Pair<string, int>(text, offset));
+            }
+            return list;
         }
 
         private  void Initial(string modelDir = null)

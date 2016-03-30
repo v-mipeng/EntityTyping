@@ -177,17 +177,19 @@ namespace msra.nlp.tr
             nodes = doc.DocumentElement.SelectNodes("/config/types/map");
             foreach(XmlNode node in nodes)
             {
-                var type = node.Attributes["type"].Value;
+                var fromType = node.Attributes["fromType"].Value;
+                var toType = node.Attributes["toType"].Value;
                 var label = int.Parse(node.Attributes["label"].Value);
-                type2Label[type] = label;
-                label2Type[label] = type;
+                type2Label[fromType] = label;
+                type2Label[toType] = label;
+                label2Type[label] = toType;
             }
             // Set Raw Feature Index
             nodes = doc.DocumentElement.SelectNodes("/config/features/feature");
             foreach (XmlNode node in nodes)
             {
                 var name = node.Attributes["name"].Value;
-                if(node.Attributes["label"].Value.Equals("true"))
+                if(node.Attributes["activate"].Value.Equals("true"))
                 {
                     featureIndex[name] = featureIndex.Count;
                 }

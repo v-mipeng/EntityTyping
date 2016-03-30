@@ -13,9 +13,11 @@ namespace User
 {
     class Debug
     {
-        static void Mains(string[] args)
+        static void Main(string[] args)
         {
-            Run();
+            var tokenizer = new Tokenizer(@"D:\Codes\Project\EntityTyping\Fine-ner\input\stanford models");
+            var toknized = tokenizer.Tokenize("I like Beijing(China). J. Smith went with me.");
+            //Run();
         }
 
         public static void Run()
@@ -148,7 +150,7 @@ namespace User
             /************************************************************************/
             /* Feature extractor  for satori and conll                                                                   */
             /************************************************************************/
-            if(true)
+            if(false)
             {
                 var currentFolderPath = Environment.CurrentDirectory;
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
@@ -223,6 +225,26 @@ namespace User
                     }
                 }
                 #endregion
+
+            }
+            /************************************************************************/
+            /* Feature extractor  for 5 classes: product and other                                                                   */
+            /************************************************************************/
+            if (true)
+            {
+                var currentFolderPath = Environment.CurrentDirectory;
+                var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
+                var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
+                basedir = Path.Combine(basedir, "Fine-ner/");
+                var configFile = Path.Combine(basedir,"config.xml");
+                props.SetProperty("method", @"/ef -svm -train");
+                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\5 class\train\"));
+                props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\features\5 class\train\"));
+                props.Set("activateNer", false);
+                props.Set("activateParser", false);
+                pipeline = new Pipeline(configFile, props);
+                pipeline.Execute();
+                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\features\5 class\train\"), Path.Combine(basedir, @"output\features\5 class\train.txt"));
 
             }
             /************************************************************************/

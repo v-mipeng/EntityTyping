@@ -79,7 +79,7 @@ namespace msra.nlp.tr
             return GetIndexOfMention(ps, words);
         }
 
-        public Pair<int, int> GetIndexOfMention(IEnumerable<Pair<string, string>> pairs, IEnumerable<string> words)
+        public Pair<int, int> GetIndexOfMention(IEnumerable<Pair<string, string>> pairs, IEnumerable<string> words, int mentionOffset = 0)
         {
             var c = new StringBuilder();
             foreach(var p in pairs)
@@ -111,34 +111,7 @@ namespace msra.nlp.tr
                     return new Pair<int, int>(begin, end);
                 }
             }
-            //var pair = new Pair<int, int>();
-            //int begin = -1;
-            //int end = -1;
-            //int offset = 0;
-            //for (var i = 0; i < pairs.Count(); i++)
-            //{
-            //    if(pairs.ElementAt(i).first.Equals(words.ElementAt(offset)) || 
-            //        (offset == 0 && pairs.ElementAt(i).first.EndsWith(words.ElementAt(offset))) ||
-            //        (offset == words.Count()-1 && pairs.ElementAt(i).first.StartsWith(words.ElementAt(offset))))
-            //    {
-            //        if (begin == -1)
-            //        {
-            //            begin = i;
-            //        }
-            //        if (offset == words.Count() - 1)
-            //        {
-            //            end = i;
-            //            return new Pair<int, int>(begin, end);
-            //        }
-            //        offset++;
-            //    }
-            //    else
-            //    {
-            //        i = i - offset;
-            //        offset = 0;
-            //        begin = -1;
-            //    }
-            //}
+            
             return new Pair<int, int>(-1, -1);
         }
 
