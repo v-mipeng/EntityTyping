@@ -10,7 +10,6 @@ using pml.file.reader;
 
 namespace msra.nlp.tr
 {
-
     /// <summary>
     /// The parameters within this class can be assigned by the user
     /// however, they are not rewritable once assigned.
@@ -64,6 +63,9 @@ namespace msra.nlp.tr
 
         private static Dictionary<string, int> type2Label = new Dictionary<string, int>();
 
+        private static Dictionary<string, int> featureIndex = new Dictionary<string, int>();
+
+
         /// <summary>
         /// Get parameter with given key
         /// </summary>
@@ -115,6 +117,11 @@ namespace msra.nlp.tr
             {
                 throw new Exception("No type corresponds to given label!");
             }
+        }
+
+        internal static int GetFeatureIndex(string featureKey)
+        {
+            return featureIndex[featureKey];
         }
 
         internal static void SetParameter(Object key, Object value)
@@ -174,6 +181,16 @@ namespace msra.nlp.tr
                 var label = int.Parse(node.Attributes["label"].Value);
                 type2Label[type] = label;
                 label2Type[label] = type;
+            }
+            // Set Raw Feature Index
+            nodes = doc.DocumentElement.SelectNodes("/config/features/feature");
+            foreach (XmlNode node in nodes)
+            {
+                var name = node.Attributes["name"].Value;
+                if(node.Attributes["label"].Value.Equals("true"))
+                {
+                    featureIndex[name] = featureIndex.Count;
+                }
             }
             if (props != null)
             {

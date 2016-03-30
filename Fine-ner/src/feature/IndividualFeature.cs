@@ -244,8 +244,8 @@ namespace msra.nlp.tr
         public List<string> AddFeature(Event e)
         {
             var rawFeature = (List<string>)e.Feature;
-            var mention = rawFeature.ElementAt((int)Event.Field.mentionSurfaces).Replace(',', ' ');
-            var context = rawFeature.ElementAt((int)Event.Field.sentenceContext);
+            var mention = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionSurfaces")).Replace(',', ' ');
+            var context = rawFeature.ElementAt(Parameter.GetFeatureIndex("sentenceContext"));
             #region Stanford NER
             if (false)
             {
@@ -267,17 +267,17 @@ namespace msra.nlp.tr
                 var type = ner.GetNerType(mention);
                 OpenNerPool.ReturnOpenNer(ner);
                 ner = null;
-                rawFeature[(int)Event.Field.opennlpNerType] = type;
+                rawFeature[Parameter.GetFeatureIndex("opennlpNerType")] = type;
             }
             #endregion
 
             #region DBpedia dictionary
-            if(true)
+            if (true)
             {
                 var types = string.Join(",", DataCenter.GetDBpediaTypeWithIndegree(mention));
-                rawFeature[(int)Event.Field.dbpediaTypesWithIndegree] = types;
+                rawFeature[Parameter.GetFeatureIndex("dbpediaTypesWithIndegree")] = types;
                 types = string.Join(",", DataCenter.GetDBpediaTypeWithAbstract(mention, context));
-                rawFeature[(int)Event.Field.dbpediaTypesWithAbstract] = types;
+                rawFeature[Parameter.GetFeatureIndex("dbpediaTypesWithAbstract")] = types;
             }
             #endregion
 
@@ -289,14 +289,14 @@ namespace msra.nlp.tr
 
             if (false)
             {
-                var lastWord = rawFeature.ElementAt((int)Event.Field.lastWord);
+                var lastWord = rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWord"));
                 if (lastWord.Equals("##") || lastWord.Equals(".") || lastWord.Equals("!") || lastWord.Equals("?") || lastWord.Equals(";"))
                 {
-                    rawFeature[(int)Event.Field.lastWord] = "NULL";
-                    rawFeature[(int)Event.Field.lastWordStemmed] = "NULL";
-                    rawFeature[(int)Event.Field.lastWordTag] = "NULL";
-                    rawFeature[(int)Event.Field.lastWordID] = "100";
-                    rawFeature[(int)Event.Field.lastWordShape] = "NULL";
+                    rawFeature[Parameter.GetFeatureIndex("lastWord")] = "NULL";
+                    rawFeature[Parameter.GetFeatureIndex("lastWordStemmed")] = "NULL";
+                    rawFeature[Parameter.GetFeatureIndex("lastWordTag")] = "NULL";
+                    rawFeature[Parameter.GetFeatureIndex("lastWordID")] = "100";
+                    rawFeature[Parameter.GetFeatureIndex("lastWordShape")] = "NULL";
                 }
                 else if (!lastWord.Equals("'s") && regex.IsMatch(lastWord))
                 {
@@ -331,19 +331,19 @@ namespace msra.nlp.tr
                             var ID = DataCenter.GetWordClusterID(word).ToString();    // id should use original surface
                             var shape = GetWordShape(word);
 
-                            rawFeature[(int)Event.Field.lastWord] = word;
-                            rawFeature[(int)Event.Field.lastWordStemmed] = wordStemmed;
-                            rawFeature[(int)Event.Field.lastWordTag] = posTag;
-                            rawFeature[(int)Event.Field.lastWordID] = ID;
-                            rawFeature[(int)Event.Field.lastWordShape] = shape;
+                            rawFeature[Parameter.GetFeatureIndex("lastWord")] = word;
+                            rawFeature[Parameter.GetFeatureIndex("lastWordStemmed")] = wordStemmed;
+                            rawFeature[Parameter.GetFeatureIndex("lastWordTag")] = posTag;
+                            rawFeature[Parameter.GetFeatureIndex("lastWordID")] = ID;
+                            rawFeature[Parameter.GetFeatureIndex("lastWordShape")] = shape;
                         }
                         else
                         {
-                            rawFeature[(int)Event.Field.lastWord] = "NULL";
-                            rawFeature[(int)Event.Field.lastWordStemmed] = "NULL";
-                            rawFeature[(int)Event.Field.lastWordTag] = "NULL";
-                            rawFeature[(int)Event.Field.lastWordID] = "100";
-                            rawFeature[(int)Event.Field.lastWordShape] = "NULL";
+                            rawFeature[Parameter.GetFeatureIndex("lastWord")] = "NULL";
+                            rawFeature[Parameter.GetFeatureIndex("lastWordStemmed")] = "NULL";
+                            rawFeature[Parameter.GetFeatureIndex("lastWordTag")] = "NULL";
+                            rawFeature[Parameter.GetFeatureIndex("lastWordID")] = "100";
+                            rawFeature[Parameter.GetFeatureIndex("lastWordShape")] = "NULL";
                         }
                         PosTaggerPool.ReturnPosTagger(pos);
                     }
@@ -360,14 +360,14 @@ namespace msra.nlp.tr
             #region Modify next word
             if (false)
             {
-                var nextWord = rawFeature.ElementAt((int)Event.Field.nextWord);
+                var nextWord = rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWord"));
                 if (nextWord.Equals("##") || nextWord.Equals(".") || nextWord.Equals("!") || nextWord.Equals("?") || nextWord.Equals(";"))
                 {
-                    rawFeature[(int)Event.Field.nextWord] = "NULL";
-                    rawFeature[(int)Event.Field.nextWordStemmed] = "NULL";
-                    rawFeature[(int)Event.Field.nextWordTag] = "NULL";
-                    rawFeature[(int)Event.Field.nextWordID] = "100";
-                    rawFeature[(int)Event.Field.nextWordShape] = "NULL";
+                    rawFeature[Parameter.GetFeatureIndex("nextWord")] = "NULL";
+                    rawFeature[Parameter.GetFeatureIndex("nextWordStemmed")] = "NULL";
+                    rawFeature[Parameter.GetFeatureIndex("nextWordTag")] = "NULL";
+                    rawFeature[Parameter.GetFeatureIndex("nextWordID")] = "100";
+                    rawFeature[Parameter.GetFeatureIndex("nextWordShape")] = "NULL";
                 }
                 else if (!nextWord.Equals("'s") && regex.IsMatch(nextWord))
                 {
@@ -411,19 +411,19 @@ namespace msra.nlp.tr
                         var ID = DataCenter.GetWordClusterID(word).ToString();    // id should use original surface
                         var shape = GetWordShape(word);
 
-                        rawFeature[(int)Event.Field.nextWord] = word;
-                        rawFeature[(int)Event.Field.nextWordStemmed] = wordStemmed;
-                        rawFeature[(int)Event.Field.nextWordTag] = posTag;
-                        rawFeature[(int)Event.Field.nextWordID] = ID;
-                        rawFeature[(int)Event.Field.nextWordShape] = shape;
+                        rawFeature[Parameter.GetFeatureIndex("nextWord")] = word;
+                        rawFeature[Parameter.GetFeatureIndex("nextWordStemmed")] = wordStemmed;
+                        rawFeature[Parameter.GetFeatureIndex("nextWordTag")] = posTag;
+                        rawFeature[Parameter.GetFeatureIndex("nextWordID")] = ID;
+                        rawFeature[Parameter.GetFeatureIndex("nextWordShape")] = shape;
                     }
                     else
                     {
-                        rawFeature[(int)Event.Field.nextWord] = "NULL";
-                        rawFeature[(int)Event.Field.nextWordStemmed] = "NULL";
-                        rawFeature[(int)Event.Field.nextWordTag] = "NULL";
-                        rawFeature[(int)Event.Field.nextWordID] = "100";
-                        rawFeature[(int)Event.Field.nextWordShape] = "NULL";
+                        rawFeature[Parameter.GetFeatureIndex("nextWord")] = "NULL";
+                        rawFeature[Parameter.GetFeatureIndex("nextWordStemmed")] = "NULL";
+                        rawFeature[Parameter.GetFeatureIndex("nextWordTag")] = "NULL";
+                        rawFeature[Parameter.GetFeatureIndex("nextWordID")] = "100";
+                        rawFeature[Parameter.GetFeatureIndex("nextWordShape")] = "NULL";
                     }
                 }
             }
@@ -432,12 +432,12 @@ namespace msra.nlp.tr
             #region   Modify mention ID
             if (false)
             {
-                //var mentionID = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionID));
+                //var mentionID = int.Parse(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionID")));
                 //var mentionClusterNum = DataCenter.GetMentionClusterNumber();
                 //if (mentionID == mentionClusterNum)
                 //{
                 var mentionID = DataCenter.GetMentionClusterID(mention);
-                rawFeature[(int)Event.Field.mentionID] = mentionID.ToString();
+                rawFeature[Parameter.GetFeatureIndex("mentionID")] = mentionID.ToString();
                 //}
             }
             #endregion
@@ -446,54 +446,54 @@ namespace msra.nlp.tr
             if (false)
             {
                 var keyWords = DataCenter.ExtractKeyWords(context);
-                rawFeature[(int)Event.Field.sentenceContext] = string.Join(",", keyWords);
+                rawFeature[Parameter.GetFeatureIndex("sentenceContext")] = string.Join(",", keyWords);
 
                 rawFeature.Add(context);
             }
             #endregion
 
             #region Word ID
-            if(false)
+            if (false)
             {
-                var word = rawFeature[(int)Event.Field.lastWord];
+                var word = rawFeature[Parameter.GetFeatureIndex("lastWord")];
                 if (!word.Equals("NULL"))
                 {
                     var id = DataCenter.GetWordClusterID(word);
-                    rawFeature[(int)Event.Field.lastWordID] = id.ToString();
+                    rawFeature[Parameter.GetFeatureIndex("lastWordID")] = id.ToString();
                 }
-                word = rawFeature[(int)Event.Field.nextWord];
+                word = rawFeature[Parameter.GetFeatureIndex("nextWord")];
                 if (!word.Equals("NULL"))
                 {
                     var id = DataCenter.GetWordClusterID(word);
-                    rawFeature[(int)Event.Field.nextWordID] = id.ToString();
-                } 
-                word = rawFeature[(int)Event.Field.mentionAction];
-                if (!word.Equals("NULL"))
-                {
-                    var id = DataCenter.GetWordClusterID(word);
-                    rawFeature[(int)Event.Field.mentionActionID] = id.ToString();
-                } 
-                word = rawFeature[(int)Event.Field.mentionAdjModifier];
-                if (!word.Equals("NULL"))
-                {
-                    var id = DataCenter.GetWordClusterID(word);
-                    rawFeature[(int)Event.Field.mentionAdjModifierID] = id.ToString();
-                } 
-                word = rawFeature[(int)Event.Field.mentionDriver];
-                if (!word.Equals("NULL"))
-                {
-                    var id = DataCenter.GetWordClusterID(word);
-                    rawFeature[(int)Event.Field.mentionDriverID] = id.ToString();
-                } 
-                word = rawFeature[(int)Event.Field.mentionHead];
-                if (!word.Equals("NULL"))
-                {
-                    var id = DataCenter.GetWordClusterID(word);
-                    rawFeature[(int)Event.Field.mentionHeadID] = id.ToString();
+                    rawFeature[Parameter.GetFeatureIndex("nextWordID")] = id.ToString();
                 }
-                var words = rawFeature[(int)Event.Field.mentionSurfaces].Split(',');
+                word = rawFeature[Parameter.GetFeatureIndex("mentionAction")];
+                if (!word.Equals("NULL"))
+                {
+                    var id = DataCenter.GetWordClusterID(word);
+                    rawFeature[Parameter.GetFeatureIndex("mentionActionID")] = id.ToString();
+                }
+                word = rawFeature[Parameter.GetFeatureIndex("mentionAdjModifier")];
+                if (!word.Equals("NULL"))
+                {
+                    var id = DataCenter.GetWordClusterID(word);
+                    rawFeature[Parameter.GetFeatureIndex("mentionAdjModifierID")] = id.ToString();
+                }
+                word = rawFeature[Parameter.GetFeatureIndex("mentionDriver")];
+                if (!word.Equals("NULL"))
+                {
+                    var id = DataCenter.GetWordClusterID(word);
+                    rawFeature[Parameter.GetFeatureIndex("mentionDriverID")] = id.ToString();
+                }
+                word = rawFeature[Parameter.GetFeatureIndex("mentionHead")];
+                if (!word.Equals("NULL"))
+                {
+                    var id = DataCenter.GetWordClusterID(word);
+                    rawFeature[Parameter.GetFeatureIndex("mentionHeadID")] = id.ToString();
+                }
+                var words = rawFeature[Parameter.GetFeatureIndex("mentionSurfaces")].Split(',');
                 var ids = new StringBuilder();
-                foreach(var w in words)
+                foreach (var w in words)
                 {
                     var id = DataCenter.GetWordClusterID(w);
                     if (ids.Length == 0)
@@ -505,7 +505,7 @@ namespace msra.nlp.tr
                         ids.Append("," + id);
                     }
                 }
-                rawFeature[(int)Event.Field.mentionIDs] = ids.ToString(); ;
+                rawFeature[Parameter.GetFeatureIndex("mentionIDs")] = ids.ToString(); ;
             }
             #endregion
 

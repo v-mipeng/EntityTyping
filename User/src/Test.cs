@@ -48,7 +48,6 @@ namespace pml.ml.optimizer
                     return path[path.Count - 1];
                 }
             }
->>>>>>> release
 
         }
 

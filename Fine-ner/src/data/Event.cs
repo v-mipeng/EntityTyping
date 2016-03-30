@@ -11,45 +11,6 @@ namespace msra.nlp.tr
     /// </summary>
    public class Event
     {
-        // feature of event
-        public enum Field
-        {
-            // last word
-            lastWord,
-            lastWordStemmed,
-            lastWordTag,
-            lastWordID,
-            lastWordShape,
-            // next word
-            nextWord,
-            nextWordStemmed,
-            nextWordTag,
-            nextWordID,
-            nextWordShape,
-            // mention head
-            mentionHead,
-            mentionHeadStemmed,
-            mentionHeadTag,
-            mentionHeadID,
-            mentionHeadShape,
-            // mention words
-            mentionSurfaces,
-            mentionSurfacesStemmed,
-            mentionTags,
-            mentionIDs,
-            mentionShapes,
-            // mention level
-            mentionID,
-            // mention length
-            mentionLength,
-            // dbpedia type
-            dbpediaTypesWithIndegree,
-            dbpediaTypesWithAbstract,
-            // key words
-            keyWords,
-            // mention context
-            sentenceContext
-        }
 
         private IEnumerable<string> feature = null;
 

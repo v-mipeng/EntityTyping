@@ -63,28 +63,28 @@ namespace msra.nlp.tr
 
             #region last word (make last word more accurate)
             {
-                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.lastWordStemmed),
-                    rawFeature.ElementAt((int)Event.Field.lastWordID),
-                    rawFeature.ElementAt((int)Event.Field.lastWordShape),
-                    rawFeature.ElementAt((int)Event.Field.lastWordTag));
+                AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordStemmed")),
+                    rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordID")),
+                    rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordShape")),
+                    rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordTag")));
             }
             #endregion
 
             #region next word
             {
-                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.nextWordStemmed),
-                    rawFeature.ElementAt((int)Event.Field.nextWordID),
-                    rawFeature.ElementAt((int)Event.Field.nextWordShape),
-                    rawFeature.ElementAt((int)Event.Field.nextWordTag));
+                AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordStemmed")),
+                    rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordID")),
+                    rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordShape")),
+                    rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordTag")));
             }
             #endregion
 
             #region  mention head
             {
-                AddWordFieldToFeature(rawFeature.ElementAt((int)Event.Field.mentionHeadStemmed),
-                     rawFeature.ElementAt((int)Event.Field.mentionHeadID),
-                     rawFeature.ElementAt((int)Event.Field.mentionHeadShape),
-                     rawFeature.ElementAt((int)Event.Field.mentionHeadTag));
+                AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadStemmed")),
+                     rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadID")),
+                     rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadShape")),
+                     rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadTag")));
             }
             #endregion
 
@@ -93,7 +93,7 @@ namespace msra.nlp.tr
                 string[] words = null;
                 try
                 {
-                    words = rawFeature.ElementAt((int)Event.Field.mentionSurfacesStemmed).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    words = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionSurfacesStemmed")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
                 catch (Exception)
                 {
@@ -102,7 +102,7 @@ namespace msra.nlp.tr
                 string[] IDs = null;
                 try
                 {
-                    IDs = rawFeature.ElementAt((int)Event.Field.mentionIDs).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    IDs = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionIDs")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
                 catch (Exception)
                 {
@@ -111,7 +111,7 @@ namespace msra.nlp.tr
                 string[] shapes = null;
                 try
                 {
-                    shapes = rawFeature.ElementAt((int)Event.Field.mentionShapes).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    shapes = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionShapes")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
                 catch (Exception)
                 {
@@ -120,7 +120,7 @@ namespace msra.nlp.tr
                 string[] tags = null;
                 try
                 {
-                    tags = rawFeature.ElementAt((int)Event.Field.mentionTags).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    tags = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionTags")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }
                 catch (Exception)
                 {
@@ -189,7 +189,7 @@ namespace msra.nlp.tr
 
             #region mention cluster id
             {
-                var mentionID = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionID));
+                var mentionID = int.Parse(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionID")));
                 feature.Add((offset + mentionID) + ":1");
                 offset += DataCenter.GetMentionClusterNumber() + 1;
             }
@@ -197,7 +197,7 @@ namespace msra.nlp.tr
 
             #region mention length: 1,2,3,4 or longer than 5
             {
-                var length = int.Parse(rawFeature.ElementAt((int)Event.Field.mentionLength));
+                var length = int.Parse(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionLength")));
                 if (length > 5)
                 {
                     length = 5;
@@ -209,7 +209,7 @@ namespace msra.nlp.tr
 
             #region DBpedia types
             {
-                var types = rawFeature.ElementAt((int)Event.Field.dbpediaTypesWithIndegree).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var types = rawFeature.ElementAt(Parameter.GetFeatureIndex("dbpediaTypesWithIndegree")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 if (types.Count() == 1 && !types[0].Contains(":"))
                 {
                     var index = DataCenter.GetDBpediaTypeIndex(types[0]);
@@ -246,7 +246,7 @@ namespace msra.nlp.tr
                     }
                 }
                 offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
-                types = rawFeature.ElementAt((int)Event.Field.dbpediaTypesWithAbstract).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                types = rawFeature.ElementAt(Parameter.GetFeatureIndex("dbpediaTypesWithAbstract")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 if (types.Count() == 1 && !types[0].Contains(":"))
                 {
                     var index = DataCenter.GetDBpediaTypeIndex(types[0]);
@@ -276,7 +276,7 @@ namespace msra.nlp.tr
 
             #region Key words
             {
-                var keywords = rawFeature.ElementAt((int)Event.Field.keyWords).Split(',');
+                var keywords = rawFeature.ElementAt(Parameter.GetFeatureIndex("keyWords")).Split(',');
                 var list = new List<int>();
                 foreach (var word in keywords)
                 {
