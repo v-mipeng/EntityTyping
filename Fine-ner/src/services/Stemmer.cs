@@ -32,7 +32,7 @@ namespace msra.nlp.tr
             var dir = Directory.GetCurrentDirectory();
             props.setProperty("ner.useSUTime", "false");
             //Directory.SetCurrentDirectory(@"E:\Users\v-mipeng\Software Install\Stanford NLP\stanford-corenlp-full-2015-04-20\");
-            Directory.SetCurrentDirectory((string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir));
+            Directory.SetCurrentDirectory((string)Parameter.GetParameter(Parameter.Field.stanford_model_dir));
             pipeline = new StanfordCoreNLP(props);
             Directory.SetCurrentDirectory(dir);
         }

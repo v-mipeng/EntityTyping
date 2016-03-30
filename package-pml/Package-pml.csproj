@@ -78,6 +78,7 @@
     <Compile Include="src\pml\math\VectorDistance.cs" />
     <Compile Include="src\pml\ml\cluster\Cluster.cs" />
     <Compile Include="src\pml\ml\cluster\ParallelKMeans .cs" />
+    <Compile Include="src\pml\ml\optimizer\ForwardViterbi.cs" />
     <Compile Include="src\pml\type\Pair.cs" />
     <Compile Include="src\pml\type\Property.cs" />
   </ItemGroup>

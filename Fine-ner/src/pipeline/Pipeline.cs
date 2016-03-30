@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using pml.file.reader;
-using pml.file.writer;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections;
 using System.Threading;
+using System.Xml;
 using edu.stanford.nlp.parser.lexparser;
 using pml.collection.map;
 using pml.type;
+using pml.file.reader;
+using pml.file.writer;
 using msra.nlp.tr.predict;
 using msra.nlp.tr.eval;
 
@@ -22,42 +23,27 @@ namespace msra.nlp.tr
 
         public Pipeline() 
         {
-            Initial(new Property());
         }
 
         public Pipeline(Property props)
         {
-            Initial(props);
+            Parameter.SetParameters(props);
         }
 
-        public Pipeline(string configFile)
+        public Pipeline(string configFile, Property props = null)
         {
-            var reader = new LargeFileReader(configFile);
-            var dic = new Dictionary<string, string>();
-            string line;
-
-            while((line = reader.ReadLine())!=null)
-            {
-                var array = line.Split('=');
-                dic[array[0].Trim()]= array[1].Trim();
-            }
-            reader.Close();
-            var basedir = dic["basedir"];
-            dic.Remove("basedir");
-            foreach(var key in dic.Keys)
-            {
-                GlobalParameter.Set(key, Path.Combine(basedir, dic[key]));
-            }
+            Parameter.SetParameters(configFile, props);
         }
 
-        private static void Initial(Property props)
+        public void SetProperty(object parameter, object value)
         {
-            foreach (var key in DefaultParameter.GetParameterSet())
-            {
-                GlobalParameter.Set(key, props.GetOrDefault(key, DefaultParameter.Get(key)));
-            }
+            Parameter.SetParameter(parameter, value);
         }
 
+        public void SetProperty(Property props)
+        {
+            Parameter.SetParameters(props);
+        }
 
 
         #region Command Line Operations
@@ -78,7 +64,7 @@ namespace msra.nlp.tr
         {
             string operation = null;    // command
             var options = new HashSet<string>();
-            var method = (string)GlobalParameter.Get(DefaultParameter.Field.method);
+            var method = (string)Parameter.GetParameter(Parameter.Field.method);
             var array = Regex.Split(method, @"\s+");
 
             for(var i= 0;i<array.Length;i++)
@@ -213,20 +199,20 @@ namespace msra.nlp.tr
                 // extract features for svm model
                 if (options.Contains("train") || options.Contains("all"))
                 {
-                    var extractor = new ParallelSVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
+                    var extractor = new ParallelSVMFeatureExtractor((string)Parameter.GetParameter(Parameter.Field.train_data_file),
+                        (string)Parameter.GetParameter(Parameter.Field.train_feature_file));
                     extractor.ExtractFeature();
                 }
                 if (options.Contains("dev") || options.Contains("all"))
                 {
-                    var extractor = new ParallelSVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
+                    var extractor = new ParallelSVMFeatureExtractor((string)Parameter.GetParameter(Parameter.Field.develop_data_file),
+                        (string)Parameter.GetParameter(Parameter.Field.develop_feature_file));
                     extractor.ExtractFeature();
                 }
                 if (options.Contains("test") || options.Contains("all"))
                 {
-                    var extractor = new ParallelSVMFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
+                    var extractor = new ParallelSVMFeatureExtractor((string)Parameter.GetParameter(Parameter.Field.test_data_file),
+                        (string)Parameter.GetParameter(Parameter.Field.test_feature_file));
                     extractor.ExtractFeature();
                 }
             }
@@ -249,8 +235,8 @@ namespace msra.nlp.tr
                 // extract raw features
                 if (options.Contains("train") || options.Contains("all"))
                 {
-                    var extractor = new ParallelIndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file),
-                       (string)GlobalParameter.Get(DefaultParameter.Field.train_feature_file));
+                    var extractor = new ParallelIndividualFeatureExtractor((string)Parameter.GetParameter(Parameter.Field.train_data_file),
+                       (string)Parameter.GetParameter(Parameter.Field.train_feature_file));
                     if (options.Contains("add"))
                     {
                         extractor.AddFeature();
@@ -262,8 +248,8 @@ namespace msra.nlp.tr
                 }
                 if (options.Contains("dev") || options.Contains("all"))
                 {
-                    var extractor = new ParallelIndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.develop_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.develop_feature_file));
+                    var extractor = new ParallelIndividualFeatureExtractor((string)Parameter.GetParameter(Parameter.Field.develop_data_file),
+                        (string)Parameter.GetParameter(Parameter.Field.develop_feature_file));
                     if (options.Contains("add"))
                     {
                         extractor.AddFeature();
@@ -275,8 +261,8 @@ namespace msra.nlp.tr
                 }
                 if (options.Contains("test") || options.Contains("all"))
                 {
-                    var extractor = new ParallelIndividualFeatureExtractor((string)GlobalParameter.Get(DefaultParameter.Field.test_data_file),
-                        (string)GlobalParameter.Get(DefaultParameter.Field.test_feature_file));
+                    var extractor = new ParallelIndividualFeatureExtractor((string)Parameter.GetParameter(Parameter.Field.test_data_file),
+                        (string)Parameter.GetParameter(Parameter.Field.test_feature_file));
                     if (options.Contains("add"))
                     {
                         extractor.AddFeature();
@@ -312,9 +298,9 @@ namespace msra.nlp.tr
         /************************************************************************/
         public void ExtractWordTable()
         {
-            FileReader reader = new LargeFileReader((string)GlobalParameter.Get(DefaultParameter.Field.train_data_file));
-            FileWriter writer = new LargeFileWriter((string)GlobalParameter.Get(DefaultParameter.Field.word_table_file), FileMode.Create);
-            FileWriter wordShapeWriter = new LargeFileWriter((string)GlobalParameter.Get(DefaultParameter.Field.word_shape_table_file), FileMode.Create);
+            FileReader reader = new LargeFileReader((string)Parameter.GetParameter(Parameter.Field.train_data_file));
+            FileWriter writer = new LargeFileWriter((string)Parameter.GetParameter(Parameter.Field.word_table_file), FileMode.Create);
+            FileWriter wordShapeWriter = new LargeFileWriter((string)Parameter.GetParameter(Parameter.Field.word_shape_table_file), FileMode.Create);
             //FileWriter wordShapeWriter = new LargeFileWriter("../../../Fine-ner/input/shape-table-file.txt", FileMode.Create);
 
             string line = null;
@@ -364,24 +350,6 @@ namespace msra.nlp.tr
         }
 
         #endregion
-        private void OutputDicTypeValue()
-        {
-            var dic = DataCenter.GetDicTyeMap();
-            var writer = new LargeFileWriter((string)GlobalParameter.Get(DefaultParameter.Field.dic_type_value_file), FileMode.OpenOrCreate);
-
-            foreach (var key in dic.Keys)
-            {
-                if (GlobalParameter.featureNum != 0)
-                {
-                    writer.WriteLine(key + "\t" + (GlobalParameter.featureNum - DataCenter.GetDicTypeNum() + dic[key]));
-                }
-                else
-                {
-                    writer.WriteLine(key + "\t" + dic[key]);
-                }
-            }
-            writer.Close();
-        }
 
         #endregion
 

@@ -26,11 +26,6 @@ namespace msra.nlp.tr
         public override void ExtractFeature()
         {
             var count = 0;
-            var dic = new Dictionary<string, int>();
-            foreach (var type in types)
-            {
-                dic[type] = dic.Count;
-            }
 
             while (reader.HasNext())
              {
@@ -42,7 +37,7 @@ namespace msra.nlp.tr
                  try
                  {
                      var feature = extractor.ExtractFeature(e);
-                     writer.WriteEvent(new Event(new Label(dic[e.Label.StringLabel].ToString()), feature));
+                     writer.WriteEvent(new Event(new Label(Parameter.GetTypeLabel(e.Label.StringLabel).ToString()), feature));
                  }
                  catch(Exception ex)
                  {
@@ -53,26 +48,6 @@ namespace msra.nlp.tr
              reader.Close();
              writer.Close();
         }
-
        
-
-        internal static string[] types = new string[] {
-                "music",
-                "broadcast",
-                "book",
-                "award",
-                "body part",
-                "chemicstry",
-                "time event",
-                "food",
-                "language",
-                "location",
-                "organization",
-                "people",
-                "software",
-                "electronics product",
-                "vehicle",
-        };
-
     }
 }

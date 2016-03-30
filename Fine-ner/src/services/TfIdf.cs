@@ -64,7 +64,7 @@ namespace msra.nlp.tr
            {
                if(df == null)
                {
-                   var dfPath = (string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_abstract_df_file);
+                   var dfPath = (string)Parameter.GetParameter(Parameter.Field.dbpedia_abstract_df_file);
                    var reader = new LargeFileReader(dfPath);
                    var dic = new Dictionary<string, int>();
                    string line;
@@ -87,7 +87,7 @@ namespace msra.nlp.tr
             {
                 if (wordTable == null)
                 {
-                    var wordTablePath = (string)GlobalParameter.Get(DefaultParameter.Field.dbpedia_abstract_word_table);
+                    var wordTablePath = (string)Parameter.GetParameter(Parameter.Field.dbpedia_abstract_word_table);
                     var reader = new LargeFileReader(wordTablePath);
                     var dic = new Dictionary<string, int>();
                     string line;

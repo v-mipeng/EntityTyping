@@ -67,7 +67,7 @@ namespace msra.nlp.tr
             props.put("tokenizer.whitespace", "true");
 
             var dir = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(modelDir ?? (string)GlobalParameter.Get(DefaultParameter.Field.stanford_model_dir));
+            Directory.SetCurrentDirectory(modelDir ?? (string)Parameter.GetParameter(Parameter.Field.stanford_model_dir));
             pipeline = new StanfordCoreNLP(props);
             Directory.SetCurrentDirectory(dir);
         }

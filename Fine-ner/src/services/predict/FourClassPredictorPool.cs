@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr.predict
 {
-   public class FullFeaturePredictorPool
+   public class FourClassPredictorPool
     {
-        static List<FullFeaturePredictor> predictors = new List<FullFeaturePredictor>();
+        static List<FourClassPredictor> predictors = new List<FourClassPredictor>();
         static HashSet<int> availablePredictors = new HashSet<int>();
         readonly static int maxPredictorNum = 50;
         static object locker = new object();
 
         /// <summary>
-        /// Get a stanford ner from ner pool
+        /// Get a FourClassPredictor from ner pool
         /// </summary>
         /// <returns></returns>
-        public static FullFeaturePredictor GetFullFeaturePredictor()
+        public static FourClassPredictor GetFourClassPredictor()
         {
             lock (locker)
             {
@@ -45,7 +45,7 @@ namespace msra.nlp.tr.predict
                     {
                         if (availablePredictors.Count == 0)
                         {
-                            var predictor = new FullFeaturePredictor();
+                            var predictor = new FourClassPredictor();
                             predictors.Add(predictor);
                             return predictor;
                         }
@@ -70,14 +70,10 @@ namespace msra.nlp.tr.predict
         }
 
         /// <summary>
-        /// return FullFeaturePredictor to the pool
-        /// </summary>
-        /// <summary>
-        /// return FullFeaturePredictor to the pool
+        /// return FourClassPredictor to the pool
         /// </summary>
         /// <param name="predictor"></param>
-        /// <param name="predictor"></param>
-        public static void ReturnFullFeaturePredictor(FullFeaturePredictor predictor)
+        public static void ReturnFourClassPredictor(FourClassPredictor predictor)
         {
             for (var i = 0; i < predictors.Count; i++)
             {
