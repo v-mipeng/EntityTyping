@@ -23,11 +23,50 @@ namespace msra.nlp.tr
 
         List<string> contextTokens = null;
 
+        #region Feature Control
+
+        bool useLastWord = true;
+        bool useNextWord = true;
+        bool useMentionHead = true;
+        bool useMentionDriver = true;
+        bool useMentionAdjModifier = true;
+        bool useMentionAction = true;
+        bool useMentionSurfaces = true;
+        bool useMentionLength = true;
+        bool useMentionID = true;
+        bool useStanfordNer = true;
+        bool useOpennlpNer = true;
+        bool useDbpediaTypesWithIndegree = true;
+        bool useDbpediaTypesWithAbstract = true;
+        bool useKeyWords = true;
+        bool useWordTag = true;
+        bool useWordID = true;
+        bool useWordShape = true;
+        bool useSentenceContext = true;
+
+        #endregion
         static System.Text.RegularExpressions.Regex allCharRegex = new System.Text.RegularExpressions.Regex(@"\W");
 
-
-        public IndividualFeature() : base() { }
-
+        public IndividualFeature() : base()
+        {
+            useLastWord = Parameter.UseFeature("lastWord");
+            useNextWord = Parameter.UseFeature("nextWord");
+            useMentionHead = Parameter.UseFeature("mentionHead");
+            useMentionDriver = Parameter.UseFeature("mentionDriver");
+            useMentionAdjModifier = Parameter.UseFeature("mentionAdjModifier");
+            useMentionAction = Parameter.UseFeature("mentionAction");
+            useMentionSurfaces = Parameter.UseFeature("mentionSurfaces");
+            useMentionLength = Parameter.UseFeature("mentionLength");
+            useMentionID = Parameter.UseFeature("mentionID");
+            useStanfordNer = Parameter.UseFeature("stanfordNer");
+            useOpennlpNer = Parameter.UseFeature("opennlpNer");
+            useDbpediaTypesWithIndegree = Parameter.UseFeature("dbpediaTypesWithIndegree");
+            useDbpediaTypesWithAbstract = Parameter.UseFeature("dbpediaTypesWithAbstract");
+            useKeyWords = Parameter.UseFeature("keyWords");
+            useWordTag = Parameter.UseFeature("wordTag");
+            useWordID = Parameter.UseFeature("wordID");
+            useWordShape = Parameter.UseFeature("wordShape");
+        }
 
         /// <summary>
         ///  Extract feature from the input, and the feature is clustered by field
@@ -58,48 +97,67 @@ namespace msra.nlp.tr
             this.feature.Clear();
             FilterContext();
             Tokenizer();
-
-            var posTagger = PosTaggerPool.GetPosTagger();
-            try
-            {
-                contextTokenPairs = posTagger.TagString(string.Join(" ", contextTokens));
-                PosTaggerPool.ReturnPosTagger(posTagger);
-            }
-            catch (Exception e)
-            {
-                PosTaggerPool.ReturnPosTagger(posTagger);
-                posTagger = null;
-                throw e;
-            }
             if (mentionIndexPair.first == -1)
             {
                 throw new NotFindMentionException("Cannot find mention by token within context!");
             }
+            if (useWordTag)
+            {
+                var posTagger = PosTaggerPool.GetPosTagger();
+                try
+                {
+                    contextTokenPairs = posTagger.TagString(string.Join(" ", contextTokens));
+                    PosTaggerPool.ReturnPosTagger(posTagger);
+                }
+                catch (Exception e)
+                {
+                    PosTaggerPool.ReturnPosTagger(posTagger);
+                    posTagger = null;
+                    throw e;
+                }
+            }
+
 
             #region last word
+            if(useLastWord)
             {
                 var index = GetLastTokenIndex();
                 if (index >= 0)
                 {
-                    var word = contextTokenPairs.ElementAt(index).first;
-                    var posTag = contextTokenPairs.ElementAt(index).second;
-                    AddFieldToFeture(word, posTag);
+                    var word = contextTokens[index];
+                    if (useWordTag)
+                    {
+                        var posTag = contextTokenPairs.ElementAt(index).second;
+                        AddFieldToFeture(word, posTag);
+                    }
+                    else
+                    {
+                        AddFieldToFeture(word);
+                    }
                 }
                 else
                 {
-                    AddFieldToFeture(null, null);
+                    AddFieldToFeture(null);
                 }
             }
             #endregion
 
             #region next word
+            if(useNextWord)
             {
                 var index = GetNextTokenIndex();
                 if (index < contextTokenPairs.Count)
                 {
                     var word = contextTokenPairs.ElementAt(index).first;
-                    var posTag = contextTokenPairs.ElementAt(index).second;
-                    AddFieldToFeture(word, posTag);
+                    if(useWordTag)
+                    {
+                        var posTag = contextTokenPairs.ElementAt(index).second;
+                        AddFieldToFeture(word, posTag);
+                    }
+                    else
+                    {
+                        AddFieldToFeture(word);
+                    }
 
                 }
                 else
@@ -111,102 +169,125 @@ namespace msra.nlp.tr
             #endregion
 
             #region mention head
+            if(useMentionHead)
             {
                 string head = null, posTag = null;
-                for (int i = mentionIndexPair.first; i <= mentionIndexPair.second; i++)
+                if (useWordTag)
                 {
-                    if (contextTokenPairs.ElementAt(i).second.StartsWith("N"))
+                    for (int i = mentionIndexPair.first; i <= mentionIndexPair.second; i++)
                     {
-                        // last noun
-                        head = contextTokenPairs.ElementAt(i).first;
-                        posTag = contextTokenPairs.ElementAt(i).second;
-                    }
-                    else if (contextTokenPairs.ElementAt(i).second.Equals("IN") || contextTokenPairs.ElementAt(i).second.Equals(","))
-                    {
-                        // before IN
-                        break;
+                        if (contextTokenPairs.ElementAt(i).second.StartsWith("N"))
+                        {
+                            // last noun
+                            head = contextTokenPairs.ElementAt(i).first;
+                            posTag = contextTokenPairs.ElementAt(i).second;
+                        }
+                        else if (contextTokenPairs.ElementAt(i).second.Equals("IN") || contextTokenPairs.ElementAt(i).second.Equals(","))
+                        {
+                            // before IN
+                            break;
+                        }
                     }
                 }
                 if (head == null)
                 {
                     head = mentionTokens[mentionTokens.Count - 1];
-                    posTag = contextTokenPairs.ElementAt(mentionIndexPair.second).second;
+                    if (useWordTag)
+                    {
+                        posTag = contextTokenPairs.ElementAt(mentionIndexPair.second).second;
+                        AddFieldToFeture(head, posTag);
+                    }
+                    else
+                    {
+                        AddFieldToFeture(head);
+                    }
                 }
-                AddFieldToFeture(head, posTag);
             }
             #endregion
 
             #region Mention Words
+            if(useMentionSurfaces)
             {
                 // mention surfaces
-                var mentionWords = new StringBuilder();
+                var buffer = new StringBuilder();
                 foreach (var word in mentionTokens)
                 {
-                    if (mentionWords.Length == 0)
+                    if (buffer.Length == 0)
                     {
-                        mentionWords.Append(Generalizer.Generalize(word));
+                        buffer.Append(Generalizer.Generalize(word));
                     }
                     else
                     {
-                        mentionWords.Append("," + Generalizer.Generalize(word));
+                        buffer.Append("," + Generalizer.Generalize(word));
                     }
                 }
                 // add mention surface
                 feature.Add(string.Join(",", mentionTokens));
                 // add stemmed mention surface
-                feature.Add(mentionWords.ToString());
+                feature.Add(buffer.ToString());
                 // mention tags
-                var mentionTags = mentionWords.Clear();
-                for (var i = mentionIndexPair.first; i <= mentionIndexPair.second; i++)
+                if (useWordTag)
                 {
-                    if (mentionTags.Length == 0)
+                    buffer.Clear();
+                    for (var i = mentionIndexPair.first; i <= mentionIndexPair.second; i++)
                     {
-                        mentionTags.Append(contextTokenPairs.ElementAt(i).second);
+                        if (buffer.Length == 0)
+                        {
+                            buffer.Append(contextTokenPairs.ElementAt(i).second);
+                        }
+                        else
+                        {
+                            buffer.Append("," + contextTokenPairs.ElementAt(i).second);
+                        }
                     }
-                    else
-                    {
-                        mentionTags.Append("," + contextTokenPairs.ElementAt(i).second);
-                    }
+                    feature.Add(buffer.ToString());
                 }
-                feature.Add(mentionTags.ToString());
                 // mention IDs
-                var mentionIDs = mentionTags.Clear();
-                foreach (var word in mentionTokens)
+                if (useWordID)
                 {
-                    if (mentionIDs.Length == 0)
+                buffer.Clear();
+                    foreach (var word in mentionTokens)
                     {
-                        mentionIDs.Append(DataCenter.GetWordClusterID(word));
+                        if (buffer.Length == 0)
+                        {
+                            buffer.Append(DataCenter.GetWordClusterID(word));
+                        }
+                        else
+                        {
+                            buffer.Append("," + DataCenter.GetWordClusterID(word));
+                        }
                     }
-                    else
-                    {
-                        mentionIDs.Append("," + DataCenter.GetWordClusterID(word));
-                    }
+                    feature.Add(buffer.ToString());
                 }
-                feature.Add(mentionIDs.ToString());
                 // mention shapes
-                var mentionShapes = mentionIDs.Clear();
-                foreach (var word in mentionTokens)
+                if (useWordShape)
                 {
-                    if (mentionShapes.Length == 0)
+                    buffer.Clear();
+                    foreach (var word in mentionTokens)
                     {
-                        mentionShapes.Append(GetWordShape(word));
+                        if (buffer.Length == 0)
+                        {
+                            buffer.Append(GetWordShape(word));
+                        }
+                        else
+                        {
+                            buffer.Append("," + GetWordShape(word));
+                        }
                     }
-                    else
-                    {
-                        mentionShapes.Append("," + GetWordShape(word));
-                    }
+                    feature.Add(buffer.ToString());
                 }
-                feature.Add(mentionShapes.ToString());
             }
             #endregion
 
             #region mention ID
+            if(useMentionID)
             {
                 feature.Add(DataCenter.GetMentionClusterID(this.instance.Mention).ToString());
             }
             #endregion
 
             #region mention length
+            if(useMentionLength)
             {
                 feature.Add(mentionTokens.Count.ToString());
             }
@@ -214,14 +295,21 @@ namespace msra.nlp.tr
 
             #region DBpedia dictionary
             {
-                var types = string.Join(",", DataCenter.GetDBpediaTypeWithIndegree(this.instance.Mention));
-                feature.Add(types);
-                types = string.Join(",", DataCenter.GetDBpediaTypeWithAbstract(this.instance.Mention, this.instance.Context));
-                feature.Add(types);
+                if (useDbpediaTypesWithIndegree)
+                {
+                    var types = string.Join(",", DataCenter.GetDBpediaTypeWithIndegree(this.instance.Mention));
+                    feature.Add(types);
+                }
+                if (useDbpediaTypesWithAbstract)
+                {
+                    var types = string.Join(",", DataCenter.GetDBpediaTypeWithAbstract(this.instance.Mention, this.instance.Context));
+                    feature.Add(types);
+                }
             }
             #endregion
 
             #region Key words
+            if(useKeyWords)
             {
                 var keyWords = DataCenter.ExtractKeyWords(this.instance.Context);
                 feature.Add(string.Join(",", keyWords));
@@ -234,31 +322,51 @@ namespace msra.nlp.tr
 
 
         #region Private Methods
-        private void AddFieldToFeture(string word, string posTag)
+        private void AddFieldToFeture(string word, string posTag = null)
         {
             if (word != null)
             {
                 string generalsurface, ID, shape;
-                // mention head
+                this.feature.Add(word);
+                // stemmed word
                 generalsurface = Generalizer.Generalize(word);
+                this.feature.Add(generalsurface);
                 // Cluster id of last word
-                ID = DataCenter.GetWordClusterID(word).ToString();
+                if (Parameter.UseFeature("wordID"))
+                {
+                    this.feature.Add(DataCenter.GetWordClusterID(word).ToString());
+                }
                 // next word shape
-                shape = GetWordShape(word);
+                if (Parameter.UseFeature("wordShape"))
+                {
+                    this.feature.Add(GetWordShape(word));
+                }
                 // pos tag
-                AddToFeature(word, generalsurface, posTag ?? "NULL", ID, shape);
+                if (Parameter.UseFeature("wordTag"))
+                {
+                    this.feature.Add(posTag ?? "NULL");
+                }
             }
             else
             {
-                AddToFeature("NULL", "NULL", "NULL", DataCenter.GetClusterNumber().ToString(), "NULL");
-            }
-        }
-
-        private void AddToFeature(params string[] objs)
-        {
-            foreach (var par in objs)
-            {
-                this.feature.Add(par);
+                this.feature.Add("NULL");
+                // stemmed word
+                this.feature.Add("NULL");
+                // Cluster id of last word
+                if (Parameter.UseFeature("wordID"))
+                {
+                    this.feature.Add(DataCenter.GetClusterNumber().ToString());
+                }
+                // word shape
+                if (Parameter.UseFeature("wordShape"))
+                {
+                    this.feature.Add(GetWordShape("NULL"));
+                }
+                // pos tag
+                if (Parameter.UseFeature("wordTag"))
+                {
+                    this.feature.Add("NULL");
+                }
             }
         }
 
@@ -350,18 +458,21 @@ namespace msra.nlp.tr
             this.instance = new Instance(buffer.ToString(), instance.MentionOffset - offset, instance.MentionLength);
         }
 
+        static System.Text.RegularExpressions.Regex terminators = new System.Text.RegularExpressions.Regex("[.;!?]");
+
         private int GetLastTokenIndex()
         {
             var index = mentionIndexPair.first - 1;
             while (index >= 0)
             {
 
-                if (contextTokenPairs[index].first.Equals("##") || contextTokenPairs[index].second.Equals(".") || contextTokenPairs[index].first.Equals(";"))
+                if (contextTokens[index].Equals("##") ||
+                    terminators.IsMatch(contextTokens[index]))
                 {       // if it is sentence terminator
                     index = -1;
                     break;
                 }
-                else if (!contextTokenPairs[index].first.Equals("'s") && allCharRegex.IsMatch(contextTokenPairs[index].first)) // skip "(,",'"
+                else if (!contextTokens[index].Equals("'s") && allCharRegex.IsMatch(contextTokens[index])) // skip "(,",'"
                 {
                     index--;
                 }
@@ -378,12 +489,13 @@ namespace msra.nlp.tr
             var index = mentionIndexPair.second + 1;
             while (index < contextTokenPairs.Count)
             {
-                if (contextTokenPairs[index].first.Equals("##") || contextTokenPairs[index].second.Equals(".") || contextTokenPairs[index].first.Equals(";"))
+                if (contextTokens[index].Equals("##") || 
+                    terminators.IsMatch(contextTokens[index]))
                 {
-                    index = contextTokenPairs.Count;
+                    index = contextTokens.Count;
                     break;
                 }
-                else if (!contextTokenPairs[index].first.Equals("'s") && allCharRegex.IsMatch(contextTokenPairs[index].first))
+                else if (!contextTokens[index].Equals("'s") && allCharRegex.IsMatch(contextTokens[index]))
                 {
                     index++;
                 }

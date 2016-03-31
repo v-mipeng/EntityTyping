@@ -41,47 +41,21 @@
 	</types>
 	<features>
 		<feature name="lastWord" activate="true"/>
-		<feature name="lastWordStemmed" activate="true" />
-		<feature name="lastWordTag" activate="true" />
-		<feature name="lastWordID" activate="true" />
-		<feature name="lastWordShape" activate="true" />
 		<feature name="nextWord" activate="true" />
-		<feature name="nextWordStemmed" activate="true" />
-		<feature name="nextWordTag" activate="true" />
-		<feature name="nextWordID" activate="true" />
-		<feature name="nextWordShape" activate="true" />
 		<feature name="mentionHead" activate="true" />
-		<feature name="mentionHeadStemmed" activate="true" />
-		<feature name="mentionHeadTag" activate="true" />
-		<feature name="mentionHeadID" activate="true" />
-		<feature name="mentionHeadShape" activate="true" />
 		<feature name="mentionDriver" activate="false" />
-		<feature name="mentionDriverStemmed" activate="false" />
-		<feature name="mentionDriverTag" activate="false" />
-		<feature name="mentionDriverID" activate="false" />
-		<feature name="mentionDriverShape" activate="false" />
 		<feature name="mentionAdjModifier" activate="false" />
-		<feature name="mentionAdjModifierStemmed" activate="false" />
-		<feature name="mentionAdjModifierTag" activate="false" />
-		<feature name="mentionAdjModifierID" activate="false" />
-		<feature name="mentionAdjModifierShape" activate="false" />
 		<feature name="mentionAction" activate="false" />
-		<feature name="mentionActionStemmed" activate="false" />
-		<feature name="mentionActionTag" activate="false" />
-		<feature name="mentionActionID" activate="false" />
-		<feature name="mentionActionShape" activate="false" />
 		<feature name="mentionSurfaces" activate="true" />
-		<feature name="mentionSurfacesStemmed" activate="true" />
-		<feature name="mentionTags" activate="true" />
-		<feature name="mentionIDs" activate="true" />
-		<feature name="mentionShapes" activate="true" />
-		<feature name="mentionID" activate="true" />
 		<feature name="mentionLength" activate="true" />
 		<feature name="stanfordNerType" activate="true" />
 		<feature name="opennlpNerType" activate="true" />
 		<feature name="dbpediaTypesWithIndegree" activate="false" />
 		<feature name="dbpediaTypesWithAbstract" activate="false" />
 		<feature name="keyWords" activate="true" />
+		<feature name="wordTag" activate="true" />
+		<feature name="wordID" activate="true" />
+		<feature name="wordShape" activate="true" />
 		<feature name="sentenceContext" activate="true" />
 	</features>
 </config>

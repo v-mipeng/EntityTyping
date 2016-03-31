@@ -65,6 +65,8 @@ namespace msra.nlp.tr
 
         private static Dictionary<string, int> featureIndex = new Dictionary<string, int>();
 
+        private static Dictionary<string, bool> featureActivate = new Dictionary<string, bool>();
+
 
         /// <summary>
         /// Get parameter with given key
@@ -122,6 +124,18 @@ namespace msra.nlp.tr
         internal static int GetFeatureIndex(string featureKey)
         {
             return featureIndex[featureKey];
+        }
+
+        internal static bool UseFeature(string featureKey)
+        {
+            try
+            {
+                return featureActivate[featureKey];
+            }
+            catch(Exception)
+            {
+                return false;
+            }
         }
 
         internal static void SetParameter(Object key, Object value)
@@ -192,6 +206,11 @@ namespace msra.nlp.tr
                 if(node.Attributes["activate"].Value.Equals("true"))
                 {
                     featureIndex[name] = featureIndex.Count;
+                    featureActivate[name] = true;
+                }
+                else
+                {
+                    featureActivate[name] = false;
                 }
             }
             if (props != null)

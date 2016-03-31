@@ -274,9 +274,9 @@ namespace User.src
             var demo = new Demo();
             //Console.WriteLine(demo.Predict("House Ways and Means Committee", "Influential members of the House Ways and Means Committee introduced legislation that would restrict how the new savings-and-loan bailout agency can raise capital , creating another potential obstacle to the government 's sale of sick thrifts ."));
             //Console.ReadKey();
-            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\input2.txt";
+            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\input.txt";
             var reader = new pml.file.reader.LargeFileReader(source);
-            var des = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\output2.txt";
+            var des = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\output.txt";
             var writer = new pml.file.writer.LargeFileWriter(des, System.IO.FileMode.Create);
             string line;
             var queries = new List<Pair<string, string>>();
@@ -284,7 +284,7 @@ namespace User.src
             while ((line = reader.ReadLine()) != null)
             {
                 var array = line.Split('\t');
-                queries.Add(new pml.type.Pair<string, string>(array[0], array[3]));
+                queries.Add(new pml.type.Pair<string, string>(array[0], array[1]));
             }
             reader.Close();
             var types = demo.Predict(queries);
