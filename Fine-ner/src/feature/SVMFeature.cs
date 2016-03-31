@@ -58,13 +58,13 @@ namespace msra.nlp.tr
         /// </returns>
         public List<string> ExtractFeature(Event e)
         {
-
             this.feature.Clear();
             this.offset = 0;
             var rawFeature = e.Feature;
             feature.Add("0");
 
             #region last word (make last word more accurate)
+            if(useLastWord)
             {
                 AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordStemmed")),
                     useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordID")):null,
@@ -74,6 +74,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region next word
+            if(useNextWord)
             {
                 AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordStemmed")),
                     useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordID")) : null,
@@ -83,6 +84,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region  mention head
+            if(useMentionHead)
             {
                 AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadStemmed")),
                     useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadID")) : null,
