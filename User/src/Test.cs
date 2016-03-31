@@ -118,6 +118,13 @@ namespace User
             pipeline = new StanfordCoreNLP(props);
             Directory.SetCurrentDirectory(dir);
         }
+
+
+        public static void Mains(string[] args)
+        {
+            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\features\5 class\train",
+                @"D:\Codes\Project\EntityTyping\Fine-ner\input\features\5 class\train.txt");
+        }
     }
 
 }
