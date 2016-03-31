@@ -59,16 +59,16 @@ namespace msra.nlp.tr.predict
             var floatFeature = ExpandFeatureToVector(svmFeature);
             var predictions = Predict(floatFeature);
             var pairs = new List<pml.type.Pair<string, float>>();
-            try
+            for (var index = 0; index < predictions.Length; index++)
             {
-                for (var index = 0; index < predictions.Length; index++)
+                try
                 {
                     pairs.Add(new pml.type.Pair<string, float>(Parameter.GetTypeByLabel(index), predictions[index]));
                 }
-            }
-            catch (Exception)
-            {
-                throw new Exception("Feature dimension is not compatible to current model");
+                catch (Exception)
+                {
+                    continue;
+                }
             }
             pairs.Sort(pairs[0].GetBySecondReverseComparer());
             return pairs;

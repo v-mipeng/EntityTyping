@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<parameters>
+		<parameter name="basedir" type="base path" value="D:\Codes\Project\package\resource\"/>
+		<parameter name="stanford_model_dir" type="relative path" value="stanford models"/>
+		<parameter name="word_table_file" type="relative path" value="tables\wordTable.txt"/>
+		<parameter name="stem_map" type="relative path" value="tables\stem-word-table.txt"/>
+		<parameter name="word_shape_table_file" type="relative path" value="tables\shape-table.txt"/>
+		<parameter name="posTag_table_file" type="relative path" value="tables\pos-tag-table.txt"/>
+		<parameter name="word_id_file" type="relative path" value="tables\word cluster ID.txt"/>
+		<parameter name="mention_id_file" type="relative path" value="tables\mention cluster ID.txt"/>
+		<parameter name="model_file" type="relative path" value="model\5 classes logistic model.zip"/>
+		<parameter name="four_classes_model_file" type="relative path" value="model\4 classes logistic model.zip"/>
+		<parameter name="dbpedia_type_file" type="relative path" value="dictionaries\dbpedia\dbpedia entity type.txt"/>
+		<parameter name="dbpedia_redirect_file" type="relative path" value="dictionaries\dbpedia\redirects.txt"/>
+		<parameter name="dbpedia_abstract_file" type="relative path" value="dictionaries\dbpedia\abstract vector trimed.txt"/>
+		<parameter name="dbpedia_abstract_df_file" type="relative path" value="dictionaries\dbpedia\abstract df.txt"/>
+		<parameter name="dbpedia_abstract_word_table" type="relative path" value="dictionaries\dbpedia\abstract word table.txt"/>
+		<parameter name="dbpedia_abstract_num" type="int" value="4305029"/>
+		<parameter name="page_indegree_file" type="relative path" value="dictionaries\dbpedia\page indegree.txt"/>
+		<parameter name="keyword_file" type="relative path" value="tables\keywords.txt"/>
+	</parameters>
+	<types>
+		<map fromType="music.music" toType="music" label="4"/>
+		<map fromType="broadcast.content" toType="broadcast" label="4"/>
+		<map fromType="book.written_work" toType="book" label="4"/>
+		<map fromType="award.award" toType="award" label="4"/>
+		<map fromType="body.part" toType="body" label="4"/>
+		<map fromType="chemicstry.chemicstry" toType="chemicstry" label="4"/>
+		<map fromType="time.event" toType="event" label="4"/>
+		<map fromType="food.food" toType="food" label="4"/>
+		<map fromType="language.language" toType="language" label="4"/>
+		<map fromType="location.location" toType="location" label="0"/>
+		<map fromType="organization.organization" toType="organization" label="1"/>
+		<map fromType="people.person" toType="person" label="2"/>
+		<map fromType="computer.software" toType="software" label="3"/>
+		<map fromType="commerce.consumer_product" toType="vehicle" label="3"/>
+		<map fromType="commerce.electronics_product" toType="electronic product" label="3"/>
+		<map fromType="product" toType="product" label="3"/>
+		<map fromType="other" toType="other" label="4"/>
+	</types>
+	<features>
+		<feature name="lastWord" activate="true"/>
+		<feature name="lastWordStemmed" activate="true" />
+		<feature name="lastWordTag" activate="true" />
+		<feature name="lastWordID" activate="true" />
+		<feature name="lastWordShape" activate="true" />
+		<feature name="nextWord" activate="true" />
+		<feature name="nextWordStemmed" activate="true" />
+		<feature name="nextWordTag" activate="true" />
+		<feature name="nextWordID" activate="true" />
+		<feature name="nextWordShape" activate="true" />
+		<feature name="mentionHead" activate="true" />
+		<feature name="mentionHeadStemmed" activate="true" />
+		<feature name="mentionHeadTag" activate="true" />
+		<feature name="mentionHeadID" activate="true" />
+		<feature name="mentionHeadShape" activate="true" />
+		<feature name="mentionDriver" activate="false" />
+		<feature name="mentionDriverStemmed" activate="false" />
+		<feature name="mentionDriverTag" activate="false" />
+		<feature name="mentionDriverID" activate="false" />
+		<feature name="mentionDriverShape" activate="false" />
+		<feature name="mentionAdjModifier" activate="false" />
+		<feature name="mentionAdjModifierStemmed" activate="false" />
+		<feature name="mentionAdjModifierTag" activate="false" />
+		<feature name="mentionAdjModifierID" activate="false" />
+		<feature name="mentionAdjModifierShape" activate="false" />
+		<feature name="mentionAction" activate="false" />
+		<feature name="mentionActionStemmed" activate="false" />
+		<feature name="mentionActionTag" activate="false" />
+		<feature name="mentionActionID" activate="false" />
+		<feature name="mentionActionShape" activate="false" />
+		<feature name="mentionSurfaces" activate="true" />
+		<feature name="mentionSurfacesStemmed" activate="true" />
+		<feature name="mentionTags" activate="true" />
+		<feature name="mentionIDs" activate="true" />
+		<feature name="mentionShapes" activate="true" />
+		<feature name="mentionID" activate="true" />
+		<feature name="mentionLength" activate="true" />
+		<feature name="stanfordNerType" activate="true" />
+		<feature name="opennlpNerType" activate="true" />
+		<feature name="dbpediaTypesWithIndegree" activate="false" />
+		<feature name="dbpediaTypesWithAbstract" activate="false" />
+		<feature name="keyWords" activate="true" />
+		<feature name="sentenceContext" activate="true" />
+	</features>
+</config>

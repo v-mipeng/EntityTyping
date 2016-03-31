@@ -235,7 +235,7 @@ namespace msra.nlp.tr
                 // extract raw features
                 if (options.Contains("train") || options.Contains("all"))
                 {
-                    var extractor = new IndividualFeatureExtractor((string)Parameter.GetParameter(Parameter.Field.train_data_file),
+                    var extractor = new ParallelIndividualFeatureExtractor((string)Parameter.GetParameter(Parameter.Field.train_data_file),
                        (string)Parameter.GetParameter(Parameter.Field.train_feature_file));
                     if (options.Contains("add"))
                     {

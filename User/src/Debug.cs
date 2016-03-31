@@ -13,10 +13,10 @@ namespace User
 {
     class Debug
     {
-        static void Main(string[] args)
+        static void Mains(string[] args)
         {
-            //var tokenizer = new Tokenizer(@"D:\Codes\Project\EntityTyping\Fine-ner\input\stanford models");
-            //var toknized = tokenizer.Tokenize("I like Beijing(China). J. Smith went with me.");
+            var sspliter = new SentenceSpliter(@"D:\Codes\Project\EntityTyping\Fine-ner\input\stanford models");
+            var sentences = sspliter.SplitSequence("I like Beijing(China). J. Smith went with me.");
             Run();
         }
 

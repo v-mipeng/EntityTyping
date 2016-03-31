@@ -37,13 +37,13 @@ namespace msra.nlp.tr
             this.context = context;
             this.mentionOffset = mentionOffset;
             this.mentionLength = mentionLength;
+            this.mention = context.Substring(mentionOffset, mentionLength);
         }
 
         public Instance(string context, int mentionOffset, int mentionLength, string label):
             this(context, mentionOffset, mentionLength)
         {
             this.label = new Label(label);
-            this.mention = context.Substring(mentionOffset, mentionLength);
         }
 
         public Instance(string context, int mentionOffset, int mentionLength, Label label) :
@@ -60,6 +60,15 @@ namespace msra.nlp.tr
         public Instance(string mention, string label, string context) : this(mention, context)
         {
             this.label = new Label(label);
+        }
+
+        public Instance(Instance instance)
+        {
+            this.context = instance.context;
+            this.mentionOffset = instance.mentionOffset;
+            this.mention = instance.mention;
+            this.mentionLength = instance.mentionLength;
+            this.label = instance.label;
         }
 
         public string Mention
@@ -95,6 +104,7 @@ namespace msra.nlp.tr
             {
                 return mentionOffset;
             }
+            private set { }
         }
 
         public int MentionLength
@@ -103,6 +113,7 @@ namespace msra.nlp.tr
             {
                 return mentionLength;
             }
+            private set { }
         }
 
         public override string ToString()

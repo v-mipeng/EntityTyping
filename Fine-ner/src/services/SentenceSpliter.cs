@@ -9,6 +9,7 @@ using edu.stanford.nlp.ling;
 using edu.stanford.nlp.pipeline;
 using edu.stanford.nlp.util;
 using java.util;
+using pml.type;
 
 namespace msra.nlp.tr
 {
@@ -16,11 +17,14 @@ namespace msra.nlp.tr
     {
         StanfordCoreNLP pipeline = null;
         List<string[]> tokensBySentence = null;
+        static edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
+        static edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation indexObj = new edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation();
+
         internal SentenceSpliter()
         {
         }
 
-        public  List<string> SplitSequence(string sequence)
+        public  List<Pair<string,int>> SplitSequence(string sequence)
         {
             if (pipeline == null)
             {
@@ -32,31 +36,25 @@ namespace msra.nlp.tr
             }
             var document = new Annotation(sequence);
             pipeline.annotate(document);
-            var senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
             var sentences = (ArrayList)document.get(senObj.getClass());
             tokensBySentence = new List<string[]>();
+            var sens = new List<Pair<string, int>>();
             for (var i = 0; i < sentences.size();i++ )
             {
-                var sen = sentences.get(i);
-
+                var sen = (edu.stanford.nlp.pipeline.Annotation)sentences.get(i);
+                var index = sen.get(indexObj.getClass());
+                sens.Add(new Pair<string, int>(sen.toString(),int.Parse(index.ToString())));
             }
-                return (from CoreMap sentence in sentences select sentence.ToString()).ToList();
-            
+            return sens;
         }
 
-        public List<string> SplitSequence(IEnumerable<string> tokens)
+        public List<Pair<string, int>> SplitSequence(IEnumerable<string> tokens)
         {
             if(tokens == null)
             {
                 throw new Exception("Tokens should not be null for sentence splitting!");
             }
-            var sequence = new StringBuilder();
-            sequence.Append(tokens.ElementAt(0));
-            for(var i =1;i<tokens.Count();i++)
-            {
-                sequence.Append(" "+tokens.ElementAt(i));
-            }
-            return SplitSequence(sequence.ToString());
+            return SplitSequence(string.Join(" ", tokens));
         }
 
 

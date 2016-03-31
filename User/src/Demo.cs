@@ -73,7 +73,7 @@ namespace User.src
         /// <returns>
         /// Types corresponding to the queries.
         /// </returns>
-        public List<string> Predict(List<Pair<string, string>> queries, int numPerThread = 1000)
+        public List<string> Predict(List<Pair<string, string>> queries, int numPerThread = 4000)
         {
             List<string> types = new List<string>();
             if (queries.Count <= numPerThread)
@@ -114,7 +114,7 @@ namespace User.src
         }
 
 
-        public List<string> FourClassPredict(List<Pair<string, string>> queries, int numPerThread = 1000)
+        public List<string> FourClassPredict(List<Pair<string, string>> queries, int numPerThread = 4000)
         {
             List<string> types = new List<string>();
             if (queries.Count <= numPerThread)
@@ -181,9 +181,9 @@ namespace User.src
 
         class DemoThread
         {
-            List<Pair<string, string>> queries = null;
-            int begin = 0, end = 0;
-            List<string> types;
+            protected List<Pair<string, string>> queries = null;
+            protected int begin = 0, end = 0;
+            protected List<string> types;
 
             public DemoThread(List<Pair<string, string>> queries, List<string> types)
                 : this(queries, 0, queries.Count - 1, types)
@@ -199,7 +199,7 @@ namespace User.src
                 this.types = types;
             }
 
-            public void Run()
+            public virtual void Run()
             {
                 int count = 0;
                 for (var i = this.begin; i <= this.end && i < queries.Count; i++)
@@ -229,14 +229,10 @@ namespace User.src
 
         class FourClassPredictThread : DemoThread
         {
-            List<Pair<string, string>> queries = null;
-            int begin = 0, end = 0;
-            List<string> types;
-
+           
             public FourClassPredictThread(List<Pair<string, string>> queries, List<string> types)
                 : base(queries, types)
             {
-
             }
 
             public FourClassPredictThread(List<Pair<string, string>> queries, int begin, int end, List<string> types)
@@ -244,7 +240,7 @@ namespace User.src
             {
             }
 
-            public void Run()
+            public override void Run()
             {
                 int count = 0;
                 for (var i = this.begin; i <= this.end && i < queries.Count; i++)
@@ -272,17 +268,15 @@ namespace User.src
             }
         }
 
-        public static void Mains(string[] args)
+        public static void Main(string[] args)
         {
-            //Test();
-            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\output\features\satori with only product\train", @"D:\Codes\Project\EntityTyping\Fine-ner\output\features\satori with only product\train.txt");
             var pipeline = new Pipeline(@"D:\Codes\Project\package\config.xml");
             var demo = new Demo();
             //Console.WriteLine(demo.Predict("House Ways and Means Committee", "Influential members of the House Ways and Means Committee introduced legislation that would restrict how the new savings-and-loan bailout agency can raise capital , creating another potential obstacle to the government 's sale of sick thrifts ."));
             //Console.ReadKey();
-            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\input.txt";
+            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\input2.txt";
             var reader = new pml.file.reader.LargeFileReader(source);
-            var des = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\output.txt";
+            var des = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\output2.txt";
             var writer = new pml.file.writer.LargeFileWriter(des, System.IO.FileMode.Create);
             string line;
             var queries = new List<Pair<string, string>>();
@@ -290,7 +284,7 @@ namespace User.src
             while ((line = reader.ReadLine()) != null)
             {
                 var array = line.Split('\t');
-                queries.Add(new pml.type.Pair<string, string>(array[0], array[1]));
+                queries.Add(new pml.type.Pair<string, string>(array[0], array[3]));
             }
             reader.Close();
             var types = demo.Predict(queries);
@@ -298,14 +292,14 @@ namespace User.src
             {
                 writer.WriteLine(string.Format("{0}\t{1}\t{2}", queries[i].first, types[i], queries[i].second));
             }
-            types = demo.FourClassPredict(queries);
-            writer.WriteLine("");
-            writer.WriteLine("Predict by predictor trained on 4 classes:");
-            writer.WriteLine("");
-            for (var i = 0; i < queries.Count; i++)
-            {
-                writer.WriteLine(string.Format("{0}\t\t{1}\t\t{2}", queries[i].first, types[i], queries[i].second));
-            }
+            //types = demo.FourClassPredict(queries);
+            //writer.WriteLine("");
+            //writer.WriteLine("Predict by predictor trained on 4 classes:");
+            //writer.WriteLine("");
+            //for (var i = 0; i < queries.Count; i++)
+            //{
+            //    writer.WriteLine(string.Format("{0}\t\t{1}\t\t{2}", queries[i].first, types[i], queries[i].second));
+            //}
             writer.Close();
         }
 
@@ -321,19 +315,6 @@ namespace User.src
                 var type = node.Attributes["type"].Value;
                 var value = node.Attributes["value"].Value;
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         }
     }
