@@ -58,7 +58,7 @@ namespace msra.nlp.tr
                     }
                     catch (Exception)
                     {
-                        feature = extractor.ExtractFeature(instance, false);
+                        feature = extractor.ExtractFeature(instance);
                     }
                     var e = new Event(instance.Label, feature);
                     writer.WriteEvent(e);
@@ -89,7 +89,7 @@ namespace msra.nlp.tr
                     }
                     catch (Exception)
                     {
-                        feature = extractor.ExtractFeature(instance, false);
+                        feature = extractor.ExtractFeature(instance);
                     }
                     var e = new Event(instance.Label, feature);
                     events[i] = e;

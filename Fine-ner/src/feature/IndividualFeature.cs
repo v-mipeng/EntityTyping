@@ -52,7 +52,7 @@ namespace msra.nlp.tr
         ///     Dictionary                      :Dbpedia
         ///     Topic(Define topic)             :MI keyword
         /// </returns>
-        public List<string> ExtractFeature(Instance instance, bool filterContext = false)
+        public List<string> ExtractFeature(Instance instance)
         {
             this.instance = instance;
             instance = null;
@@ -445,7 +445,7 @@ namespace msra.nlp.tr
         private int GetNextTokenIndex()
         {
             var index = mentionIndexPair.second + 1;
-            while (index < contextTokenPairs.Count)
+            while (index < contextTokens.Count)
             {
                 if (contextTokens[index].Equals("##") || 
                     terminators.IsMatch(contextTokens[index]))

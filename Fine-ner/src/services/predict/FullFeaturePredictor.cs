@@ -34,12 +34,59 @@ namespace msra.nlp.tr.predict
             this.modelFile = modelFile;
         }
 
+        /// <summary>
+        /// Predict the type of the first occured mention in the given context
+        /// </summary>
+        /// <param name="mention">
+        /// A string type of named entity
+        /// </param>
+        /// <param name="context"></param>
+        /// <returns>
+        /// The type of the mention
+        /// </returns>
         public string Predict(string mention, string context)
         {
             return PredictWithProbability(mention, context)[0].first;
         }
-                                                        
+
+        /// <summary>
+        /// Predict the type of the mention indexed by its offset in the given context and length
+        /// </summary>
+        /// <param name="mention">
+        /// A string type of named entity
+        /// </param>
+        /// <param name="context"></param>
+        /// <returns>
+        /// The type of the mention
+        /// </returns>         
+        public string Predict(string context, int mentionOffset, int mentionLength)
+        {
+            return PredictWithProbability(context, mentionOffset, mentionLength)[0].first;
+        }
+               
+        /// <summary>
+        /// Predict the types of the first occured mention in the given context
+        /// </summary>
+        /// <param name="mention"></param>
+        /// <param name="context"></param>
+        /// <returns>
+        /// A list of types with corresponding probabilities
+        /// </returns>
         public List<pml.type.Pair<string, float>> PredictWithProbability(string mention, string context)
+        {
+            
+            return PredictWithProbability(context, context.IndexOf(mention), mention.Length);
+        }
+
+        /// <summary>
+        /// Predict the type of the mention indexed by its offset in the given context and length
+        /// </summary>
+        /// <param name="mention"></param>
+        /// <param name="context"></param>
+        /// <returns>
+        /// A list of types with corresponding probabilities
+        /// </returns>
+        public List<pml.type.Pair<string, float>> PredictWithProbability(string context, int mentionOffset, int mentionLength)
         {
             if (svmFeatureExtractor == null)
             {
@@ -48,11 +95,11 @@ namespace msra.nlp.tr.predict
             List<string> rawFeature = null;
             try
             {
-                rawFeature = rawFeatureExtractor.ExtractFeature(new Instance(mention, context));
+                rawFeature = rawFeatureExtractor.ExtractFeature(new Instance(context, mentionOffset, mentionLength));
             }
             catch (NotFindMentionException)
             {
-                rawFeature = rawFeatureExtractor.ExtractFeature(new Instance(mention, context),false);
+                rawFeature = rawFeatureExtractor.ExtractFeature(new Instance(context, mentionOffset, mentionLength));
             }
             var e = new Event(rawFeature);
             var svmFeature = svmFeatureExtractor.ExtractFeature(e);
@@ -73,6 +120,7 @@ namespace msra.nlp.tr.predict
             pairs.Sort(pairs[0].GetBySecondReverseComparer());
             return pairs;
         }
+ 
 
         private float[] ExpandFeatureToVector(List<string> svmFeature)
         {

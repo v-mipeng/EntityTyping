@@ -18,7 +18,7 @@ namespace User.src
         public Demo() { }
 
         /// <summary>
-        /// Predict the type of mention given its context
+        /// Predict the type of the first occured mention in the given context
         /// </summary>
         /// <param name="mention"></param>
         /// <param name="context"></param>
@@ -27,18 +27,30 @@ namespace User.src
         /// </returns>
         public string Predict(string mention, string context)
         {
+            return Predict(context, context.IndexOf(mention), mention.Length);
+        }
+
+        /// <summary>
+        /// Predict the type of the mention indexed by its offset in the given context and length
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="mentionOffset"></param>
+        /// <param name="mentionLength"></param>
+        /// <returns></returns>
+        public string Predict(string context, int mentionOffset, int mentionLength)
+        {
             FullFeaturePredictor predictor = null;
             try
             {
                 predictor = FullFeaturePredictorPool.GetFullFeaturePredictor();   // Get Predictor from predictor pool
-                var type = predictor.Predict(mention, context);
+                var type = predictor.Predict(context, mentionOffset, mentionLength);
                 FullFeaturePredictorPool.ReturnFullFeaturePredictor(predictor);       // Rember return the predictor back to the pool
                 return type;
             }
             catch (Exception ex)
             {
                 FullFeaturePredictorPool.ReturnFullFeaturePredictor(predictor);       // Rember return the predictor back to the pool
-                Console.WriteLine(string.Format("{0} for query: {1}!\nReturn UNKNOWN label.", ex.Message, mention));
+                Console.WriteLine(string.Format("{0} for query: {1}!\nReturn UNKNOWN label.", ex.Message, context.Substring(mentionOffset,mentionLength)));
                 return "UNKNOWN";
             }
         }
@@ -292,14 +304,14 @@ namespace User.src
             {
                 writer.WriteLine(string.Format("{0}\t{1}\t{2}", queries[i].first, types[i], queries[i].second));
             }
-            types = demo.FourClassPredict(queries);
-            writer.WriteLine("");
-            writer.WriteLine("Predict by predictor trained on 4 classes:");
-            writer.WriteLine("");
-            for (var i = 0; i < queries.Count; i++)
-            {
-                writer.WriteLine(string.Format("{0}\t\t{1}\t\t{2}", queries[i].first, types[i], queries[i].second));
-            }
+            //types = demo.FourClassPredict(queries);
+            //writer.WriteLine("");
+            //writer.WriteLine("Predict by predictor trained on 4 classes:");
+            //writer.WriteLine("");
+            //for (var i = 0; i < queries.Count; i++)
+            //{
+            //    writer.WriteLine(string.Format("{0}\t\t{1}\t\t{2}", queries[i].first, types[i], queries[i].second));
+            //}
             writer.Close();
         }
 
