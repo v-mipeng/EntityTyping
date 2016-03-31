@@ -52,12 +52,11 @@ namespace msra.nlp.tr
             useOpennlpNer = Parameter.UseFeature("opennlpNer");
             useDbpediaTypesWithIndegree = Parameter.UseFeature("dbpediaTypesWithIndegree");
             useDbpediaTypesWithAbstract = Parameter.UseFeature("dbpediaTypesWithAbstract");
-            useKeywords = Parameter.UseFeature("keyWords");
+            useKeywords = Parameter.UseFeature("keywords");
             useWordTag = Parameter.UseFeature("wordTag");
             useWordID = Parameter.UseFeature("wordID");
             useWordShape = Parameter.UseFeature("wordShape");
         }
-
 
 
         /* Map 
