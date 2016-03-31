@@ -183,6 +183,23 @@ namespace msra.nlp.tr
                 feature.Add(string.Join(",", mentionTokens));
                 // add stemmed mention surface
                 feature.Add(buffer.ToString());
+                // mention tags
+                if (useWordTag)
+                {
+                    buffer.Clear();
+                    for (var i = mentionIndexPair.first; i <= mentionIndexPair.second; i++)
+                    {
+                        if (buffer.Length == 0)
+                        {
+                            buffer.Append(contextTokenPairs.ElementAt(i).second);
+                        }
+                        else
+                        {
+                            buffer.Append("," + contextTokenPairs.ElementAt(i).second);
+                        }
+                    }
+                    feature.Add(buffer.ToString());
+                }
                 // mention IDs
                 if (useWordID)
                 {
@@ -217,23 +234,7 @@ namespace msra.nlp.tr
                     }
                     feature.Add(buffer.ToString());
                 }
-                // mention tags
-                if (useWordTag)
-                {
-                    buffer.Clear();
-                    for (var i = mentionIndexPair.first; i <= mentionIndexPair.second; i++)
-                    {
-                        if (buffer.Length == 0)
-                        {
-                            buffer.Append(contextTokenPairs.ElementAt(i).second);
-                        }
-                        else
-                        {
-                            buffer.Append("," + contextTokenPairs.ElementAt(i).second);
-                        }
-                    }
-                    feature.Add(buffer.ToString());
-                }
+            
             }
             #endregion
 
@@ -289,6 +290,11 @@ namespace msra.nlp.tr
                 // stemmed word
                 generalsurface = Generalizer.Generalize(word);
                 this.feature.Add(generalsurface);
+                // pos tag
+                if (Parameter.UseFeature("wordTag"))
+                {
+                    this.feature.Add(posTag ?? "NULL");
+                }
                 // Cluster id of last word
                 if (Parameter.UseFeature("wordID"))
                 {
@@ -299,17 +305,18 @@ namespace msra.nlp.tr
                 {
                     this.feature.Add(GetWordShape(word));
                 }
-                // pos tag
-                if (Parameter.UseFeature("wordTag"))
-                {
-                    this.feature.Add(posTag ?? "NULL");
-                }
+               
             }
             else
             {
                 this.feature.Add("NULL");
                 // stemmed word
                 this.feature.Add("NULL");
+                // pos tag
+                if (Parameter.UseFeature("wordTag"))
+                {
+                    this.feature.Add("NULL");
+                }
                 // Cluster id of last word
                 if (Parameter.UseFeature("wordID"))
                 {
@@ -320,11 +327,7 @@ namespace msra.nlp.tr
                 {
                     this.feature.Add(GetWordShape("NULL"));
                 }
-                // pos tag
-                if (Parameter.UseFeature("wordTag"))
-                {
-                    this.feature.Add("NULL");
-                }
+              
             }
         }
 

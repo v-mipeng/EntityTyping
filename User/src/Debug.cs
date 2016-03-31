@@ -13,10 +13,10 @@ namespace User
 {
     class Debug
     {
-        static void Mains(string[] args)
+        static void Main(string[] args)
         {
-            var sspliter = new SentenceSpliter(@"D:\Codes\Project\EntityTyping\Fine-ner\input\stanford models");
-            var sentences = sspliter.SplitSequence("I like Beijing(China). J. Smith went with me.");
+            //var sspliter = new SentenceSpliter(@"D:\Codes\Project\EntityTyping\Fine-ner\input\stanford models");
+            //var sentences = sspliter.SplitSequence("I like Beijing(China). J. Smith went with me.");
             Run();
         }
 
@@ -27,7 +27,7 @@ namespace User
             /************************************************************************/
             /* Feature extractor  for satori                                                                   */
             /************************************************************************/
-            if (true)
+            if (false)
             {
                 var currentFolderPath = Environment.CurrentDirectory;
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
@@ -233,7 +233,7 @@ namespace User
             /************************************************************************/
             /* Feature extractor  for 5 classes: product and other                                                                   */
             /************************************************************************/
-            if (false)
+            if (true)
             {
                 var currentFolderPath = Environment.CurrentDirectory;
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));

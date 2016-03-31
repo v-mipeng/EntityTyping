@@ -132,7 +132,10 @@ namespace msra.nlp.tr
                 {
                     featureIndex["lastWord"] = featureIndex.Count;
                     featureIndex["lastWordStemmed"] = featureIndex.Count;
-               
+                    if (useWordTag)
+                    {
+                        featureIndex["lastWordTag"] = featureIndex.Count;
+                    }
                     if (useWordID)
                     {
                         featureIndex["lastWordID"] = featureIndex.Count;
@@ -141,16 +144,16 @@ namespace msra.nlp.tr
                     {
                         featureIndex["lastWordShape"] = featureIndex.Count;
                     }
-                    if (useWordTag)
-                    {
-                        featureIndex["lastWordTag"] = featureIndex.Count;
-                    }
+                 
                 }
                 if (UseFeature("nextWord"))
                 {
                     featureIndex["nextWord"] = featureIndex.Count;
                     featureIndex["nextWordStemmed"] = featureIndex.Count;
-       
+                    if (useWordTag)
+                    {
+                        featureIndex["nextWordTag"] = featureIndex.Count;
+                    }
                     if (useWordID)
                     {
                         featureIndex["nextWordID"] = featureIndex.Count;
@@ -159,16 +162,16 @@ namespace msra.nlp.tr
                     {
                         featureIndex["nextWordShape"] = featureIndex.Count;
                     }
-                    if (useWordTag)
-                    {
-                        featureIndex["nextWordTag"] = featureIndex.Count;
-                    }
+                 
                 }
                 if (UseFeature("mentionHead"))
                 {
                     featureIndex["mentionHead"] = featureIndex.Count;
                     featureIndex["mentionHeadStemmed"] = featureIndex.Count;
-      
+                    if (useWordTag)
+                    {
+                        featureIndex["mentionHeadTag"] = featureIndex.Count;
+                    }
                     if (useWordID)
                     {
                         featureIndex["mentionHeadID"] = featureIndex.Count;
@@ -177,16 +180,16 @@ namespace msra.nlp.tr
                     {
                         featureIndex["mentionHeadShape"] = featureIndex.Count;
                     }
-                    if (useWordTag)
-                    {
-                        featureIndex["mentionHeadTag"] = featureIndex.Count;
-                    }
+               
                 }
                 if (UseFeature("mentionDriver"))
                 {
                     featureIndex["mentionDriver"] = featureIndex.Count;
                     featureIndex["mentionDriverStemmed"] = featureIndex.Count;
-                  
+                    if (useWordTag)
+                    {
+                        featureIndex["mentionDriverTag"] = featureIndex.Count;
+                    }
                     if (useWordID)
                     {
                         featureIndex["mentionDriverID"] = featureIndex.Count;
@@ -195,16 +198,16 @@ namespace msra.nlp.tr
                     {
                         featureIndex["mentionDriverShape"] = featureIndex.Count;
                     }
-                    if (useWordTag)
-                    {
-                        featureIndex["mentionDriverTag"] = featureIndex.Count;
-                    }
+                 
                 }
                 if (UseFeature("mentionAdjModifier"))
                 {
                     featureIndex["mentionAdjModifier"] = featureIndex.Count;
                     featureIndex["mentionAdjModifierStemmed"] = featureIndex.Count;
-                  
+                    if (useWordTag)
+                    {
+                        featureIndex["mentionAdjModifierTag"] = featureIndex.Count;
+                    }
                     if (useWordID)
                     {
                         featureIndex["mentionAdjModifierID"] = featureIndex.Count;
@@ -213,16 +216,16 @@ namespace msra.nlp.tr
                     {
                         featureIndex["mentionAdjModifierShape"] = featureIndex.Count;
                     }
-                    if (useWordTag)
-                    {
-                        featureIndex["mentionAdjModifierTag"] = featureIndex.Count;
-                    }
+                  
                 }
                 if (UseFeature("mentionAction"))
                 {
                     featureIndex["mentionAction"] = featureIndex.Count;
                     featureIndex["mentionActionStemmed"] = featureIndex.Count;
-                 
+                    if (useWordTag)
+                    {
+                        featureIndex["mentionActionTag"] = featureIndex.Count;
+                    }
                     if (useWordID)
                     {
                         featureIndex["mentionActionID"] = featureIndex.Count;
@@ -231,15 +234,16 @@ namespace msra.nlp.tr
                     {
                         featureIndex["mentionActionShape"] = featureIndex.Count;
                     }
-                    if (useWordTag)
-                    {
-                        featureIndex["mentionActionTag"] = featureIndex.Count;
-                    }
+                 
                 }
                 if (UseFeature("mentionSurfaces"))
                 {
                     featureIndex["mentionSurfaces"] = featureIndex.Count;
                     featureIndex["mentionSurfacesStemmed"] = featureIndex.Count;
+                    if (useWordTag)
+                    {
+                        featureIndex["mentionTags"] = featureIndex.Count;
+                    }
                     if (useWordID)
                     {
                         featureIndex["mentionIDs"] = featureIndex.Count;
@@ -248,10 +252,7 @@ namespace msra.nlp.tr
                     {
                         featureIndex["mentionShapes"] = featureIndex.Count;
                     }
-                    if (useWordTag)
-                    {
-                        featureIndex["mentionTags"] = featureIndex.Count;
-                    }
+                  
                 }
                 if (UseFeature("mentionID"))
                 {

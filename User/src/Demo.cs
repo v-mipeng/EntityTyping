@@ -280,7 +280,7 @@ namespace User.src
             }
         }
 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             var pipeline = new Pipeline(@"D:\Codes\Project\package\config.xml");
             var demo = new Demo();
