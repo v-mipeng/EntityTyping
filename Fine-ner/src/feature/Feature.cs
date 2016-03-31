@@ -14,34 +14,50 @@ namespace msra.nlp.tr
 {
     internal class Feature
     {
+        #region Feature Control
 
-        protected Feature() { }
+        protected readonly bool useLastWord = true;
+        protected readonly bool useNextWord = true;
+        protected readonly bool useMentionHead = true;
+        protected readonly bool useMentionDriver = true;
+        protected readonly bool useMentionAdjModifier = true;
+        protected readonly bool useMentionAction = true;
+        protected readonly bool useMentionSurfaces = true;
+        protected readonly bool useMentionLength = true;
+        protected readonly bool useMentionID = true;
+        protected readonly bool useStanfordNer = true;
+        protected readonly bool useOpennlpNer = true;
+        protected readonly bool useDbpediaTypesWithIndegree = true;
+        protected readonly bool useDbpediaTypesWithAbstract = true;
+        protected readonly bool useKeywords = true;
+        protected readonly bool useWordTag = true;
+        protected readonly bool useWordID = true;
+        protected readonly bool useWordShape = true;
+        protected readonly bool useSentenceContext = true;
 
-        /// <summary>
-        /// Get the first sentence contains mention.
-        /// </summary>
-        /// <param name="sentences"></param>
-        /// <param name="words"></param>
-        /// <returns></returns>
-        Regex regex3 = new Regex(@"\s");
-        public string GetSentenceCoverMention(IEnumerable<string> sentences, IEnumerable<string> words)
+        #endregion
+
+        protected Feature() 
         {
-            var mention = new StringBuilder();
-            for (var i = 0; i < words.Count(); i++)
-            {
-                mention.Append(words.ElementAt(i));
-            }
-            var m = mention.ToString();
-            foreach (var sen in sentences)
-            {
-                var sentence = regex3.Replace(sen, "");
-                if (sentence.IndexOf(m) != -1)
-                {
-                    return sen;
-                }
-            }
-            return null;
+            useLastWord = Parameter.UseFeature("lastWord");
+            useNextWord = Parameter.UseFeature("nextWord");
+            useMentionHead = Parameter.UseFeature("mentionHead");
+            useMentionDriver = Parameter.UseFeature("mentionDriver");
+            useMentionAdjModifier = Parameter.UseFeature("mentionAdjModifier");
+            useMentionAction = Parameter.UseFeature("mentionAction");
+            useMentionSurfaces = Parameter.UseFeature("mentionSurfaces");
+            useMentionLength = Parameter.UseFeature("mentionLength");
+            useMentionID = Parameter.UseFeature("mentionID");
+            useStanfordNer = Parameter.UseFeature("stanfordNer");
+            useOpennlpNer = Parameter.UseFeature("opennlpNer");
+            useDbpediaTypesWithIndegree = Parameter.UseFeature("dbpediaTypesWithIndegree");
+            useDbpediaTypesWithAbstract = Parameter.UseFeature("dbpediaTypesWithAbstract");
+            useKeywords = Parameter.UseFeature("keyWords");
+            useWordTag = Parameter.UseFeature("wordTag");
+            useWordID = Parameter.UseFeature("wordID");
+            useWordShape = Parameter.UseFeature("wordShape");
         }
+
 
 
         /* Map 
@@ -71,48 +87,6 @@ namespace msra.nlp.tr
                 word = digitalRegex.Replace(word, "0");
                 return word;
             }
-        }
-     
-        protected Pair<int, int> GetIndexOfMention(IEnumerable<Pair<string, string>> ps, string mention)
-        {
-            var words = mention.Split(' ');
-            return GetIndexOfMention(ps, words);
-        }
-
-        public Pair<int, int> GetIndexOfMention(IEnumerable<Pair<string, string>> pairs, IEnumerable<string> words, int mentionOffset = 0)
-        {
-            var c = new StringBuilder();
-            foreach(var p in pairs)
-            {
-                c.Append(p.first);
-            }
-            var context = c.ToString();
-            var m = new StringBuilder();
-            foreach(var w in words)
-            {
-                m.Append(w);
-            }
-            var mention = m.ToString();
-            var first = context.IndexOf(mention)+1;
-            var last = first + mention.Length -1;
-            var begin = -1;
-            var end = -1;
-            var offset = 0;
-            for(var i = 0;i<pairs.Count();i++)
-            {
-                 if(offset <= first && (offset+pairs.ElementAt(i).first.Length) >= first)
-                {
-                    begin = i;
-                }
-                offset += pairs.ElementAt(i).first.Length;
-                if (offset >= last)
-                {
-                    end = i;
-                    return new Pair<int, int>(begin, end);
-                }
-            }
-            
-            return new Pair<int, int>(-1, -1);
         }
 
         /************************************************************************/

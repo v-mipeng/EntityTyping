@@ -14,7 +14,10 @@ namespace msra.nlp.tr
         List<string> feature = new List<string>();
         int offset = 0;
 
-        public SVMFeature() : base() { }
+        public SVMFeature() : base() 
+        {
+
+        }
 
 
         /// <summary>
@@ -64,32 +67,40 @@ namespace msra.nlp.tr
             #region last word (make last word more accurate)
             {
                 AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordStemmed")),
-                    rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordID")),
-                    rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordShape")),
-                    rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordTag")));
+                    useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordID")):null,
+                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordShape")):null,
+                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordTag")):null);
             }
             #endregion
 
             #region next word
             {
                 AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordStemmed")),
-                    rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordID")),
-                    rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordShape")),
-                    rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordTag")));
+                    useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordID")) : null,
+                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordShape")) : null,
+                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordTag")) : null);
             }
             #endregion
 
             #region  mention head
             {
                 AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadStemmed")),
-                     rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadID")),
-                     rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadShape")),
-                     rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadTag")));
+                    useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadID")) : null,
+                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadShape")) : null,
+                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadTag")) : null);
+
             }
             #endregion
 
             #region mention words
+            if(useMentionSurfaces)
             {
+                var dic = new Dictionary<int, int>();
+                int value = 0;
+                var dic2 = new SortedDictionary<int, int>();
+
+                #region mention stemmed words
+
                 string[] words = null;
                 try
                 {
@@ -99,36 +110,6 @@ namespace msra.nlp.tr
                 {
                     throw new Exception("Mention words is null");
                 }
-                string[] IDs = null;
-                try
-                {
-                    IDs = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionIDs")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                }
-                catch (Exception)
-                {
-                    throw new Exception("Mention ids is null");
-                }
-                string[] shapes = null;
-                try
-                {
-                    shapes = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionShapes")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                }
-                catch (Exception)
-                {
-                    throw new Exception("Mention shpaes is null");
-                }
-                string[] tags = null;
-                try
-                {
-                    tags = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionTags")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                }
-                catch (Exception)
-                {
-                    throw new Exception("Mention tags is null");
-                }
-                var dic = new Dictionary<int, int>();
-                int value = 0;
-                var dic2 = new SortedDictionary<int, int>();
                 foreach (var w in words) // words surface
                 {
                     var index = offset + DataCenter.GetWordIndex(w);
@@ -143,51 +124,99 @@ namespace msra.nlp.tr
                 }
                 offset += DataCenter.GetWordTableSize() + 1;
                 dic.Clear();
-                foreach (var ID in IDs) // words' cluster id
+
+                #endregion
+
+                #region mention word IDs
+                if (useWordID)
                 {
-                    var index = offset + int.Parse(ID);
-                    dic.TryGetValue(index, out value);
-                    dic[index] = value + 1;
+                    string[] IDs = null;
+                    try
+                    {
+                        IDs = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionIDs")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    }
+                    catch (Exception)
+                    {
+                        throw new Exception("Mention ids is null");
+                    }
+                    foreach (var ID in IDs) // words' cluster id
+                    {
+                        var index = offset + int.Parse(ID);
+                        dic.TryGetValue(index, out value);
+                        dic[index] = value + 1;
+                    }
+                    keys = dic.Keys.ToList();
+                    keys.Sort();
+                    foreach (var key in keys)
+                    {
+                        feature.Add(key + ":" + dic[key]);
+                    }
+                    offset += DataCenter.GetClusterNumber() + 1;
+                    dic.Clear();
                 }
-                keys = dic.Keys.ToList();
-                keys.Sort();
-                foreach (var key in keys)
+                #endregion
+
+                #region mention word shapes
+                if (useWordShape)
                 {
-                    feature.Add(key + ":" + dic[key]);
+                    string[] shapes = null;
+                    try
+                    {
+                        shapes = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionShapes")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    }
+                    catch (Exception)
+                    {
+                        throw new Exception("Mention shpaes is null");
+                    }
+                    foreach (var shape in shapes) // words shapes
+                    {
+                        var index = offset + DataCenter.GetWordShapeIndex(shape);
+                        dic.TryGetValue(index, out value);
+                        dic[index] = value + 1;
+                    }
+                    keys = dic.Keys.ToList();
+                    keys.Sort();
+                    foreach (var key in keys)
+                    {
+                        feature.Add(key + ":" + dic[key]);
+                    }
+                    offset += DataCenter.GetWordShapeTableSize() + 1;
+                    dic.Clear();
                 }
-                offset += DataCenter.GetClusterNumber() + 1;
-                dic.Clear();
-                foreach (var shape in shapes) // words shapes
+                #endregion
+
+                #region mention word tags
+                if (useWordTag)
                 {
-                    var index = offset + DataCenter.GetWordShapeIndex(shape);
-                    dic.TryGetValue(index, out value);
-                    dic[index] = value + 1;
+                    string[] tags = null;
+                    try
+                    {
+                        tags = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionTags")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    }
+                    catch (Exception)
+                    {
+                        throw new Exception("Mention tags is null");
+                    }
+                    foreach (var tag in tags)
+                    {   // words pos tags
+                        var index = offset + DataCenter.GetPosTagIndex(tag);
+                        dic.TryGetValue(index, out value);
+                        dic[index] = value + 1;
+                    }
+                    keys = dic.Keys.ToList();
+                    keys.Sort();
+                    foreach (var key in keys)
+                    {
+                        feature.Add(key + ":" + dic[key]);
+                    }
+                    offset += DataCenter.GetPosTagTableSize() + 1;
                 }
-                keys = dic.Keys.ToList();
-                keys.Sort();
-                foreach (var key in keys)
-                {
-                    feature.Add(key + ":" + dic[key]);
-                }
-                offset += DataCenter.GetWordShapeTableSize() + 1;
-                dic.Clear();
-                foreach (var tag in tags)
-                {   // words pos tags
-                    var index = offset + DataCenter.GetPosTagIndex(tag);
-                    dic.TryGetValue(index, out value);
-                    dic[index] = value + 1;
-                }
-                keys = dic.Keys.ToList();
-                keys.Sort();
-                foreach (var key in keys)
-                {
-                    feature.Add(key + ":" + dic[key]);
-                }
-                offset += DataCenter.GetPosTagTableSize() + 1;
+                #endregion
             }
             #endregion
 
             #region mention cluster id
+            if(useMentionID)
             {
                 var mentionID = int.Parse(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionID")));
                 feature.Add((offset + mentionID) + ":1");
@@ -196,6 +225,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region mention length: 1,2,3,4 or longer than 5
+            if(useMentionLength)
             {
                 var length = int.Parse(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionLength")));
                 if (length > 5)
@@ -209,74 +239,81 @@ namespace msra.nlp.tr
 
             #region DBpedia types
             {
-                var types = rawFeature.ElementAt(Parameter.GetFeatureIndex("dbpediaTypesWithIndegree")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                if (types.Count() == 1 && !types[0].Contains(":"))
+                if (useDbpediaTypesWithIndegree)
                 {
-                    var index = DataCenter.GetDBpediaTypeIndex(types[0]);
-                    feature.Add((offset + index) + ":1");
-                }
-                else
-                {
-                    var dic = new Dictionary<int, string>();
-                    foreach (var item in types)    // UNKNOW
+                    var types = rawFeature.ElementAt(Parameter.GetFeatureIndex("dbpediaTypesWithIndegree")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (types.Count() == 1 && !types[0].Contains(":"))
                     {
-                        var array = item.Split(':');
-                        var type = array[0];
-                        var distance = array[1];
-                        if (distance.ToLower().Equals("nan"))
+                        var index = DataCenter.GetDBpediaTypeIndex(types[0]);
+                        feature.Add((offset + index) + ":1");
+                    }
+                    else
+                    {
+                        var dic = new Dictionary<int, string>();
+                        foreach (var item in types)    // UNKNOW
                         {
-                            continue;
+                            var array = item.Split(':');
+                            var type = array[0];
+                            var distance = array[1];
+                            if (distance.ToLower().Equals("nan"))
+                            {
+                                continue;
+                            }
+                            try
+                            {
+                                var index = DataCenter.GetDBpediaTypeIndex(type);
+                                dic[index] = distance;
+                            }
+                            catch (Exception)
+                            {
+                                Console.WriteLine(item);
+                                Console.WriteLine(type);
+                            }
                         }
-                        try
+                        var indexes = dic.Keys.ToList();
+                        indexes.Sort();
+                        foreach (var index in indexes)
                         {
+                            feature.Add((offset + index) + ":" + dic[index]);
+                        }
+                    }
+                    offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
+                }
+                if (useDbpediaTypesWithAbstract)
+                {
+                    var types = rawFeature.ElementAt(Parameter.GetFeatureIndex("dbpediaTypesWithAbstract")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (types.Count() == 1 && !types[0].Contains(":"))
+                    {
+                        var index = DataCenter.GetDBpediaTypeIndex(types[0]);
+                        feature.Add((offset + index) + ":1");
+                    }
+                    else
+                    {
+                        var dic = new Dictionary<int, string>();
+                        foreach (var item in types)    // UNKNOW
+                        {
+                            var array = item.Split(':');
+                            var type = array[0];
+                            var distance = array[1];
                             var index = DataCenter.GetDBpediaTypeIndex(type);
                             dic[index] = distance;
                         }
-                        catch (Exception)
+                        var indexes = dic.Keys.ToList();
+                        indexes.Sort();
+                        foreach (var index in indexes)
                         {
-                            Console.WriteLine(item);
-                            Console.WriteLine(type);
+                            feature.Add((offset + index) + ":" + dic[index]);
                         }
                     }
-                    var indexes = dic.Keys.ToList();
-                    indexes.Sort();
-                    foreach (var index in indexes)
-                    {
-                        feature.Add((offset + index) + ":" + dic[index]);
-                    }
+                    offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
                 }
-                offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
-                types = rawFeature.ElementAt(Parameter.GetFeatureIndex("dbpediaTypesWithAbstract")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                if (types.Count() == 1 && !types[0].Contains(":"))
-                {
-                    var index = DataCenter.GetDBpediaTypeIndex(types[0]);
-                    feature.Add((offset + index) + ":1");
-                }
-                else
-                {
-                    var dic = new Dictionary<int, string>();
-                    foreach (var item in types)    // UNKNOW
-                    {
-                        var array = item.Split(':');
-                        var type = array[0];
-                        var distance = array[1];
-                        var index = DataCenter.GetDBpediaTypeIndex(type);
-                        dic[index] = distance;
-                    }
-                    var indexes = dic.Keys.ToList();
-                    indexes.Sort();
-                    foreach (var index in indexes)
-                    {
-                        feature.Add((offset + index) + ":" + dic[index]);
-                    }
-                }
-                offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
             }
             #endregion
 
             #region Key words
+            if(useKeywords)
             {
-                var keywords = rawFeature.ElementAt(Parameter.GetFeatureIndex("keyWords")).Split(',');
+                var keywords = rawFeature.ElementAt(Parameter.GetFeatureIndex("keywords")).Split(',');
                 var list = new List<int>();
                 foreach (var word in keywords)
                 {
@@ -304,26 +341,26 @@ namespace msra.nlp.tr
             {
                 // word surface
                 feature.Add((offset + DataCenter.GetWordIndex(stemmedWord)) + ":1");
+                offset += DataCenter.GetWordTableSize() + 1;
             }
-            offset += DataCenter.GetWordTableSize() + 1;
             // word Cluster id
             if (ID != null)
             {
                 feature.Add((offset + int.Parse(ID)) + ":1");
+                offset += DataCenter.GetClusterNumber() + 1;
             }
-            offset += DataCenter.GetClusterNumber() + 1;
             // word shape
             if (shape != null)
             {
                 feature.Add((offset + DataCenter.GetWordShapeIndex(shape)) + ":1");
+                offset += DataCenter.GetWordShapeTableSize() + 1;
             }
-            offset += DataCenter.GetWordShapeTableSize() + 1;
             // word pos tag
             if (posTag != null)
             {
                 feature.Add((offset + DataCenter.GetPosTagIndex(posTag)) + ":1");
+                offset += DataCenter.GetPosTagTableSize() + 1;
             }
-            offset += DataCenter.GetPosTagTableSize() + 1;
         }
 
     }

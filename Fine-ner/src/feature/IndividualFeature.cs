@@ -23,49 +23,11 @@ namespace msra.nlp.tr
 
         List<string> contextTokens = null;
 
-        #region Feature Control
 
-        bool useLastWord = true;
-        bool useNextWord = true;
-        bool useMentionHead = true;
-        bool useMentionDriver = true;
-        bool useMentionAdjModifier = true;
-        bool useMentionAction = true;
-        bool useMentionSurfaces = true;
-        bool useMentionLength = true;
-        bool useMentionID = true;
-        bool useStanfordNer = true;
-        bool useOpennlpNer = true;
-        bool useDbpediaTypesWithIndegree = true;
-        bool useDbpediaTypesWithAbstract = true;
-        bool useKeyWords = true;
-        bool useWordTag = true;
-        bool useWordID = true;
-        bool useWordShape = true;
-        bool useSentenceContext = true;
-
-        #endregion
         static System.Text.RegularExpressions.Regex allCharRegex = new System.Text.RegularExpressions.Regex(@"\W");
 
         public IndividualFeature() : base()
         {
-            useLastWord = Parameter.UseFeature("lastWord");
-            useNextWord = Parameter.UseFeature("nextWord");
-            useMentionHead = Parameter.UseFeature("mentionHead");
-            useMentionDriver = Parameter.UseFeature("mentionDriver");
-            useMentionAdjModifier = Parameter.UseFeature("mentionAdjModifier");
-            useMentionAction = Parameter.UseFeature("mentionAction");
-            useMentionSurfaces = Parameter.UseFeature("mentionSurfaces");
-            useMentionLength = Parameter.UseFeature("mentionLength");
-            useMentionID = Parameter.UseFeature("mentionID");
-            useStanfordNer = Parameter.UseFeature("stanfordNer");
-            useOpennlpNer = Parameter.UseFeature("opennlpNer");
-            useDbpediaTypesWithIndegree = Parameter.UseFeature("dbpediaTypesWithIndegree");
-            useDbpediaTypesWithAbstract = Parameter.UseFeature("dbpediaTypesWithAbstract");
-            useKeyWords = Parameter.UseFeature("keyWords");
-            useWordTag = Parameter.UseFeature("wordTag");
-            useWordID = Parameter.UseFeature("wordID");
-            useWordShape = Parameter.UseFeature("wordShape");
         }
 
         /// <summary>
@@ -195,13 +157,9 @@ namespace msra.nlp.tr
                     if (useWordTag)
                     {
                         posTag = contextTokenPairs.ElementAt(mentionIndexPair.second).second;
-                        AddFieldToFeture(head, posTag);
-                    }
-                    else
-                    {
-                        AddFieldToFeture(head);
                     }
                 }
+                AddFieldToFeture(head, posTag);
             }
             #endregion
 
@@ -225,23 +183,6 @@ namespace msra.nlp.tr
                 feature.Add(string.Join(",", mentionTokens));
                 // add stemmed mention surface
                 feature.Add(buffer.ToString());
-                // mention tags
-                if (useWordTag)
-                {
-                    buffer.Clear();
-                    for (var i = mentionIndexPair.first; i <= mentionIndexPair.second; i++)
-                    {
-                        if (buffer.Length == 0)
-                        {
-                            buffer.Append(contextTokenPairs.ElementAt(i).second);
-                        }
-                        else
-                        {
-                            buffer.Append("," + contextTokenPairs.ElementAt(i).second);
-                        }
-                    }
-                    feature.Add(buffer.ToString());
-                }
                 // mention IDs
                 if (useWordID)
                 {
@@ -272,6 +213,23 @@ namespace msra.nlp.tr
                         else
                         {
                             buffer.Append("," + GetWordShape(word));
+                        }
+                    }
+                    feature.Add(buffer.ToString());
+                }
+                // mention tags
+                if (useWordTag)
+                {
+                    buffer.Clear();
+                    for (var i = mentionIndexPair.first; i <= mentionIndexPair.second; i++)
+                    {
+                        if (buffer.Length == 0)
+                        {
+                            buffer.Append(contextTokenPairs.ElementAt(i).second);
+                        }
+                        else
+                        {
+                            buffer.Append("," + contextTokenPairs.ElementAt(i).second);
                         }
                     }
                     feature.Add(buffer.ToString());
@@ -309,7 +267,7 @@ namespace msra.nlp.tr
             #endregion
 
             #region Key words
-            if(useKeyWords)
+            if(useKeywords)
             {
                 var keyWords = DataCenter.ExtractKeyWords(this.instance.Context);
                 feature.Add(string.Join(",", keyWords));

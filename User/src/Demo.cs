@@ -292,14 +292,14 @@ namespace User.src
             {
                 writer.WriteLine(string.Format("{0}\t{1}\t{2}", queries[i].first, types[i], queries[i].second));
             }
-            //types = demo.FourClassPredict(queries);
-            //writer.WriteLine("");
-            //writer.WriteLine("Predict by predictor trained on 4 classes:");
-            //writer.WriteLine("");
-            //for (var i = 0; i < queries.Count; i++)
-            //{
-            //    writer.WriteLine(string.Format("{0}\t\t{1}\t\t{2}", queries[i].first, types[i], queries[i].second));
-            //}
+            types = demo.FourClassPredict(queries);
+            writer.WriteLine("");
+            writer.WriteLine("Predict by predictor trained on 4 classes:");
+            writer.WriteLine("");
+            for (var i = 0; i < queries.Count; i++)
+            {
+                writer.WriteLine(string.Format("{0}\t\t{1}\t\t{2}", queries[i].first, types[i], queries[i].second));
+            }
             writer.Close();
         }
 

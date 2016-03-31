@@ -123,6 +123,165 @@ namespace msra.nlp.tr
 
         internal static int GetFeatureIndex(string featureKey)
         {
+            if(featureIndex.Count == 0)
+            {
+                bool useWordTag = UseFeature("wordTag");
+                bool useWordID = UseFeature("wordID");
+                bool useWordShape = UseFeature("wordShape");
+                if (UseFeature("lastWord"))
+                {
+                    featureIndex["lastWord"] = featureIndex.Count;
+                    featureIndex["lastWordStemmed"] = featureIndex.Count;
+               
+                    if (useWordID)
+                    {
+                        featureIndex["lastWordID"] = featureIndex.Count;
+                    }
+                    if (useWordShape)
+                    {
+                        featureIndex["lastWordShape"] = featureIndex.Count;
+                    }
+                    if (useWordTag)
+                    {
+                        featureIndex["lastWordTag"] = featureIndex.Count;
+                    }
+                }
+                if (UseFeature("nextWord"))
+                {
+                    featureIndex["nextWord"] = featureIndex.Count;
+                    featureIndex["nextWordStemmed"] = featureIndex.Count;
+       
+                    if (useWordID)
+                    {
+                        featureIndex["nextWordID"] = featureIndex.Count;
+                    }
+                    if (useWordShape)
+                    {
+                        featureIndex["nextWordShape"] = featureIndex.Count;
+                    }
+                    if (useWordTag)
+                    {
+                        featureIndex["nextWordTag"] = featureIndex.Count;
+                    }
+                }
+                if (UseFeature("mentionHead"))
+                {
+                    featureIndex["mentionHead"] = featureIndex.Count;
+                    featureIndex["mentionHeadStemmed"] = featureIndex.Count;
+      
+                    if (useWordID)
+                    {
+                        featureIndex["mentionHeadID"] = featureIndex.Count;
+                    }
+                    if (useWordShape)
+                    {
+                        featureIndex["mentionHeadShape"] = featureIndex.Count;
+                    }
+                    if (useWordTag)
+                    {
+                        featureIndex["mentionHeadTag"] = featureIndex.Count;
+                    }
+                }
+                if (UseFeature("mentionDriver"))
+                {
+                    featureIndex["mentionDriver"] = featureIndex.Count;
+                    featureIndex["mentionDriverStemmed"] = featureIndex.Count;
+                  
+                    if (useWordID)
+                    {
+                        featureIndex["mentionDriverID"] = featureIndex.Count;
+                    }
+                    if (useWordShape)
+                    {
+                        featureIndex["mentionDriverShape"] = featureIndex.Count;
+                    }
+                    if (useWordTag)
+                    {
+                        featureIndex["mentionDriverTag"] = featureIndex.Count;
+                    }
+                }
+                if (UseFeature("mentionAdjModifier"))
+                {
+                    featureIndex["mentionAdjModifier"] = featureIndex.Count;
+                    featureIndex["mentionAdjModifierStemmed"] = featureIndex.Count;
+                  
+                    if (useWordID)
+                    {
+                        featureIndex["mentionAdjModifierID"] = featureIndex.Count;
+                    }
+                    if (useWordShape)
+                    {
+                        featureIndex["mentionAdjModifierShape"] = featureIndex.Count;
+                    }
+                    if (useWordTag)
+                    {
+                        featureIndex["mentionAdjModifierTag"] = featureIndex.Count;
+                    }
+                }
+                if (UseFeature("mentionAction"))
+                {
+                    featureIndex["mentionAction"] = featureIndex.Count;
+                    featureIndex["mentionActionStemmed"] = featureIndex.Count;
+                 
+                    if (useWordID)
+                    {
+                        featureIndex["mentionActionID"] = featureIndex.Count;
+                    }
+                    if (useWordShape)
+                    {
+                        featureIndex["mentionActionShape"] = featureIndex.Count;
+                    }
+                    if (useWordTag)
+                    {
+                        featureIndex["mentionActionTag"] = featureIndex.Count;
+                    }
+                }
+                if (UseFeature("mentionSurfaces"))
+                {
+                    featureIndex["mentionSurfaces"] = featureIndex.Count;
+                    featureIndex["mentionSurfacesStemmed"] = featureIndex.Count;
+                    if (useWordID)
+                    {
+                        featureIndex["mentionIDs"] = featureIndex.Count;
+                    }
+                    if (useWordShape)
+                    {
+                        featureIndex["mentionShapes"] = featureIndex.Count;
+                    }
+                    if (useWordTag)
+                    {
+                        featureIndex["mentionTags"] = featureIndex.Count;
+                    }
+                }
+                if (UseFeature("mentionID"))
+                {
+                    featureIndex["mentionID"] = featureIndex.Count;
+                }
+                if (UseFeature("mentionLength"))
+                {
+                    featureIndex["mentionLength"] = featureIndex.Count;
+                }
+                if (UseFeature("stanfordNer"))
+                {
+                    featureIndex["stanfordNer"] = featureIndex.Count;
+                }
+                if (UseFeature("opennlpNer"))
+                {
+                    featureIndex["opennlpNer"] = featureIndex.Count;
+                }
+                if (UseFeature("dbpediaTypesWithIndegree"))
+                {
+                    featureIndex["dbpediaTypesWithIndegree"] = featureIndex.Count;
+                }
+                if (UseFeature("dbpediaTypesWithAbstract"))
+                {
+                    featureIndex["dbpediaTypesWithAbstract"] = featureIndex.Count;
+                }
+                if(UseFeature("keywords"))
+                {
+                    featureIndex["keywords"] = featureIndex.Count;
+                }
+            }
             return featureIndex[featureKey];
         }
 
@@ -198,14 +357,13 @@ namespace msra.nlp.tr
                 type2Label[toType] = label;
                 label2Type[label] = toType;
             }
-            // Set Raw Feature Index
+            // Set Raw Feature Control
             nodes = doc.DocumentElement.SelectNodes("/config/features/feature");
             foreach (XmlNode node in nodes)
             {
                 var name = node.Attributes["name"].Value;
                 if(node.Attributes["activate"].Value.Equals("true"))
                 {
-                    featureIndex[name] = featureIndex.Count;
                     featureActivate[name] = true;
                 }
                 else

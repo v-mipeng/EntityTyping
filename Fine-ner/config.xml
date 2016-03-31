@@ -47,12 +47,13 @@
 		<feature name="mentionAdjModifier" activate="false" />
 		<feature name="mentionAction" activate="false" />
 		<feature name="mentionSurfaces" activate="true" />
+		<feature name="mentionID" activate="true" />
 		<feature name="mentionLength" activate="true" />
-		<feature name="stanfordNerType" activate="true" />
-		<feature name="opennlpNerType" activate="true" />
-		<feature name="dbpediaTypesWithIndegree" activate="false" />
-		<feature name="dbpediaTypesWithAbstract" activate="false" />
-		<feature name="keyWords" activate="true" />
+		<feature name="stanfordNer" activate="false" />
+		<feature name="opennlpNer" activate="false" />
+		<feature name="dbpediaTypesWithIndegree" activate="true" />
+		<feature name="dbpediaTypesWithAbstract" activate="true" />
+		<feature name="keywords" activate="true" />
 		<feature name="wordTag" activate="true" />
 		<feature name="wordID" activate="true" />
 		<feature name="wordShape" activate="true" />
