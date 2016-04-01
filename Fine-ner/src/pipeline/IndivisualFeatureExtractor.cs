@@ -105,8 +105,38 @@ namespace msra.nlp.tr
 
         public void AddFeature()
         {
-        }
+            var reader = new EventReaderByLine(source);
+            var writer = new EventWriterByLine(des);
+            int count = 0;
 
+            while (reader.HasNext())
+            {
+                if (++count % 1000 == 0)
+                {
+                    Console.Clear();
+                    Console.WriteLine("{0} has processed {1}", Thread.CurrentThread.Name, count);
+                }
+                if(count > 100000)
+                {
+                    break;
+                }
+                var e = reader.GetNextEvent();
+                try
+                {
+                    //var feature = extractor.AddFeature(e);
+                    //e = new Event(e.Label, feature);
+                    //writer.WriteEvent(e);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
+                    Console.WriteLine(e);
+                }
+            }
+            reader.Close();
+            writer.Close();
+        }
 
     }
 }
