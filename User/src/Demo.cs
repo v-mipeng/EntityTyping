@@ -282,7 +282,7 @@ namespace User.src
 
         public static void Mains(string[] args)
         {
-            var pipeline = new Pipeline(@"D:\Codes\Project\package\config.xml");
+            var pipeline = new Pipeline(@"D:\Codes\Project\package\config for 5 class model.xml");
             var demo = new Demo();
             //Console.WriteLine(demo.Predict("House Ways and Means Committee", "Influential members of the House Ways and Means Committee introduced legislation that would restrict how the new savings-and-loan bailout agency can raise capital , creating another potential obstacle to the government 's sale of sick thrifts ."));
             //Console.ReadKey();

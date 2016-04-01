@@ -43,14 +43,14 @@
 		<feature name="lastWord" activate="true"/>
 		<feature name="nextWord" activate="true" />
 		<feature name="mentionHead" activate="true" />
-		<feature name="mentionDriver" activate="false" />
-		<feature name="mentionAdjModifier" activate="false" />
-		<feature name="mentionAction" activate="false" />
+		<feature name="mentionDriver" activate="true" />
+		<feature name="mentionAdjModifier" activate="true" />
+		<feature name="mentionAction" activate="true" />
 		<feature name="mentionSurfaces" activate="true" />
 		<feature name="mentionID" activate="true" />
 		<feature name="mentionLength" activate="true" />
-		<feature name="stanfordNer" activate="false" />
-		<feature name="opennlpNer" activate="false" />
+		<feature name="stanfordNer" activate="true" />
+		<feature name="opennlpNer" activate="true" />
 		<feature name="dbpediaTypesWithIndegree" activate="true" />
 		<feature name="dbpediaTypesWithAbstract" activate="true" />
 		<feature name="keywords" activate="true" />
