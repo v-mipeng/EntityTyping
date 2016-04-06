@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using msra.nlp.tr;
 using msra.nlp.dp.conll;
+using msra.nlp.tr.dp.satori;
 
 namespace msra.nlp.tr.dp
 {
     class Entrance
     {
-        public static void Mains(string[] args)
+        public static void Main(string[] args)
         {
             if (false)
             {
@@ -53,7 +54,7 @@ namespace msra.nlp.tr.dp
                 //@"D:\Codes\Project\EntityTyping\Fine-ner\input\dictionaries\dbpedia\abstract word table.txt");
                 //tfidf.GetVectorCorpus();
             }
-            if(true)
+            if(false)
             {
                 // filter conll data
                 var filter = new DataFilter(@"D:\Codes\Project\EntityTyping\Fine-ner\input\conll",
@@ -61,6 +62,16 @@ namespace msra.nlp.tr.dp
                      @"D:\Codes\Project\EntityTyping\Fine-ner\input\conll trimed\conll info.txt");
                 filter.Refine();
             }
+             if(true)
+             {
+                Script.AddProductData(@"D:\Codes\Project\EntityTyping\Fine-ner\input\datasets\satori\computer_software.txt",
+                     @"D:\Codes\Project\EntityTyping\Fine-ner\input\datasets\satori\train\computer_software.txt");
+                Script.AddProductData(@"D:\Codes\Project\EntityTyping\Fine-ner\input\datasets\satori\commerce_electronics_product.txt",
+                   @"D:\Codes\Project\EntityTyping\Fine-ner\input\datasets\satori\train\commerce_electronics_product.txt");
+                Script.AddProductData(@"D:\Codes\Project\EntityTyping\Fine-ner\input\datasets\satori\commerce_consumer_product.txt",
+                                    @"D:\Codes\Project\EntityTyping\Fine-ner\input\datasets\satori\train\commerce_consumer_product.txt");
+
+             }
         }
     }
 }

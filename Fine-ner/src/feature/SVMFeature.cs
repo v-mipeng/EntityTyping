@@ -60,9 +60,9 @@ namespace msra.nlp.tr
         {
 
             this.feature.Clear();
-            this.offset = 0;
+            this.offset = 1;
             var rawFeature = e.Feature;
-            feature.Add("0");
+            //feature.Add("0");
 
             #region last word (make last word more accurate)
             if(useLastWord)
@@ -334,7 +334,7 @@ namespace msra.nlp.tr
             #endregion
 
             //set feature dimension
-            feature[0] = FeatureDimension.ToString();
+            //feature[0] = FeatureDimension.ToString();
             return feature;
         }
 

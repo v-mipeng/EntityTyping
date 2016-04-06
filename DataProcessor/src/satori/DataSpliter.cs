@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.AccessControl;
 
-namespace msra.nlp.tr.dp
+namespace msra.nlp.tr.dp.satori
 {
     /// <summary>
     ///   Split data into training data, develop data and test data.
@@ -170,6 +170,9 @@ namespace msra.nlp.tr.dp
                 File.SetAttributes(file, FileAttributes.ReadOnly);
             }
         }
+
+       
+
 
         string line;
         string[] array;

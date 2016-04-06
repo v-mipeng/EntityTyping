@@ -55,9 +55,16 @@ namespace msra.nlp.tr
         public List<string> ExtractFeature(Instance instance)
         {
             this.instance = instance;
-            instance = null;
             this.feature.Clear();
-            FilterContext();
+            try
+            {
+                FilterContext();
+            }
+            catch(Exception)
+            {
+                this.instance = instance;
+                instance = null;
+            }
             Tokenizer();
             if (mentionIndexPair.first == -1)
             {
@@ -616,7 +623,7 @@ namespace msra.nlp.tr
                     {
                         continue;
                     }
-                    if(ts[i].second<=instance.MentionOffset && (ts[i].second+ts[i].first.Length) > instance.MentionOffset)
+                    if(ts[i].second<=instance.MentionOffset && (ts[i].second+ts[i].first.Length) >= instance.MentionOffset)
                     {
                         begin = i;
                     }
@@ -659,6 +666,7 @@ namespace msra.nlp.tr
             }
             var buffer = new StringBuilder();
             var offset = -1;
+            var end = -1;
             foreach (var sentence in sentences)
             {
                 if(sentence.second <= instance.MentionOffset && (sentence.second+sentence.first.Length)>=(instance.MentionOffset+instance.MentionLength))  // sentence cover
@@ -667,13 +675,22 @@ namespace msra.nlp.tr
                     buffer.Append(sentence.first);
                     break;
                 }
-                if((sentence.second+sentence.first.Length)>= instance.MentionOffset && (sentence.second+sentence.first.Length)<=(instance.MentionOffset+instance.MentionLength))
+                if(((sentence.second+sentence.first.Length-1)>= instance.MentionOffset && (sentence.second+sentence.first.Length)<=(instance.MentionOffset+instance.MentionLength))
+                    || (sentence.second>=instance.MentionOffset && sentence.second<=(instance.MentionOffset+instance.MentionLength-1)))
                 {
-                    buffer.Append(sentence);
+                    if (end > -1)
+                    {
+                        for (var i = 1; i < sentence.second - end; i++)
+                        {
+                            buffer.Append(" ");
+                        }
+                    }
+                    buffer.Append(sentence.first);
                     if(offset==-1)
                     {
                         offset = sentence.second;
                     }
+                    end = sentence.second + sentence.first.Length - 1;
                 }
             }
             this.instance = new Instance(buffer.ToString(), instance.MentionOffset - offset, instance.MentionLength);
@@ -686,14 +703,12 @@ namespace msra.nlp.tr
             var index = mentionIndexPair.first - 1;
             while (index >= 0)
             {
-
-                if (contextTokens[index].Equals("##") ||
-                    terminators.IsMatch(contextTokens[index]))
+                if (this.contextTokens[index].Equals("##") || terminators.IsMatch(this.contextTokens[index]))
                 {       // if it is sentence terminator
                     index = -1;
                     break;
                 }
-                else if (!contextTokens[index].Equals("'s") && allCharRegex.IsMatch(contextTokens[index])) // skip "(,",'"
+                else if (!this.contextTokens[index].Equals("'s") && allCharRegex.IsMatch(this.contextTokens[index])) // skip "(,",'"
                 {
                     index--;
                 }

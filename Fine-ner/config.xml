@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
 	<parameters>
-		<parameter name="basedir" type="base path" value="D:\Codes\Project\package\resource\"/>
+		<parameter name="basedir" type="base path" value="D:\Codes\Project\EntityTyping\release package\resource\"/>
 		<parameter name="stanford_model_dir" type="relative path" value="stanford models"/>
 		<parameter name="word_table_file" type="relative path" value="tables\wordTable.txt"/>
 		<parameter name="stem_map" type="relative path" value="tables\stem-word-table.txt"/>

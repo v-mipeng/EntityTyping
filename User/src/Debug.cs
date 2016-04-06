@@ -27,23 +27,30 @@ namespace User
             /************************************************************************/
             /* Feature extractor  for satori                                                                   */
             /************************************************************************/
-            if (false)
+            if (true)
             {
                 var currentFolderPath = Environment.CurrentDirectory;
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
                 var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
                 basedir = Path.Combine(basedir, "Fine-ner/");
-                var configFile = Path.Combine(basedir, "config.xml");
-                props.SetProperty("method", @"/ef -raw -train");
-                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\datasets\satori\train\award_award.txt"));
-                props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\features\satori\temp train\award_award.txt"));
-                props.SetProperty("develop_data_file", Path.Combine(basedir, @"input\features\satori\develop\"));
-                props.SetProperty("develop_feature_file", Path.Combine(basedir, @"input\features\satori\temp develop\"));
-                props.SetProperty("test_data_file", Path.Combine(basedir, @"input\features\satori\test\"));
-                props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\features\satori\temp test\"));
+                var configFile = @"D:\Codes\Project\EntityTyping\release package\config for 5 class model.xml";
+                //props.SetProperty("method", @"/ef -raw -train");
+                //props.SetProperty("train_data_file", Path.Combine(basedir, @"input\datasets\conll\"));
+                //props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\features\conll\"));
+                //props.SetProperty("test_data_file", Path.Combine(basedir, @"input\datasets\satori\test\"));
+                //props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\features\satori\test\"));
+                //pipeline = new Pipeline(configFile, props);
+                //pipeline.Execute();
+                props.SetProperty("method", @"/ef -svm -train");
+                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\5 class\train\"));
+                props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\features\5 class\train\"));
+                props.SetProperty("test_data_file", Path.Combine(basedir, @"input\features\5 class\test\"));
+                props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\features\5 class\test\"));
                 pipeline = new Pipeline(configFile, props);
                 pipeline.Execute();
-
+                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\features\5 class\train\"), Path.Combine(basedir, @"output\features\5 class\train.txt"));
+                pml.file.util.Util.CombineFiles(Path.Combine(basedir, @"output\features\5 class\test\"), Path.Combine(basedir, @"output\features\5 class\test.txt"));
+               
                 #region
                 //props.SetProperty("method", @"/ef -svm -all");
                 //props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\satori\temp train\"));
@@ -91,18 +98,16 @@ namespace User
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
                 var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
                 basedir = Path.Combine(basedir, "Fine-ner/");
-                props.SetProperty("method", @"/ef -raw -add -train");
-                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\conll\"));
-                props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\features\temp\"));
-                pipeline = new Pipeline(props);
+                var configFile = @"D:\Codes\Project\EntityTyping\release package\config for 5 class model.xml";
+                props.SetProperty("method", @"/ef -raw -train");
+                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\datasets\conll\"));
+                props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\features\conll\"));
+                pipeline = new Pipeline(configFile, props);
                 pipeline.Execute();
                 props.SetProperty("method", @"/ef -svm -train");
-                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\temp\"));
+                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\conll\"));
                 props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\features\conll\"));
-                //props.Set("activateMIKeyword", false);
-                props.Set("activateNer", false);
-                props.Set("activateParser", false);
-                pipeline = new Pipeline(props);
+                pipeline = new Pipeline(configFile, props);
                 pipeline.Execute();
             }
             /************************************************************************/
@@ -233,7 +238,7 @@ namespace User
             /************************************************************************/
             /* Feature extractor  for 5 classes: product and other                                                                   */
             /************************************************************************/
-            if (true)
+            if (false)
             {
                 var currentFolderPath = Environment.CurrentDirectory;
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));

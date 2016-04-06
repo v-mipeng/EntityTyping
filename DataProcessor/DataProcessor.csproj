@@ -53,6 +53,7 @@
     <Compile Include="src\general\MI.cs" />
     <Compile Include="src\satori\DataRefiner.cs" />
     <Compile Include="src\satori\DataSpliter.cs" />
+    <Compile Include="src\satori\Script.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\package-pml\Package-pml.csproj">

@@ -122,8 +122,8 @@ namespace User
 
         public static void Mains(string[] args)
         {
-            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\input\features\5 class\train",
-                @"D:\Codes\Project\EntityTyping\Fine-ner\input\features\5 class\train.txt");
+            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\output\features\5 class\train",
+                @"D:\Codes\Project\EntityTyping\Fine-ner\output\features\5 class\train.txt");
         }
     }
 
