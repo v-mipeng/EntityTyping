@@ -181,6 +181,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Stanford.NLP.CoreNLP.3.5.1\lib\jollyday.dll</HintPath>
     </Reference>
+    <Reference Include="liblinear">
+      <HintPath>..\packages\Liblinear.1.92\lib\liblinear.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Live.Json.Signed">
       <HintPath>..\..\..\..\Software Install\TLC 2.7\Microsoft.Live.Json.Signed.dll</HintPath>
     </Reference>
@@ -247,7 +250,9 @@
     <Compile Include="src\pipeline\SVMFeatureExtractor.cs" />
     <Compile Include="src\services\predict\FourClassPredictor.cs" />
     <Compile Include="src\services\predict\FourClassPredictorPool.cs" />
+    <Compile Include="src\services\predict\LiblinearPredictorPool.cs" />
     <Compile Include="src\services\predict\FullFeaturePredictorPool.cs" />
+    <Compile Include="src\services\predict\LiblinearPredictor.cs" />
     <Compile Include="src\services\predict\Predictor.cs" />
     <Compile Include="src\services\predict\FullFeaturePredictor.cs" />
     <Compile Include="src\services\DataCenter.cs" />

@@ -18,7 +18,7 @@ namespace msra.nlp.tr.predict
         /// Get a stanford ner from ner pool
         /// </summary>
         /// <returns></returns>
-        public static FullFeaturePredictor GetFullFeaturePredictor()
+        public static FullFeaturePredictor GetPredictor()
         {
             lock (locker)
             {
@@ -77,7 +77,7 @@ namespace msra.nlp.tr.predict
         /// </summary>
         /// <param name="predictor"></param>
         /// <param name="predictor"></param>
-        public static void ReturnFullFeaturePredictor(FullFeaturePredictor predictor)
+        public static void ReturnPredictor(FullFeaturePredictor predictor)
         {
             for (var i = 0; i < predictors.Count; i++)
             {

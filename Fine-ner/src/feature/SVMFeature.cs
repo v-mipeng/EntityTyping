@@ -14,7 +14,7 @@ namespace msra.nlp.tr
         List<string> feature = new List<string>();
         int offset = 0;
 
-        public SVMFeature() : base() 
+        internal SVMFeature() : base() 
         {
 
         }
@@ -59,17 +59,17 @@ namespace msra.nlp.tr
         public List<string> ExtractFeature(Event e)
         {
             this.feature.Clear();
-            this.offset = 0;
+            this.offset = 1;
             var rawFeature = e.Feature;
-            feature.Add("0");
+            //feature.Add("0");
 
             #region last word (make last word more accurate)
             if(useLastWord)
             {
                 AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordStemmed")),
+                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordTag")):null,
                     useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordID")):null,
-                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordShape")):null,
-                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordTag")):null);
+                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordShape")):null);
             }
             #endregion
 
@@ -77,9 +77,9 @@ namespace msra.nlp.tr
             if(useNextWord)
             {
                 AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordStemmed")),
+                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordTag")) : null,
                     useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordID")) : null,
-                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordShape")) : null,
-                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordTag")) : null);
+                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordShape")) : null);
             }
             #endregion
 
@@ -87,9 +87,9 @@ namespace msra.nlp.tr
             if(useMentionHead)
             {
                 AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadStemmed")),
+                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadTag")) : null,
                     useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadID")) : null,
-                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadShape")) : null,
-                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadTag")) : null);
+                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadShape")) : null);
 
             }
             #endregion
@@ -127,6 +127,35 @@ namespace msra.nlp.tr
                 offset += DataCenter.GetWordTableSize() + 1;
                 dic.Clear();
 
+                #endregion
+
+                #region mention word tags
+                if (useWordTag)
+                {
+                    string[] tags = null;
+                    try
+                    {
+                        tags = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionTags")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    }
+                    catch (Exception)
+                    {
+                        throw new Exception("Mention tags is null");
+                    }
+                    foreach (var tag in tags)
+                    {   // words pos tags
+                        var index = offset + DataCenter.GetPosTagIndex(tag);
+                        dic.TryGetValue(index, out value);
+                        dic[index] = value + 1;
+                    }
+                    keys = dic.Keys.ToList();
+                    keys.Sort();
+                    foreach (var key in keys)
+                    {
+                        feature.Add(key + ":" + dic[key]);
+                    }
+                    offset += DataCenter.GetPosTagTableSize() + 1;
+                    dic.Clear();
+                }
                 #endregion
 
                 #region mention word IDs
@@ -184,34 +213,6 @@ namespace msra.nlp.tr
                     }
                     offset += DataCenter.GetWordShapeTableSize() + 1;
                     dic.Clear();
-                }
-                #endregion
-
-                #region mention word tags
-                if (useWordTag)
-                {
-                    string[] tags = null;
-                    try
-                    {
-                        tags = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionTags")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    }
-                    catch (Exception)
-                    {
-                        throw new Exception("Mention tags is null");
-                    }
-                    foreach (var tag in tags)
-                    {   // words pos tags
-                        var index = offset + DataCenter.GetPosTagIndex(tag);
-                        dic.TryGetValue(index, out value);
-                        dic[index] = value + 1;
-                    }
-                    keys = dic.Keys.ToList();
-                    keys.Sort();
-                    foreach (var key in keys)
-                    {
-                        feature.Add(key + ":" + dic[key]);
-                    }
-                    offset += DataCenter.GetPosTagTableSize() + 1;
                 }
                 #endregion
             }
@@ -332,18 +333,24 @@ namespace msra.nlp.tr
             #endregion
 
             //set feature dimension
-            feature[0] = FeatureDimension.ToString();
+            //feature[0] = FeatureDimension.ToString();
             return feature;
         }
 
 
-        private void AddWordFieldToFeature(string stemmedWord, string ID, string shape, string posTag)
+        private void AddWordFieldToFeature(string stemmedWord, string posTag, string ID, string shape)
         {
             if (stemmedWord != null)
             {
                 // word surface
                 feature.Add((offset + DataCenter.GetWordIndex(stemmedWord)) + ":1");
                 offset += DataCenter.GetWordTableSize() + 1;
+            }
+            // word pos tag
+            if (posTag != null)
+            {
+                feature.Add((offset + DataCenter.GetPosTagIndex(posTag)) + ":1");
+                offset += DataCenter.GetPosTagTableSize() + 1;
             }
             // word Cluster id
             if (ID != null)
@@ -356,12 +363,6 @@ namespace msra.nlp.tr
             {
                 feature.Add((offset + DataCenter.GetWordShapeIndex(shape)) + ":1");
                 offset += DataCenter.GetWordShapeTableSize() + 1;
-            }
-            // word pos tag
-            if (posTag != null)
-            {
-                feature.Add((offset + DataCenter.GetPosTagIndex(posTag)) + ":1");
-                offset += DataCenter.GetPosTagTableSize() + 1;
             }
         }
 

@@ -8,7 +8,7 @@ using pml.file.reader;
 using pml.file.writer;
 
 
-namespace msra.nlp.tr.dp
+namespace msra.nlp.tr.dp.satori
 {
     /// <summary>
     /// Extract Satori data which is of interest types.
@@ -105,6 +105,7 @@ namespace msra.nlp.tr.dp
             }
             writer.Close();
         }
+
         /// <summary>
         ///  Filter items with some criterions
         /// </summary>

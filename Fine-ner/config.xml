@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
 	<parameters>
-		<parameter name="basedir" type="base path" value="D:\Codes\Project\package\resource\"/>
+		<parameter name="basedir" type="base path" value="D:\Codes\Project\EntityTyping\release package\resource\"/>
 		<parameter name="stanford_model_dir" type="relative path" value="stanford models"/>
 		<parameter name="word_table_file" type="relative path" value="tables\wordTable.txt"/>
 		<parameter name="stem_map" type="relative path" value="tables\stem-word-table.txt"/>
@@ -43,14 +43,14 @@
 		<feature name="lastWord" activate="true"/>
 		<feature name="nextWord" activate="true" />
 		<feature name="mentionHead" activate="true" />
-		<feature name="mentionDriver" activate="false" />
-		<feature name="mentionAdjModifier" activate="false" />
-		<feature name="mentionAction" activate="false" />
+		<feature name="mentionDriver" activate="true" />
+		<feature name="mentionAdjModifier" activate="true" />
+		<feature name="mentionAction" activate="true" />
 		<feature name="mentionSurfaces" activate="true" />
 		<feature name="mentionID" activate="true" />
 		<feature name="mentionLength" activate="true" />
-		<feature name="stanfordNer" activate="false" />
-		<feature name="opennlpNer" activate="false" />
+		<feature name="stanfordNer" activate="true" />
+		<feature name="opennlpNer" activate="true" />
 		<feature name="dbpediaTypesWithIndegree" activate="true" />
 		<feature name="dbpediaTypesWithAbstract" activate="true" />
 		<feature name="keywords" activate="true" />

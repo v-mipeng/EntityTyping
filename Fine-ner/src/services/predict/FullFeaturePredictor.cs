@@ -14,12 +14,12 @@ namespace msra.nlp.tr.predict
     public class FullFeaturePredictor : Predictor
     {
         // trained model file
-        string modelFile = null;
+        internal string modelFile = null;
         IDataModel dataModel = null;
         IDataStats dataStats = null;
         IPredictor predictor = null;
-        IndividualFeature rawFeatureExtractor = null;
-        SVMFeature svmFeatureExtractor = null;
+        internal IndividualFeature rawFeatureExtractor = null;
+        internal SVMFeature svmFeatureExtractor = null;
 
         /// <summary>
         /// Create type predictor with defaul model file.
@@ -35,58 +35,12 @@ namespace msra.nlp.tr.predict
         }
 
         /// <summary>
-        /// Predict the type of the first occured mention in the given context
+        /// Predict the type of the mention indexed by its offset and length in the given context
         /// </summary>
-        /// <param name="mention">
-        /// A string type of named entity
-        /// </param>
-        /// <param name="context"></param>
-        /// <returns>
-        /// The type of the mention
-        /// </returns>
-        public string Predict(string mention, string context)
-        {
-            return PredictWithProbability(mention, context)[0].first;
-        }
-
-        /// <summary>
-        /// Predict the type of the mention indexed by its offset in the given context and length
-        /// </summary>
-        /// <param name="mention">
-        /// A string type of named entity
-        /// </param>
-        /// <param name="context"></param>
-        /// <returns>
-        /// The type of the mention
-        /// </returns>         
-        public string Predict(string context, int mentionOffset, int mentionLength)
-        {
-            return PredictWithProbability(context, mentionOffset, mentionLength)[0].first;
-        }
-               
-        /// <summary>
-        /// Predict the types of the first occured mention in the given context
-        /// </summary>
-        /// <param name="mention"></param>
-        /// <param name="context"></param>
         /// <returns>
         /// A list of types with corresponding probabilities
         /// </returns>
-        public List<pml.type.Pair<string, float>> PredictWithProbability(string mention, string context)
-        {
-            
-            return PredictWithProbability(context, context.IndexOf(mention), mention.Length);
-        }
-
-        /// <summary>
-        /// Predict the type of the mention indexed by its offset in the given context and length
-        /// </summary>
-        /// <param name="mention"></param>
-        /// <param name="context"></param>
-        /// <returns>
-        /// A list of types with corresponding probabilities
-        /// </returns>
-        public List<pml.type.Pair<string, float>> PredictWithProbability(string context, int mentionOffset, int mentionLength)
+        public override List<pml.type.Pair<string, float>> PredictWithProbability(string context, int mentionOffset, int mentionLength)
         {
             if (svmFeatureExtractor == null)
             {
@@ -120,23 +74,8 @@ namespace msra.nlp.tr.predict
             pairs.Sort(pairs[0].GetBySecondReverseComparer());
             return pairs;
         }
- 
-
-        private float[] ExpandFeatureToVector(List<string> svmFeature)
-        {
-            var dimention = int.Parse(svmFeature[0]);  // get the dimension of feature
-            var floatFeature = new float[dimention];   // convert sparse feature to dense feature representation
-            for (var i = 1; i < svmFeature.Count; i++)
-            {
-                var array = svmFeature[i].Split(':');
-                var index = int.Parse(array[0]);
-                var value = float.Parse(array[1]);
-                floatFeature[index] = value;
-            }
-            return floatFeature;
-        }
                            
-        protected void Initial()
+        protected virtual void Initial()
         {
             rawFeatureExtractor = new IndividualFeature();
             svmFeatureExtractor = new SVMFeature();
@@ -146,7 +85,7 @@ namespace msra.nlp.tr.predict
         /// <summary>
         /// Load Model from given file.
         /// </summary>
-        private void LoadModel()
+        protected virtual void LoadModel()
         {
             try
             {
@@ -160,6 +99,20 @@ namespace msra.nlp.tr.predict
             {
                 throw new Exception("Predictor is not a binary classifier");
             }
+        }
+
+        protected virtual float[] ExpandFeatureToVector(List<string> svmFeature)
+        {
+            var dimention = int.Parse(svmFeature[0]);  // get the dimension of feature
+            var floatFeature = new float[dimention];   // convert sparse feature to dense feature representation
+            for (var i = 1; i < svmFeature.Count; i++)
+            {
+                var array = svmFeature[i].Split(':');
+                var index = int.Parse(array[0]);
+                var value = float.Parse(array[1]);
+                floatFeature[index] = value;
+            }
+            return floatFeature;
         }
 
         /// <summary>

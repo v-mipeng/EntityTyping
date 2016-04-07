@@ -95,14 +95,5 @@ namespace DataProcessor.src.bbn
             reader.Close();
             writer.Close();
         }
-        public static void Main(string[] args)
-        {
-            //Extract(@"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\train.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\train extracted.txt");
-            //Extract(@"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\test.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\test extracted.txt");
-            //Filter(@"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\train extracted.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\interest type.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\train filtered.txt");
-            //Filter(@"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\test extracted.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\interest type.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\test filtered.txt");
-            TypeMap(@"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\train filtered.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\type map.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\train mapped.txt");
-            TypeMap(@"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\test filtered.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\type map.txt", @"D:\Codes\Project\EntityTyping\Fine-ner\input\bbn\test mapped.txt");
-        }
     }
 }

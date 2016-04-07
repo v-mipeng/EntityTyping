@@ -46,29 +46,30 @@ namespace msra.nlp.tr
         {
             var reader = new InstanceReaderByLine(source);
             var writer = new EventWriterByLine(des);
+            int index = 0;
+            int count = 0;
+
             while (reader.HasNext())
             {
+                if(++count%1000 == 0)
+                {
+                    Console.WriteLine(Thread.CurrentThread.Name + " has processed " + count + " items.");
+                }
                 var instance = reader.GetNextInstance();
                 try
                 {
                     List<string> feature = null;
-                    try
-                    {
-                        feature = extractor.ExtractFeature(instance);
-                    }
-                    catch (Exception)
-                    {
-                        feature = extractor.ExtractFeature(instance);
-                    }
+                    feature = extractor.ExtractFeature(instance);
                     var e = new Event(instance.Label, feature);
                     writer.WriteEvent(e);
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(string.Format("error happened in file {0} item {1}", source, index));
                     Console.WriteLine(e.Message);
                     Console.WriteLine(e.StackTrace);
-                    Console.WriteLine(instance);
                 }
+                index++;
             }
             reader.Close();
             writer.Close();
@@ -105,8 +106,38 @@ namespace msra.nlp.tr
 
         public void AddFeature()
         {
-        }
+            var reader = new EventReaderByLine(source);
+            var writer = new EventWriterByLine(des);
+            int count = 0;
 
+            while (reader.HasNext())
+            {
+                if (++count % 1000 == 0)
+                {
+                    Console.Clear();
+                    Console.WriteLine("{0} has processed {1}", Thread.CurrentThread.Name, count);
+                }
+                if(count > 100000)
+                {
+                    break;
+                }
+                var e = reader.GetNextEvent();
+                try
+                {
+                    //var feature = extractor.AddFeature(e);
+                    //e = new Event(e.Label, feature);
+                    //writer.WriteEvent(e);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
+                    Console.WriteLine(e);
+                }
+            }
+            reader.Close();
+            writer.Close();
+        }
 
     }
 }
