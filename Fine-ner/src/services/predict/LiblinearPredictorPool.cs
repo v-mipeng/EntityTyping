@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace msra.nlp.tr.predict
 {
-   public class FourClassPredictorPool
+   public class LiblinearPredictorPool
     {
-        static List<FourClassPredictor> predictors = new List<FourClassPredictor>();
+       static List<LiblinearPredictor> predictors = new List<LiblinearPredictor>();
         static HashSet<int> availablePredictors = new HashSet<int>();
         readonly static int maxPredictorNum = 50;
         static object locker = new object();
 
         /// <summary>
-        /// Get a FourClassPredictor from ner pool
+        /// Get a stanford ner from ner pool
         /// </summary>
         /// <returns></returns>
-        public static FourClassPredictor GetPredictor()
+        public static LiblinearPredictor GetPredictor()
         {
             lock (locker)
             {
@@ -45,7 +45,7 @@ namespace msra.nlp.tr.predict
                     {
                         if (availablePredictors.Count == 0)
                         {
-                            var predictor = new FourClassPredictor();
+                            var predictor = new LiblinearPredictor();
                             predictors.Add(predictor);
                             return predictor;
                         }
@@ -70,10 +70,14 @@ namespace msra.nlp.tr.predict
         }
 
         /// <summary>
-        /// return FourClassPredictor to the pool
+        /// return LiblinearPredictor to the pool
+        /// </summary>
+        /// <summary>
+        /// return LiblinearPredictor to the pool
         /// </summary>
         /// <param name="predictor"></param>
-        public static void ReturnPredictor(FourClassPredictor predictor)
+        /// <param name="predictor"></param>
+        public static void ReturnPredictor(LiblinearPredictor predictor)
         {
             for (var i = 0; i < predictors.Count; i++)
             {

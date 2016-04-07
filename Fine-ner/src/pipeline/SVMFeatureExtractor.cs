@@ -13,13 +13,11 @@ namespace msra.nlp.tr
     class SVMFeatureExtractor  : FeatureExtractor
     {
         EventReader reader = null;
-        string source = null;
         EventWriter writer = null;
         SVMFeature extractor = null;
 
         public SVMFeatureExtractor(string sourceFilePath, string desFilePath, bool HasHead = false)
         {
-            source = sourceFilePath;
             reader = new EventReaderByLine(sourceFilePath, HasHead);
             writer = new EventWriterByLine(desFilePath);
             extractor = new SVMFeature();

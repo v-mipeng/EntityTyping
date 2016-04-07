@@ -13,7 +13,7 @@ namespace User
 {
     class Debug
     {
-        static void Main(string[] args)
+        static void Mains(string[] args)
         {
             //var sspliter = new SentenceSpliter(@"D:\Codes\Project\EntityTyping\Fine-ner\input\stanford models");
             //var sentences = sspliter.SplitSequence("I like Beijing(China). J. Smith went with me.");

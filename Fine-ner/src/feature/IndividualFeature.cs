@@ -26,7 +26,7 @@ namespace msra.nlp.tr
 
         static System.Text.RegularExpressions.Regex allCharRegex = new System.Text.RegularExpressions.Regex(@"\W");
 
-        public IndividualFeature() : base()
+        internal IndividualFeature() : base()
         {
         }
 

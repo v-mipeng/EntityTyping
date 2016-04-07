@@ -14,7 +14,7 @@ namespace msra.nlp.tr
         List<string> feature = new List<string>();
         int offset = 0;
 
-        public SVMFeature() : base() 
+        internal SVMFeature() : base() 
         {
 
         }

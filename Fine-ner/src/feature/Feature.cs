@@ -12,7 +12,7 @@ using pml.type;
 
 namespace msra.nlp.tr
 {
-    internal class Feature
+    class Feature
     {
         #region Feature Control
 
