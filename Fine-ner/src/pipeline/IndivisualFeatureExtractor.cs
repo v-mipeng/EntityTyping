@@ -124,9 +124,9 @@ namespace msra.nlp.tr
                 var e = reader.GetNextEvent();
                 try
                 {
-                    //var feature = extractor.AddFeature(e);
-                    //e = new Event(e.Label, feature);
-                    //writer.WriteEvent(e);
+                    var feature = extractor.AddFeature(e);
+                    e = new Event(e.Label, feature);
+                    writer.WriteEvent(e);
                 }
                 catch (Exception ex)
                 {

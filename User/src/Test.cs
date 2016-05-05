@@ -106,6 +106,11 @@ namespace User
             return SplitSequence(sequence.ToString());
         }
 
+        public static void Cluster(string vectorFile, string centroidInfoFile, string wordClusterIDFile, int clusterNum = 100)
+        {
+            var cluster = new User.src.VectorCluster(vectorFile, centroidInfoFile, wordClusterIDFile);
+            cluster.Cluster(clusterNum);
+        }
 
         void Initial(string modelDir)
         {
@@ -122,8 +127,11 @@ namespace User
 
         public static void Mains(string[] args)
         {
-            pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\output\features\5 class\train",
-                @"D:\Codes\Project\EntityTyping\Fine-ner\output\features\5 class\train.txt");
+            //pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\output\features\5 class\train",
+            //    @"D:\Codes\Project\EntityTyping\Fine-ner\output\features\5 class\train.txt");
+            Cluster(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300-seleted.txt",
+             @"D:\Data\Google-word2vec\word centroids-500.txt", @"D:\Data\Google-word2vec\word cluster IDs-500.txt", 50);
+            
         }
     }
 

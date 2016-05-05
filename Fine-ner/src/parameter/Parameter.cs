@@ -282,6 +282,10 @@ namespace msra.nlp.tr
                 {
                     featureIndex["keywords"] = featureIndex.Count;
                 }
+                if(UseFeature("sentenceContext"))
+                {
+                    featureIndex["sentenceContext"] = featureIndex.Count;
+                }
             }
             return featureIndex[featureKey];
         }

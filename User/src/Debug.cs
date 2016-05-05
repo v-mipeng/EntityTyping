@@ -33,18 +33,18 @@ namespace User
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));
                 var basedir = new DirectoryInfo(projectFolderPath).Parent.FullName;
                 basedir = Path.Combine(basedir, "Fine-ner/");
-                var configFile = @"D:\Codes\Project\EntityTyping\release package\config for 5 class model.xml";
-                //props.SetProperty("method", @"/ef -raw -train");
-                //props.SetProperty("train_data_file", Path.Combine(basedir, @"input\datasets\conll\"));
-                //props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\features\conll\"));
+                var configFile = @"D:\Codes\Project\EntityTyping\release package\config for 5 class liblinear model.xml";
+                //props.SetProperty("method", @"/ef -raw -add -train");
+                //props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\5 class\test\"));
+                //props.SetProperty("train_feature_file", Path.Combine(basedir, @"input\features\5 class\temp test\"));
                 //props.SetProperty("test_data_file", Path.Combine(basedir, @"input\datasets\satori\test\"));
                 //props.SetProperty("test_feature_file", Path.Combine(basedir, @"input\features\satori\test\"));
                 //pipeline = new Pipeline(configFile, props);
                 //pipeline.Execute();
-                props.SetProperty("method", @"/ef -svm -train");
-                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\5 class\train\"));
+                props.SetProperty("method", @"/ef -svm -train -test");
+                props.SetProperty("train_data_file", Path.Combine(basedir, @"input\features\5 class\temp train\"));
                 props.SetProperty("train_feature_file", Path.Combine(basedir, @"output\features\5 class\train\"));
-                props.SetProperty("test_data_file", Path.Combine(basedir, @"input\features\5 class\test\"));
+                props.SetProperty("test_data_file", Path.Combine(basedir, @"input\features\5 class\temp test\"));
                 props.SetProperty("test_feature_file", Path.Combine(basedir, @"output\features\5 class\test\"));
                 pipeline = new Pipeline(configFile, props);
                 pipeline.Execute();
@@ -113,7 +113,7 @@ namespace User
             /************************************************************************/
             /* Feature extractor  for bbn                                                                */
             /************************************************************************/
-            if (false)
+            if (true)
             {
                 var currentFolderPath = Environment.CurrentDirectory;
                 var projectFolderPath = currentFolderPath.Substring(0, currentFolderPath.IndexOf("bin"));

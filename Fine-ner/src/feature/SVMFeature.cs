@@ -56,13 +56,20 @@ namespace msra.nlp.tr
         ///     Dictionary                      :Dbpedia
         ///     Topic(Define topic)             :MI keyword
         /// </returns>
-        public List<string> ExtractFeature(Event e)
+        public List<string> ExtractFeature(Event e, bool isLiblinear = true)
         {
 
             this.feature.Clear();
-            this.offset = 1;
             var rawFeature = e.Feature;
-            //feature.Add("0");
+            if (!isLiblinear)
+            {
+                this.offset = 0;
+                feature.Add("0");
+            }
+            else
+            {
+                this.offset = 1;
+            }
 
             #region last word (make last word more accurate)
             if(useLastWord)
@@ -318,23 +325,28 @@ namespace msra.nlp.tr
             if(useKeywords)
             {
                 var keywords = rawFeature.ElementAt(Parameter.GetFeatureIndex("keywords")).Split(',');
-                var list = new List<int>();
-                foreach (var word in keywords)
+                var list = new List<Pair<int,string>>();
+                foreach (var keyword in keywords)
                 {
+                    var array = keyword.Split(':');
+                    var word = array[0];
                     var index = DataCenter.GetKeyWordIndex(word);
-                    list.Add(offset + index);
+                    list.Add(new Pair<int,string>(offset + index, array[1]));
                 }
-                list.Sort();
+                list.Sort(list[0].GetByFirstComparer());
                 foreach (var index in list)
                 {
-                    feature.Add(index + ":1");
+                    feature.Add(index.first + ":"+index.second);
                 }
                 offset += DataCenter.GetKeyWordNumber();
             }
             #endregion
 
             //set feature dimension
-            //feature[0] = FeatureDimension.ToString();
+            if (!isLiblinear)
+            {
+                feature[0] = FeatureDimension.ToString();
+            }
             return feature;
         }
 

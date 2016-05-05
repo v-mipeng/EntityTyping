@@ -56,7 +56,7 @@ namespace msra.nlp.tr.predict
                 rawFeature = rawFeatureExtractor.ExtractFeature(new Instance(context, mentionOffset, mentionLength));
             }
             var e = new Event(rawFeature);
-            var svmFeature = svmFeatureExtractor.ExtractFeature(e);
+            var svmFeature = svmFeatureExtractor.ExtractFeature(e, false);
             var floatFeature = ExpandFeatureToVector(svmFeature);
             var predictions = Predict(floatFeature);
             var pairs = new List<pml.type.Pair<string, float>>();

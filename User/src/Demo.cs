@@ -9,6 +9,8 @@ using System.Threading;
 using msra.nlp.tr.predict;
 using System.Xml;
 using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace User.src
 {
@@ -42,15 +44,15 @@ namespace User.src
             //FullFeaturePredictor predictor = null;
             //try
             //{
-            //    predictor = FullFeaturePredictorPool.GetFullFeaturePredictor();   // Get Predictor from predictor pool
+            //    predictor = FullFeaturePredictorPool.GetPredictor();   // Get Predictor from predictor pool
             //    var type = predictor.Predict(context, mentionOffset, mentionLength);
-            //    FullFeaturePredictorPool.ReturnFullFeaturePredictor(predictor);       // Rember return the predictor back to the pool
+            //    FullFeaturePredictorPool.ReturnPredictor(predictor);       // Rember return the predictor back to the pool
             //    return type;
             //}
             //catch (Exception ex)
             //{
-            //    FullFeaturePredictorPool.ReturnFullFeaturePredictor(predictor);       // Rember return the predictor back to the pool
-            //    Console.WriteLine(string.Format("{0} for query: {1}!\nReturn UNKNOWN label.", ex.Message, context.Substring(mentionOffset,mentionLength)));
+            //    FullFeaturePredictorPool.ReturnPredictor(predictor);       // Rember return the predictor back to the pool
+            //    Console.WriteLine(string.Format("{0} for query: {1}!\nReturn UNKNOWN label.", ex.Message, context.Substring(mentionOffset, mentionLength)));
             //    return "UNKNOWN";
             //}
 
@@ -297,47 +299,69 @@ namespace User.src
 
         public static void Main(string[] args)
         {
-            var pipeline = new Pipeline(@"D:\Codes\Project\EntityTyping\release package\config for 5 class liblinear model.xml");
-            var demo = new Demo();
-            //Console.WriteLine(demo.Predict("House Ways and Means Committee", "Influential members of the House Ways and Means Committee introduced legislation that would restrict how the new savings-and-loan bailout agency can raise capital , creating another potential obstacle to the government 's sale of sick thrifts ."));
-            //Console.ReadKey();
-            var source = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\input.txt";
-            var reader = new pml.file.reader.LargeFileReader(source);
-            var des = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\output.txt";
-            var writer = new pml.file.writer.LargeFileWriter(des, System.IO.FileMode.Create);
-            string line;
-            var queries = new List<Pair<string, string>>();
-            var trueTypes = new List<string>();
+            Test();
+            //var pipeline = new Pipeline(@"D:\Codes\Project\EntityTyping\release package\config for 5 class liblinear model.xml");
+            //var demo = new Demo();
+            ////Console.WriteLine(demo.Predict("House Ways and Means Committee", "Influential members of the House Ways and Means Committee introduced legislation that would restrict how the new savings-and-loan bailout agency can raise capital , creating another potential obstacle to the government 's sale of sick thrifts ."));
+            ////Console.ReadKey();
+            //var source = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\input.txt";
+            //var reader = new pml.file.reader.LargeFileReader(source);
+            //var des = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\output.txt";
+            //var writer = new pml.file.writer.LargeFileWriter(des, System.IO.FileMode.Create);
+            //string line;
+            //var queries = new List<Pair<string, string>>();
+            //var trueTypes = new List<string>();
 
-            while ((line = reader.ReadLine()) != null)
-            {
-                var array = line.Split('\t');
-                queries.Add(new pml.type.Pair<string, string>(array[0], array[1]));
-                //trueTypes.Add(array[1]);
-            }
-            reader.Close();
-            var types = demo.Predict(queries);
-            for (var i = 0; i < queries.Count; i++)
-            {
-                //writer.WriteLine(string.Format("{0}\t{1}\t{2}\t{3}", queries[i].first, trueTypes[i], types[i], queries[i].second));
-                writer.WriteLine(string.Format("{0}\t{1}\t{2}", queries[i].first, types[i], queries[i].second));
-            }
-            writer.Close();
+            //while ((line = reader.ReadLine()) != null)
+            //{
+            //    var array = line.Split('\t');
+            //    queries.Add(new pml.type.Pair<string, string>(array[0], array[1]));
+            //    //trueTypes.Add(array[1]);
+            //}
+            //reader.Close();
+            //var types = demo.Predict(queries);
+            //for (var i = 0; i < queries.Count; i++)
+            //{
+            //    //writer.WriteLine(string.Format("{0}\t{1}\t{2}\t{3}", queries[i].first, trueTypes[i], types[i], queries[i].second));
+            //    writer.WriteLine(string.Format("{0}\t{1}\t{2}", queries[i].first, types[i], queries[i].second));
+            //}
+            //writer.Close();
         }
 
         public static void Test()
         {
-            var configFile = @"D:\Codes\Project\EntityTyping\Fine-ner\config.xml";
-            XmlDocument doc = new XmlDocument();
-            doc.Load(configFile);
-            var nodes = doc.DocumentElement.SelectNodes("/config/parameters/parameter");
-            foreach(XmlNode node in nodes)
-            {
-                var name = node.Attributes["name"].Value;
-                var type = node.Attributes["type"].Value;
-                var value = node.Attributes["value"].Value;
-            }
+            var pipeline = new Pipeline(@"D:\Codes\Project\EntityTyping\release package\config for 5 class liblinear model.xml");
+            var demo = new Demo();
+            //Console.WriteLine(demo.Predict("House Ways and Means Committee", "Influential members of the House Ways and Means Committee introduced legislation that would restrict how the new savings-and-loan bailout agency can raise capital , creating another potential obstacle to the government 's sale of sick thrifts ."));
+            //Console.ReadKey();
+            var contextFile = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\Snapdragon.txt";
+            var jasonFile = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\Snapdragon.json";
+            var resultFile = @"D:\Codes\Project\EntityTyping\Fine-ner\unit test\Snapdragon liblinear result.json";
+            var queries = new List<Pair<string, string>>();
+            var trueTypes = new List<string>();
+            var mentionOffsets = new List<int>();
+            var mentionLengths = new List<int>();
+            var context = File.ReadAllText(contextFile);
 
+            var jObject = JObject.Parse(File.ReadAllText(jasonFile));
+            var matches = jObject["entities"];
+            foreach(var match in matches)
+            {
+                var matchTexts = match["matches"];
+                foreach (var matchText in matchTexts)
+                {
+                    var text = (string)matchText["text"];
+                    var length = text.Length;
+                    var entries = matchText["entries"];
+                    foreach (JObject entry in entries)
+                    {
+                        var offset = entry["offset"];
+                        var type = demo.Predict(context, int.Parse((string)offset), length);
+                        entry.Add("type", type);
+                    }
+                }
+            }
+            File.WriteAllText(resultFile, jObject.ToString());
         }
     }
 }

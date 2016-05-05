@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 //using Accord.MachineLearning;
 using pml.file.reader;
 using pml.file.writer;
-using pml.ml.cluster.pool;
+using pml.ml.cluster;
 
-namespace User.src
+namespace pml.ml.cluster
 {
     /// <summary>
     /// Cluster word vectors.
@@ -20,20 +20,20 @@ namespace User.src
     /// The program will parse the file to decide the seperator and the dimension of vector.
     /// Another thing you should know is that if will be slightly faster if you set the number of the words by Size.
     /// </summary>
-    class VectorCluster
+    class KmeansCluster
     {
         // file storing the word vectors
-        readonly string vectorFile;
+        string vectorFile;
         // file to store the centroids of clusters
-        readonly string centroidInfoFile;
+        string centroidInfoFile;
         // file to store the word cluster id pairs
-        readonly string wordClusterIDFile; 
+        string clusterIDFile;
         // word number
         int size = 0;
         // vector dimension for every word
         int dimension = 0;
         // the vectors of words
-        double[][] vectors;
+        double[][] vectors = null;
         // the words
         List<string> words;
         // labels of words according
@@ -43,11 +43,48 @@ namespace User.src
         ParallelKMeans kmeans = null;
 
         // cluster word vectors
-        public VectorCluster(string vectorFile, string centroidInfoFile, string wordClusterIDFile)
+        public KmeansCluster(string vectorFile, string centroidInfoFile, string clusterIDFile)
         {
             this.vectorFile = vectorFile;
             this.centroidInfoFile = centroidInfoFile;
-            this.wordClusterIDFile = wordClusterIDFile;
+            this.clusterIDFile = clusterIDFile;
+        }
+
+        public string VectorFile
+        {
+            get
+            {
+                return this.vectorFile;
+            }
+            set
+            {
+                this.vectorFile = value;
+                this.vectors = null;
+            }
+        }
+
+        public string CentroidInfoFile
+        {
+            get
+            {
+                return this.centroidInfoFile;
+            }
+            set
+            {
+                this.centroidInfoFile = value;
+            }
+        }
+
+        public string ClusterIDFile
+        {
+            get
+            {
+                return this.clusterIDFile;
+            }
+            set
+            {
+                this.clusterIDFile = value;
+            }
         }
 
         /// <summary>
@@ -59,20 +96,23 @@ namespace User.src
         public void Cluster(int k)
         {
             this.kmeans = new ParallelKMeans();
-            LoadVectors();
+            if (vectors == null)
+            {
+                LoadVectors();
+            }
             Console.WriteLine("Clustering...");
             Stopwatch watcher = new Stopwatch();
             watcher.Start();
             this.labels = kmeans.Compute(k, vectors);
             //this.labels = kmeans.Compute(vectors);
             watcher.Stop();
-            int seconds = (int)watcher.ElapsedMilliseconds/1000;
-            int mins = seconds/60;
-            seconds = seconds-mins*60;
-            Console.WriteLine(string.Format("Done!\r Time Consumed:{0}m{1}s ",mins,seconds));
+            int seconds = (int)watcher.ElapsedMilliseconds / 1000;
+            int mins = seconds / 60;
+            seconds = seconds - mins * 60;
+            Console.WriteLine(string.Format("Done!\r Time Consumed:{0}m{1}s ", mins, seconds));
             Console.WriteLine("Done!");
             SaveCentroids();
-            SaveWordClusterId();
+            SaveClusterId();
         }
 
         // read word vectors from file
@@ -122,15 +162,16 @@ namespace User.src
         }
 
         char seperator = (char)0;
+
         private int GetVectorDimension()
         {
             FileReader reader = new LargeFileReader(vectorFile);
             string line;
-            char[] seperators = new char[]{'\t',' '};
+            char[] seperators = new char[] { '\t', ' ' };
             string[] array;
             line = reader.ReadLine().Trim();
             double d;
-            foreach(var c in seperators)
+            foreach (var c in seperators)
             {
                 array = line.Split(c);
                 if (array.Length > 1 && double.TryParse(array[1], out d))
@@ -139,9 +180,9 @@ namespace User.src
                     break;
                 }
             }
-            if(seperator == (char)0)
+            if (seperator == (char)0)
             {
-                throw new Exception("Cannot parse word vector file with default seperators:TAB and Space!\r"+
+                throw new Exception("Cannot parse word vector file with default seperators:TAB and Space!\r" +
                                     "Please check your file format!");
             }
             array = line.Split(seperator);
@@ -177,39 +218,38 @@ namespace User.src
             reader.Close();
         }
 
-
         // save the centroid of clusters
         private void SaveCentroids()
         {
             var writer = new LargeFileWriter(centroidInfoFile, FileMode.Create);
 
             //foreach (var centroid in kmeans.Clusters.Centroids)
-            foreach(var centroid in kmeans.Centroids)
+            foreach (var centroid in kmeans.Centroids)
             {
-                 foreach(var value in centroid)
-                 {
-                     writer.Write(string.Format("{0}\t",value));
-                 }
-                 writer.WriteLine("");
+                foreach (var value in centroid)
+                {
+                    writer.Write(string.Format("{0}\t", value));
+                }
+                writer.WriteLine("");
             }
             writer.Close();
 
         }
 
         // save word and cluster id pairs
-        private void SaveWordClusterId()
+        private void SaveClusterId()
         {
-            var writer = new LargeFileWriter(wordClusterIDFile, FileMode.Create);
+            var writer = new LargeFileWriter(clusterIDFile, FileMode.Create);
             var dic = new Dictionary<int, List<string>>();
 
-            for (int i = 0; i < words.Count;i++ )
+            for (int i = 0; i < words.Count; i++)
             {
                 try
                 {
                     var list = dic[labels[i]];
                     list.Add(words[i]);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     var list = new List<string>();
                     list.Add(words[i]);
@@ -227,7 +267,6 @@ namespace User.src
             }
             writer.Close();
         }
-
 
         public int Size
         {

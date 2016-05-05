@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace pml.ml.cluster
+namespace pml.ml.cluster.pool
 {
     /// <summary>
     /// Do K-means parallelly.
@@ -20,6 +20,9 @@ namespace pml.ml.cluster
         // define distance function options
         public enum DistanceFunction { Euclid };
         DataPool dataPool = null;
+       
+
+        ManualResetEvent doneEvent = new ManualResetEvent(false);
 
         private class DataPool
         {
@@ -37,9 +40,14 @@ namespace pml.ml.cluster
             public int[] clusters;
             // pointsByCluster[i] store point ids which belong to the cluster centred on centroid[i]
             public HashSet<int>[] pointsByCluster;
-            //  distance function
+            // distance function
             public DistanceFunction disFun = DistanceFunction.Euclid;
+            // finished task number
+            public int doneTaskNum = 0;
+            // notify if all the tasks finished
+            public ManualResetEvent finishAllTaskSignal = new ManualResetEvent(false);
         }
+
 
         class KMeansThread
         {
@@ -52,7 +60,7 @@ namespace pml.ml.cluster
                 this.dataPool = dataPool;
             }
 
-            public void DistanceCalculator()
+            public void DistanceCalculator(Object threadContext)
             {
                 var centorid = this.dataPool.centroids[threadID];
                 int i = 0;
@@ -61,12 +69,13 @@ namespace pml.ml.cluster
                     this.dataPool.distances[i][threadID] = GetDistance(point, centorid);
                     i++;
                 }
+                FinishTask();
             }
 
             /// <summary>
             /// Find cluster ids of points calculated by this thread
             /// </summary>
-            public void PointCluster()
+            public void PointCluster(Object threadContext)
             {
                 int average = (int)Math.Ceiling((double)this.dataPool.points.Length / this.dataPool.k);
                 int start = average * threadID;
@@ -90,13 +99,13 @@ namespace pml.ml.cluster
                     this.dataPool.clusters[i] = minIndex;
                     UpdateClusterSet(minIndex, i);
                 }
-
+                FinishTask();
             }
 
             /// <summary>
             /// Updata this.dataPool.centroids[threadID]
             /// </summary>
-            public void CentroidCalculator()
+            public void CentroidCalculator(Object threadContext)
             {
                 double[] centroid = new double[this.dataPool.points[0].Length];
                 foreach (var pointID in this.dataPool.pointsByCluster[threadID])
@@ -113,6 +122,7 @@ namespace pml.ml.cluster
                     centroid[i] /= count;
                 }
                 this.dataPool.centroids[threadID] = centroid;
+                FinishTask();
             }
 
             void UpdateClusterSet(int setID, int pointID)
@@ -161,6 +171,15 @@ namespace pml.ml.cluster
                 return Math.Sqrt(sumSquaredDiffs);
             }
 
+            void FinishTask()
+            {
+                if(Interlocked.Increment(ref dataPool.doneTaskNum)==dataPool.k)
+                {
+                    dataPool.finishAllTaskSignal.Set();
+                    dataPool.doneTaskNum = 0;
+                }
+            }
+
         }
 
         public ParallelKMeans(DistanceFunction disFun = DistanceFunction.Euclid)
@@ -175,8 +194,7 @@ namespace pml.ml.cluster
             this.dataPool.points = points;
             Initial();
             KMeansThread[] threadEntrance = new KMeansThread[this.dataPool.k];
-            Thread[] threads = new Thread[this.dataPool.k];
-            for (int i = 0; i < this.dataPool.k; i++)
+            for (int i = 0; i < k; i++)
             {
                 threadEntrance[i] = new KMeansThread(i, this.dataPool);
             }
@@ -191,36 +209,31 @@ namespace pml.ml.cluster
                 // create k threads and calculate the centroids(the order is decided by the initial method)
                 for (int i = 0; i < this.dataPool.k; i++)
                 {
-                    threads[i] = new Thread(new ThreadStart(threadEntrance[i].CentroidCalculator));
-                    threads[i].Start();
+                    ThreadPool.QueueUserWorkItem(threadEntrance[i].CentroidCalculator, i);
                 }
-                for (int i = 0; i < this.dataPool.k; i++)
-                {
-                    threads[i].Join();
-                }
+
+                this.dataPool.finishAllTaskSignal.WaitOne();
+                this.dataPool.finishAllTaskSignal.Reset();
 
                 for (int i = 0; i < this.dataPool.k; i++)
                 {
-                    threads[i] = new Thread(new ThreadStart(threadEntrance[i].DistanceCalculator));
-                    threads[i].Start();
+                    ThreadPool.QueueUserWorkItem(threadEntrance[i].DistanceCalculator, i);
                 }
-                for (int i = 0; i < this.dataPool.k; i++)
-                {
-                    threads[i].Join();
-                }
+                this.dataPool.finishAllTaskSignal.WaitOne();
+                this.dataPool.finishAllTaskSignal.Reset();
+
+
                 for (int i = 0; i < this.dataPool.k; i++)
                 {
                     this.dataPool.pointsByCluster[i].Clear();
                 }
                 for (int i = 0; i < this.dataPool.k; i++)
                 {
-                    threads[i] = new Thread(new ThreadStart(threadEntrance[i].PointCluster));
-                    threads[i].Start();
+                    ThreadPool.QueueUserWorkItem(threadEntrance[i].PointCluster, i);
                 }
-                for (int i = 0; i < this.dataPool.k; i++)
-                {
-                    threads[i].Join();
-                }
+                this.dataPool.finishAllTaskSignal.WaitOne();
+                this.dataPool.finishAllTaskSignal.Reset();
+
                 totalDistance = 0;
                 for (int i = 0; i < this.dataPool.points.Length; i++)
                 {
@@ -228,7 +241,7 @@ namespace pml.ml.cluster
                 }
                 Console.WriteLine("total distance: " + totalDistance);
                 // check if stop
-                if (Math.Abs(lastTotalDistance - totalDistance) / lastTotalDistance < 0.005)
+                if (Math.Abs(lastTotalDistance - totalDistance) / lastTotalDistance < 0.0001)
                 {
                     break;
                 }
@@ -340,6 +353,7 @@ namespace pml.ml.cluster
             return result;
         }
 
+    
 
     }
 }
