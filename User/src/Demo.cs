@@ -297,7 +297,7 @@ namespace User.src
             }
         }
 
-        public static void Main(string[] args)
+        public static void Mains(string[] args)
         {
             Test();
             //var pipeline = new Pipeline(@"D:\Codes\Project\EntityTyping\release package\config for 5 class liblinear model.xml");

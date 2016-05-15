@@ -12,6 +12,10 @@ using java.util;
 using pml.collection.map;
 using pml.file.reader;
 using pml.file.writer;
+using pml.type;
+using msra.nlp.tr;
+using MathNet.Numerics.Statistics;
+using System.Text.RegularExpressions;
 
 namespace User
 {
@@ -61,77 +65,166 @@ namespace User
 
     public class SentenceSpliter
     {
-        StanfordCoreNLP pipeline = null;
-        List<string[]> tokensBySentence = null;
-        internal SentenceSpliter(string modelDir)
+
+        public static void Main(string[] args)
         {
-            Initial(modelDir);
+            Temp();
+            ////Analyze(@"D:\Codes\Project\EntityTyping\Fine-ner\analysis\model.txt",
+            ////    @"D:\Codes\Project\EntityTyping\Fine-ner\analysis\weight span.txt");
+            //var pipeline = new Pipeline(@"D:\Codes\Project\EntityTyping\release package\config for 5 class liblinear model.xml");
+            //var writer = new LargeFileWriter(@"D:\Codes\Project\EntityTyping\Fine-ner\analysis\type2index.txt", FileMode.Create);
+            //var dbpediaType2Indexes = DataCenter.GetDBpediaTypes();
+            //var pairs = new List<Pair<string, int>>();
+            //foreach (var item in dbpediaType2Indexes)
+            //{
+            //    pairs.Add(new Pair<string, int>(item.Key, item.Value));
+            //}
+            //pairs.Sort(pairs[0].GetBySecondComparer());
+            //foreach (var pair in pairs)
+            //{
+            //    writer.WriteLine(pair.first);
+            //}
+            //writer.Close();
         }
 
-        public List<string> SplitSequence(string sequence)
+        public static void Analyze(string modelFile, string spanFile)
         {
-            if (sequence == null)
+            var writer = new LargeFileWriter(@"D:\Codes\Project\EntityTyping\Fine-ner\analysis\weight analysis.txt", FileMode.Create);
+            var reader = new LargeFileReader(spanFile);
+            var offsets = new List<int>();
+            string line;
+            while((line = reader.ReadLine())!=null)
             {
-                throw new Exception("Sequence should not be null for sentence splitting!");
+                var offset = int.Parse(line.Split('~')[1]);
+                offsets.Add(offset);
             }
-            var document = new Annotation(sequence);
-            pipeline.annotate(document);
-            var senObj = new edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation();
-            var indexObj = new edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation();
-
-            var sentences = (ArrayList)document.get(senObj.getClass());
-            tokensBySentence = new List<string[]>();
-            for (var i = 0; i < sentences.size(); i++)
+            reader.Open(modelFile);
+            var parameters = new Dictionary<int, List<double>>();
+            var paraStatistic = new Dictionary<int, List<Pair<double, double>>>();
+            for(var i = 0;i<15;i++)
             {
-                var sen = (edu.stanford.nlp.pipeline.Annotation)(sentences.get(i));
-                Console.WriteLine(sen.GetType());
-                var index = sen.get(indexObj.getClass());
+                parameters[i] = new List<double>(offsets[offsets.Count-1]+1);
+                paraStatistic[i] = new List<Pair<double, double>>();
+                for(var j = 0;j < offsets[offsets.Count-1]+1;j++)
+                {
+                    parameters[i].Add(0);
+                }
             }
-            return (from CoreMap sentence in sentences select sentence.ToString()).ToList();
+            reader.Close();
 
-        }
-
-        public List<string> SplitSequence(IEnumerable<string> tokens)
-        {
-            if (tokens == null)
+            var regex = new System.Text.RegularExpressions.Regex(@"(\d{1,2})\+f(\d+)\t(.+)");
+            var heads = new string[] {"last word surface",
+                                    "last word tag",
+                                    "last word cluster id",
+                                    "last word shape",
+                                    "next word surface",
+                                    "next word tag",
+                                    "next word cluster id",
+                                    "next word shape",
+                                    "mention head surface",
+                                    "mention head tag",
+                                    "mention head cluster id",
+                                    "mention head shape",
+                                    "mention words surfaces",
+                                    "mention words tags",
+                                    "mention words cluster ids",
+                                    "mention words shapes",
+                                    "mention cluster id",
+                                    "mention length",
+                                    "dbpedia types 1",
+                                    "dbpedia types 2",
+                                    "keywords" };
+            while ((line = reader.ReadLine()) != null)
             {
-                throw new Exception("Tokens should not be null for sentence splitting!");
+                var match = regex.Match(line);
+                if (match.Success)
+                {
+                    var label = int.Parse(match.Groups[1].Value);
+                    var offset = int.Parse(match.Groups[2].Value);
+                    var weight = double.Parse(match.Groups[3].Value);
+                    parameters[label][offset] = weight;
+                }
             }
-            var sequence = new StringBuilder();
-            sequence.Append(tokens.ElementAt(0));
-            for (var i = 1; i < tokens.Count(); i++)
+            int lastOffset = 0;
+
+            for(var i = 0;i<15;i++)
             {
-                sequence.Append(" " + tokens.ElementAt(i));
+                var weights = parameters[i];
+                lastOffset = 0;
+                writer.WriteLine("Weights of class " + i+ ":");
+                int j = 0;
+                foreach(var offset in offsets)
+                {
+                    var mean = Mean(weights, lastOffset, offset);
+                    var variance = Var(weights, lastOffset, offset);
+                    paraStatistic[i].Add(new Pair<double, double>(mean, variance));
+                    lastOffset = offset + 1;
+                    writer.Write(string.Format("{0, -25} : ",heads[j++]));
+                    writer.WriteLine(mean + ":" + variance);
+                }
+                writer.WriteLine("");
             }
-            return SplitSequence(sequence.ToString());
+            writer.Close();
         }
 
-        public static void Cluster(string vectorFile, string centroidInfoFile, string wordClusterIDFile, int clusterNum = 100)
+        public static double Mean(IEnumerable<double> weights, int begin, int end)
         {
-            var cluster = new User.src.VectorCluster(vectorFile, centroidInfoFile, wordClusterIDFile);
-            cluster.Cluster(clusterNum);
+            var weightCopy = new List<double>();
+            for (var i = begin; i <= end;i++ )
+            {
+                if (weights.ElementAt(i) != 0)
+                {
+                    weightCopy.Add(weights.ElementAt(i));
+                }
+            }
+            if(weightCopy.Count == 0)
+            {
+                return 0;
+            }
+            return Statistics.HarmonicMean(weightCopy);
         }
 
-        void Initial(string modelDir)
+        public static double Var(IEnumerable<double> weights, int begin, int end)
         {
-            var props = new Properties();
-            props.put("annotators", "tokenize,ssplit");
-            //props.put("tokenizer.whitespace", "true");
-
-            var dir = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(modelDir);
-            pipeline = new StanfordCoreNLP(props);
-            Directory.SetCurrentDirectory(dir);
+            var weightCopy = new List<double>();
+            for (var i = begin; i <= end; i++)
+            {
+                if (weights.ElementAt(i) != 0)
+                {
+                    weightCopy.Add(weights.ElementAt(i));
+                }
+            }
+            if (weightCopy.Count == 0)
+            {
+                return 0;
+            }
+            return Statistics.Variance(weightCopy);
         }
 
-
-        public static void Mains(string[] args)
+        public static void Temp()
         {
-            //pml.file.util.Util.CombineFiles(@"D:\Codes\Project\EntityTyping\Fine-ner\output\features\5 class\train",
-            //    @"D:\Codes\Project\EntityTyping\Fine-ner\output\features\5 class\train.txt");
-            Cluster(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300-seleted.txt",
-             @"D:\Data\Google-word2vec\word centroids-500.txt", @"D:\Data\Google-word2vec\word cluster IDs-500.txt", 50);
-            
+            var regex = new Regex(@"(?<!/)(\w+)/(\w+)(?!/)");
+            var regex2 = new Regex(@"(\w+)-(?=\w+)");
+            var basedir = @"D:\Codes\Project\EntityTyping\Neural Entity Typing\input\test\";
+            var files = Directory.GetFiles(Path.Combine(basedir,"sen"));
+            if(!Directory.Exists(Path.Combine(basedir, "hypen")))
+            {
+                Directory.CreateDirectory(Path.Combine(basedir, "hypen"));
+            }
+            foreach(var file in files)
+            {
+                var reader = new LargeFileReader(file);
+                var writer = new LargeFileWriter(Path.Combine(basedir, "hypen",Path.GetFileName(file)),FileMode.Create);
+                string line;
+                while((line = reader.ReadLine())!=null)
+                {
+                     var str = regex.Replace(line,@"$1 / $2");
+                     str = regex2.Replace(str, @"$1 - ");
+                     writer.Write(str + "\n");
+                }
+                reader.Close();
+                writer.Close();
+            }
         }
     }
 

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fine-ner", "Fine-ner\Fine-ner.csproj", "{9540EC69-F1B8-4717-A355-657435A77A28}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User", "User\User.csproj", "{13DA9D5D-5545-4C41-950D-9A09C12FECF9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityTyping", "EntityTyping", "{CAA49C80-954E-41F7-962F-47FECB4861C6}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Neural Entity Typing", "Neural Entity Typing\Neural Entity Typing.pyproj", "{3EBDA6C3-5F65-4272-9D9C-A84A0D1B5935}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,12 +69,19 @@ Global
 		{13DA9D5D-5545-4C41-950D-9A09C12FECF9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{13DA9D5D-5545-4C41-950D-9A09C12FECF9}.Release|x64.ActiveCfg = Release|x64
 		{13DA9D5D-5545-4C41-950D-9A09C12FECF9}.Release|x64.Build.0 = Release|x64
+		{3EBDA6C3-5F65-4272-9D9C-A84A0D1B5935}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EBDA6C3-5F65-4272-9D9C-A84A0D1B5935}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3EBDA6C3-5F65-4272-9D9C-A84A0D1B5935}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3EBDA6C3-5F65-4272-9D9C-A84A0D1B5935}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EBDA6C3-5F65-4272-9D9C-A84A0D1B5935}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3EBDA6C3-5F65-4272-9D9C-A84A0D1B5935}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C9CAEB35-1626-4C40-9E58-8D71AC853731} = {CAA49C80-954E-41F7-962F-47FECB4861C6}
 		{9540EC69-F1B8-4717-A355-657435A77A28} = {CAA49C80-954E-41F7-962F-47FECB4861C6}
+		{C9CAEB35-1626-4C40-9E58-8D71AC853731} = {CAA49C80-954E-41F7-962F-47FECB4861C6}
+		{3EBDA6C3-5F65-4272-9D9C-A84A0D1B5935} = {CAA49C80-954E-41F7-962F-47FECB4861C6}
 	EndGlobalSection
 EndGlobal

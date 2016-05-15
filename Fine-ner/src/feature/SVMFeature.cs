@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Collections;
 using pml.type;
+using pml.file.writer;
+using System.IO;
 
 namespace msra.nlp.tr
 {
     class SVMFeature : Feature
     {
+        LargeFileWriter writer = new LargeFileWriter(@"D:\Codes\Project\EntityTyping\Fine-ner\analysis\type2index.txt", FileMode.Create);
+        int lastOffset = 0;
         List<string> feature = new List<string>();
         int offset = 0;
 
@@ -71,6 +75,7 @@ namespace msra.nlp.tr
                 this.offset = 1;
             }
 
+
             #region last word (make last word more accurate)
             if(useLastWord)
             {
@@ -80,6 +85,7 @@ namespace msra.nlp.tr
                     useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordShape")):null);
             }
             #endregion
+
 
             #region next word
             if(useNextWord)
@@ -136,6 +142,8 @@ namespace msra.nlp.tr
                 dic.Clear();
 
                 #endregion
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
 
                 #region mention word tags
                 if (useWordTag)
@@ -165,6 +173,8 @@ namespace msra.nlp.tr
                     dic.Clear();
                 }
                 #endregion
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
 
                 #region mention word IDs
                 if (useWordID)
@@ -194,6 +204,8 @@ namespace msra.nlp.tr
                     dic.Clear();
                 }
                 #endregion
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
 
                 #region mention word shapes
                 if (useWordShape)
@@ -223,6 +235,8 @@ namespace msra.nlp.tr
                     dic.Clear();
                 }
                 #endregion
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
             }
             #endregion
 
@@ -232,8 +246,11 @@ namespace msra.nlp.tr
                 var mentionID = int.Parse(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionID")));
                 feature.Add((offset + mentionID) + ":1");
                 offset += DataCenter.GetMentionClusterNumber() + 1;
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
             }
             #endregion
+
 
             #region mention length: 1,2,3,4 or longer than 5
             if(useMentionLength)
@@ -245,8 +262,11 @@ namespace msra.nlp.tr
                 }
                 feature.Add((offset + length - 1) + ":1");
                 offset += 5;
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
             }
             #endregion
+
 
             #region DBpedia types
             {
@@ -290,6 +310,8 @@ namespace msra.nlp.tr
                     }
                     offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
                 }
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
                 if (useDbpediaTypesWithAbstract)
                 {
                     var types = rawFeature.ElementAt(Parameter.GetFeatureIndex("dbpediaTypesWithAbstract")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -318,8 +340,11 @@ namespace msra.nlp.tr
                     }
                     offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
                 }
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
             }
             #endregion
+        
 
             #region Key words
             if(useKeywords)
@@ -339,8 +364,12 @@ namespace msra.nlp.tr
                     feature.Add(index.first + ":"+index.second);
                 }
                 offset += DataCenter.GetKeyWordNumber();
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
             }
             #endregion
+
+            writer.Close();
 
             //set feature dimension
             if (!isLiblinear)
@@ -358,24 +387,32 @@ namespace msra.nlp.tr
                 // word surface
                 feature.Add((offset + DataCenter.GetWordIndex(stemmedWord)) + ":1");
                 offset += DataCenter.GetWordTableSize() + 1;
+                writer.WriteLine(lastOffset+"~"+(offset-1));
+                lastOffset = offset;
             }
             // word pos tag
             if (posTag != null)
             {
                 feature.Add((offset + DataCenter.GetPosTagIndex(posTag)) + ":1");
                 offset += DataCenter.GetPosTagTableSize() + 1;
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
             }
             // word Cluster id
             if (ID != null)
             {
                 feature.Add((offset + int.Parse(ID)) + ":1");
                 offset += DataCenter.GetClusterNumber() + 1;
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
             }
             // word shape
             if (shape != null)
             {
                 feature.Add((offset + DataCenter.GetWordShapeIndex(shape)) + ":1");
                 offset += DataCenter.GetWordShapeTableSize() + 1;
+                writer.WriteLine(lastOffset + "~" + (offset - 2));
+                lastOffset = offset;
             }
         }
 

@@ -11,54 +11,54 @@ from blocks.filter import VariableFilter
 from blocks.roles import WEIGHT
 from blocks.graph import ComputationGraph, apply_dropout, apply_noise
 from word_emb import Lookup
+from blocks.initialization import Constant, IsotropicGaussian, Orthogonal
 
 
 class Model():
     def __init__(self, config, dataset):
-        order_context = tensor.imatrix('order_context')                                 # shape: batch_size*sequence_length
-        reverse_context = tensor.imatrix('reverse_context')
-        order_context_mask = tensor.imatrix('order_context_mask')
-        reverse_context_mask = tensor.imatrix('reverse_context_mask')
+        context = tensor.imatrix('context')                                 # shape: batch_size*sequence_length
+        context_mask = tensor.imatrix('context_mask')
+        mention_begin = tensor.ivector('mention_begin')
+        mention_end = tensor.ivector('mention_end')
         label = tensor.ivector('label')
         bricks = []
 
 
         # set time as first dimension
-        order_context = order_context.dimshuffle(1, 0)
-        order_context_mask = order_context_mask.dimshuffle(1, 0)
-        reverse_context = reverse_context.dimshuffle(1, 0)
-        reverse_context_mask = reverse_context_mask.dimshuffle(1, 0)
+        context = context.dimshuffle(1, 0)
+        context_mask = context_mask.dimshuffle(1, 0)
 
         # Embed contexts
         embed = Lookup(dataset.vocab_size, config.embed_size, name='word_embed')
         embs = initialize_embed(config, dataset)
         embed.initialize_with_pretrain(embs)                    # initialize embeding table with pre-traing values
         # Apply embedding
-        order_context_embed = embed.apply(order_context)
-        reverse_context_embed = embed.apply(reverse_context)
+        context_embed = embed.apply(context)
 
+        h0 = None
         # Create and apply LSTM
-        fwd_lstm_ins = Linear(input_dim=config.embed_size, output_dim=4 * config.lstm_size, name='fwd_lstm_in')
-        fwd_lstm = LSTM(dim=config.lstm_size, activation=Tanh(), name='fwd_lstm')
-
-        bwd_lstm_ins = Linear(input_dim=config.embed_size, output_dim=4 * config.lstm_size, name='bwd_lstm_in')
-        bwd_lstm = LSTM(dim=config.lstm_size, activation=Tanh(), name='bwd_lstm')
-
-        bricks += [fwd_lstm, bwd_lstm, fwd_lstm_ins, bwd_lstm_ins]
-
-        fwd_tmp = fwd_lstm_ins.apply(order_context_embed)
-        bwd_tmp = fwd_lstm_ins.apply(reverse_context_embed)
-        fwd_hidden, _ = fwd_lstm.apply(fwd_tmp, mask=order_context_mask.astype(theano.config.floatX))
-        bwd_hidden, _ = bwd_lstm.apply(bwd_tmp, mask=reverse_context_mask.astype(theano.config.floatX))  
-
+        for time in range(config.lstm_time):
+            lstm_ins = Linear(input_dim=config.embed_size, output_dim=4 * config.lstm_size, name='lstm_in_%s' % time)
+            lstm_ins.weights_init = IsotropicGaussian(std= numpy.sqrt(2)/numpy.sqrt(config.embed_size+config.lstm_size))
+            lstm = LSTM(dim=config.lstm_size, activation=Tanh(), name='lstm_%s' % time)
+            lstm.weights_init = IsotropicGaussian(std= 1/numpy.sqrt(config.lstm_size))
+            bricks += [lstm_ins, lstm]
+            lstm_tmp = lstm_ins.apply(context_embed)
+            if h0 is None:
+                lstm_hidden, _ = lstm.apply(inputs = lstm_tmp, mask=context_mask.astype(theano.config.floatX))
+            else:
+                lstm_hidden, _ = lstm.apply(inputs = lstm_tmp, states = h0, mask=context_mask.astype(theano.config.floatX))
+            h0 = lstm_hidden[-1, :, :]
         # Create and apply output MLP
-        out_mlp = MLP(dims = [2*config.lstm_size] + [config.n_labels],
+        out_mlp = MLP(dims = [config.lstm_size*2] + [config.n_labels],
                           activations = [Identity()],
                           name='out_mlp')
+        out_mlp.weights_init = IsotropicGaussian(std = numpy.sqrt(2)/numpy.sqrt(config.lstm_size+config.n_labels))
         bricks.append(out_mlp)
-
-        probs = out_mlp.apply(tensor.concatenate([fwd_hidden[-1,:,:],bwd_hidden[-1,:,:]], axis=1))
-
+        mention_hidden = tensor.concatenate([lstm_hidden[mention_end, tensor.arange(context.shape[1]), :],
+                                            lstm_hidden[mention_begin, tensor.arange(context.shape[1]), :]],axis=1)
+        self.mention_hidden = mention_hidden
+        probs = out_mlp.apply(mention_hidden)
         # Calculate prediction, cost and error rate
         pred = probs.argmax(axis=1)
         cost = Softmax().categorical_cross_entropy(label, probs).mean()
@@ -74,8 +74,7 @@ class Model():
 
         # Initialize bricks
         for brick in bricks:
-            brick.weights_init = config.weights_init
-            brick.biases_init = config.biases_init
+            brick.biases_init = Constant(0)
             brick.initialize()
 
 def initialize_embed(config, dataset):
@@ -93,7 +92,7 @@ def initialize_embed(config, dataset):
                     vector = []
                     for i in range(1,len(array)):
                         vector.append(float(array[i]))
-                    embs += [(word2id[array[0]], numpy.asarray(vector, dtype = theano.config.floatX))]
+                    embs += [(word2id[array[0]], numpy.asarray(vector, theano.config.floatX))]
     return embs
 
 #  vim: set sts=4 ts=4 sw=4 tw=0 et :

@@ -173,6 +173,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Stanford.NLP.CoreNLP.3.5.1\lib\jollyday.dll</HintPath>
     </Reference>
+    <Reference Include="MathNet.Numerics, Version=3.11.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.3.11.1\lib\net40\MathNet.Numerics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Live.Json.Signed">
       <HintPath>..\..\..\..\Software Install\TLC 2.7\Microsoft.Live.Json.Signed.dll</HintPath>
     </Reference>
@@ -192,6 +196,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -232,6 +237,11 @@
       <Project>{5617da2a-e03f-4e48-8150-d13fc0644c9c}</Project>
       <Name>Package-pml</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="deep_bidir_lstm.py" />
+    <Content Include="deep_lstm.py" />
+    <Content Include="__init__.py" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

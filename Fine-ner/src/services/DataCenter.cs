@@ -860,6 +860,15 @@ namespace msra.nlp.tr
             }
         }
 
+        public static Dictionary<string, int> GetDBpediaTypes()
+        {
+            if (dbpediaType2index == null)
+            {
+                ConstructTypeIndex();
+            }
+            return dbpediaType2index;
+        }
+
         public static List<string> GetDBpediaTypeWithIndegree(string mention)
         {
             if (dbpediaEntity2Type == null)
