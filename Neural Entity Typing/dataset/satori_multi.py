@@ -10,7 +10,7 @@ from picklable_itertools import iter_
 
 from fuel.datasets import Dataset, IndexableDataset
 from fuel.streams import DataStream
-from fuel.schemes import IterationScheme, ConstantScheme, IndexScheme, ShuffledExampleScheme
+from fuel.schemes import IterationScheme, ConstantScheme, IndexScheme, ShuffledExampleScheme, SequentialScheme
 from fuel.transformers import Batch, Mapping, SortMapping, Unpack, Padding, Transformer
 
 import sys
@@ -71,6 +71,8 @@ class SatoriDataset(IndexableDataset):
         else:
             self.word_freq = word_freq
         self.to_label_id = to_label_id
+        self.context = []
+        self.mention = []
         self._context = []
         self._mention_begin = []
         self._mention_end = []
@@ -134,6 +136,8 @@ class SatoriDataset(IndexableDataset):
                         # Add mask on mention and context
                         for i in range(len(context)):
                             word = context[i].decode('utf-8').lower()
+                            if word == u"girlfriend":
+                                pass
                             if (word not in self.word_freq) or (self.word_freq[word] < 10):
                                 context[i] = stem(context[i])
                         for i in range(len(mention)):
@@ -156,13 +160,14 @@ class SatoriDataset(IndexableDataset):
                         contexts += [['<BOS>']+context]   
                         self._mention_begin += [numpy.int32(begin)]
                         self._mention_end += [numpy.int32(end)]
+                        self.mention += [mention]
+                        self.context += [context]
                     except Exception as e:
                         try:
                             print(e.message)
                             print("Find Error during loading dataset!")
                         except:
                             print("Find Error during loading dataset!")
-        dataset = ()
         for context in contexts:
             self._context += [self.to_word_ids(context)]
 
@@ -176,16 +181,6 @@ class SatoriDataset(IndexableDataset):
         return numpy.array([self.to_word_id(x) for x in context], dtype=numpy.int32)
 
 
-class SatoriShuffleScheme(IterationScheme):
-    requests_examples = True
-    def __init__(self, dataset_size, *args, **kwargs):
-        self.dataset_size = dataset_size
-        super(SatoriShuffleScheme, self).__init__(*args, **kwargs)
-
-    def get_request_iterator(self):
-        indexes = numpy.arange(self.dataset_size)
-        numpy.random.shuffle(indexes)
-        return iter_(indexes)
 
 # -------------- DATASTREAM SETUP --------------------
 
@@ -197,18 +192,10 @@ class _balanced_batch_helper(object):
         return data[self.key].shape[0]  # sort key
 
 def setup_datastream(path, config, word2id = None, word_freq = None):
-    dataset = SatoriDataset(path = path, to_label_id = config.to_label_id, word2id = word2id, word_freq = word_freq)
-    it = ShuffledExampleScheme(dataset.num_examples)
+    dataset = SatoriDataset(path, config.to_label_id, word2id, word_freq)
+    it = SequentialScheme(dataset.num_examples, config.batch_size)
     stream = DataStream(dataset, iteration_scheme=it)
-       
-    # Sort sets of multiple batches to make batches of similar sizes
-    stream = Batch(stream, iteration_scheme=ConstantScheme(config.batch_size * config.sort_batch_count))
-    comparison = _balanced_batch_helper(stream.sources.index('context'))
-    stream = Mapping(stream, SortMapping(comparison))
-    stream = Unpack(stream)
-
     # Add mask
-    stream = Batch(stream, iteration_scheme=ConstantScheme(config.batch_size))
     stream = Padding(stream, mask_sources=['context'], mask_dtype='int32')
     # Debug
     for data in stream.get_epoch_iterator():

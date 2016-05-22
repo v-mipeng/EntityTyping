@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3ebda6c3-5f65-4272-9d9c-a84a0d1b5935</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Test.py</StartupFile>
+    <StartupFile>test\multi_time_lstm.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -34,6 +34,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="dataset\__init__.py" />
+    <Compile Include="test\deep_bidir_lstm.py" />
     <Compile Include="model\deep_bidir_lstm.py" />
     <Compile Include="model\deep_lstm.py" />
     <Compile Include="model\multi_time_lstm.py">
@@ -47,45 +48,16 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Neural_Entity_Typing.py" />
-    <Compile Include="script\config.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="script\english_filter.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="script\format_script.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="script\freq_script.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="script\hypen_script.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="script\len_script.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="script\mask_script.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="script\sym_script.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="script\tokenize_script.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="script\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Test.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="test\multi_time_lstm.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="dataset\" />
     <Folder Include="model\" />
     <Folder Include="config\" />
-    <Folder Include="script\" />
+    <Folder Include="test\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
