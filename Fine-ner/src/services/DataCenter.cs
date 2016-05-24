@@ -19,8 +19,8 @@ namespace msra.nlp.tr
 
         /*The word table of the train data
          */
-        static Dictionary<String, int> word2index = null;
-        static Object wordTableLocker = new object();
+        public static Dictionary<String, int> word2index = null;
+        public static Object wordTableLocker = new object();
         /*Get size of the word table
          */
         public static int GetWordTableSize()
@@ -90,8 +90,8 @@ namespace msra.nlp.tr
 
         #region Word Shpae Table
 
-        static Dictionary<string, int> wordShape2index = null;
-        static object wordShapeLocker = new object();
+        public static Dictionary<string, int> wordShape2index = null;
+        public static object wordShapeLocker = new object();
         /*Get size of the word table
         */
         public static int GetWordShapeTableSize()
@@ -157,8 +157,8 @@ namespace msra.nlp.tr
         #endregion
 
         #region Pos Tag Table
-        static Dictionary<string, int> posTag2index = null;
-        static object posTagLocker = new object();
+        public static Dictionary<string, int> posTag2index = null;
+        public static object posTagLocker = new object();
         /*Get size of the word table
         */
         public static int GetPosTagTableSize()
@@ -227,7 +227,7 @@ namespace msra.nlp.tr
 
         private static Dictionary<String, int> dicTypeMap = null;
         private static Dictionary<String, List<String>> dics = null;
-        static object dicLocker = new object();
+        public static object dicLocker = new object();
 
         public static List<String> GetTypeInDic(String mention)
         {
@@ -367,7 +367,7 @@ namespace msra.nlp.tr
 
         /*Proposition list
          */
-        static HashSet<String> prepositions = null;
+        public static HashSet<String> prepositions = null;
 
         public static bool IsPreposition(String word)
         {
@@ -476,9 +476,9 @@ namespace msra.nlp.tr
 
         #region Word Cluster ID
 
-        static Dictionary<string, int> wordIdDic = null;
-        static int wordClusterSize = 0;
-        static object wordIDLocker = new object();
+        public static Dictionary<string, int> wordIdDic = null;
+        public static int wordClusterSize = 0;
+        public static object wordIDLocker = new object();
 
         /// <summary>
         /// Get the cluster id of a word
@@ -550,9 +550,9 @@ namespace msra.nlp.tr
         #endregion
 
         #region Mention Cluster ID
-        static Dictionary<string, int> mentionIdDic = null;
-        static int mentionClusterSize = 0;
-        static object mentionIDLocker = new object();
+        public static Dictionary<string, int> mentionIdDic = null;
+        public static int mentionClusterSize = 0;
+        public static object mentionIDLocker = new object();
 
 
         /// <summary>
@@ -643,10 +643,10 @@ namespace msra.nlp.tr
 
         #region Stanford Ner system
 
-        static Dictionary<string, int> stanfordNerTypeDic = null;
-        static int stanfordNerTypeNum = 0;
-        static object stanfordNerLocker = new object();
-        static string[] stanfordNerTypes = new string[] { "PERSON", "LOCATTION", "ORGANIZATION", "UNKNOW" };
+        public static Dictionary<string, int> stanfordNerTypeDic = null;
+        public static int stanfordNerTypeNum = 0;
+        public static object stanfordNerLocker = new object();
+        public static string[] stanfordNerTypes = new string[] { "PERSON", "LOCATTION", "ORGANIZATION", "UNKNOW" };
 
         /// <summary>
         /// Get the cluster id of a mention
@@ -710,9 +710,9 @@ namespace msra.nlp.tr
 
         #region OpenNLP Ner system
 
-        static Dictionary<string, int> openNLPNerTypeDic = null;
-        static int openNLPNerTypeNum = 0;
-        static object openNLPNerLocker = new object();
+        public static Dictionary<string, int> openNLPNerTypeDic = null;
+        public static int openNLPNerTypeNum = 0;
+        public static object openNLPNerLocker = new object();
         //static string[] stanfordNerTypes = new string[] { "PERSON", "LOCATTION", "ORGANIZATION", "UNKNOW" };
 
         /// <summary>
@@ -777,22 +777,22 @@ namespace msra.nlp.tr
 
         #region DBpedia dictionary     (mention should be lowercase and without space)
 
-        static Dictionary<string, string> dbpediaEntity2Type = null;                   // entity type in dbpedia  (serve for indivisual feature); trimed entity -->(type<-->untrimed entity)
-        static Dictionary<string, int> dbpediaType2index = null;                                                // mapping dbpedia type to integer
-        static Dictionary<string, List<string>> disambiguousDic = null;                                         // 
-        static Dictionary<string, List<string>> pageAnchorsDic = null;                                          // recoding page anchors of articles
-        static Dictionary<string, Dictionary<int, double>> pageAbstract = null;                                 // page absctract: sparse vector
-        static Dictionary<string, int> pageIndegree = null;
+        public static Dictionary<string, string> dbpediaEntity2Type = null;                   // entity type in dbpedia  (serve for indivisual feature); trimed entity -->(type<-->untrimed entity)
+        public static Dictionary<string, int> dbpediaType2index = null;                                                // mapping dbpedia type to integer
+        public static Dictionary<string, List<string>> disambiguousDic = null;                                         // 
+        public static Dictionary<string, List<string>> pageAnchorsDic = null;                                          // recoding page anchors of articles
+        public static Dictionary<string, Dictionary<int, double>> pageAbstract = null;                                 // page absctract: sparse vector
+        public static Dictionary<string, int> pageIndegree = null;
 
 
-        static object dbpediaDicLocker = new object();
-        static object dbpediaType2IndexLocker = new object();
-        static object disambiguousLocker = new object();
-        static object pageAnchorLocker = new object();
-        static object pageAbstractLocker = new object();
-        static object pageIndegreeLocker = new object();
+        public static object dbpediaDicLocker = new object();
+        public static object dbpediaType2IndexLocker = new object();
+        public static object disambiguousLocker = new object();
+        public static object pageAnchorLocker = new object();
+        public static object pageAbstractLocker = new object();
+        public static object pageIndegreeLocker = new object();
 
-        static Regex turnDigit = new Regex(@"\d+$");
+        public static Regex turnDigit = new Regex(@"\d+$");
 
         /// <summary>
         /// Get mention's type in dbpedia database.
@@ -1166,7 +1166,7 @@ namespace msra.nlp.tr
             }
         }
 
-        static private void ConstructTypeIndex()
+        public static void ConstructTypeIndex()
         {
             lock (dbpediaType2IndexLocker)
             {
@@ -1360,8 +1360,8 @@ namespace msra.nlp.tr
 
         #region DBpedia redirects
 
-        static Dictionary<string, HashSet<string>> redirects = null;
-        static object redirectLocker = new object();
+        public static Dictionary<string, HashSet<string>> redirects = null;
+        public static object redirectLocker = new object();
 
         private static HashSet<string> GetRedirect(string mention)
         {
@@ -1439,10 +1439,10 @@ namespace msra.nlp.tr
         #endregion
 
         #region Keywords Table
-        static Dictionary<string, int> keyWords = null;
-        static object keyWordLocker = new object();
+        public static Dictionary<string, int> keyWords = null;
+        public static object keyWordLocker = new object();
 
-        static System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\b[\w]{2,}\b");
+        public static System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\b[\w]{2,}\b");
 
         private static List<string> Tokenize(string sequence)
         {

@@ -49,6 +49,7 @@ class Model():
             else:
                 lstm_hidden, _ = lstm.apply(inputs = lstm_tmp, states = h0, mask=context_mask.astype(theano.config.floatX))
             h0 = lstm_hidden[-1, :, :]
+
         # Create and apply output MLP
         out_mlp = MLP(dims = [config.lstm_size*2] + [config.n_labels],
                           activations = [Identity()],
@@ -71,8 +72,6 @@ class Model():
         self.sgd_cost = cost
         self.monitor_vars = [[cost], [error_rate]]
         self.monitor_vars_valid = [[cost], [error_rate]]
-        self.pred = pred
-        self.error_rate = error_rate
 
         # Initialize bricks
         for brick in bricks:
@@ -85,16 +84,14 @@ def initialize_embed(config, dataset):
     embs = []
     with codecs.open(path,'r','UTF-8') as f:
         for line in f:
-             for line in f:
-                word = line.split(' ', 1)[0]
-                if word in word2id:
-                    array = line.split(' ')
-                    if len(array) != config.embed_size + 1:
-                        return None
-                    vector = []
-                    for i in range(1,len(array)):
-                        vector.append(float(array[i]))
-                    embs += [(word2id[array[0]], numpy.asarray(vector, theano.config.floatX))]
+            word = line.split(' ', 1)[0]
+            if word in word2id:
+                array = line.strip().split(' ')
+                if len(array) != config.embed_size + 1:
+                    raise Exception("Embedded dimension mismatch!")
+                    return None
+                vector = []
+                for i in range(1,len(array)):
+                    vector.append(float(array[i]))
+                embs += [(word2id[array[0]], numpy.asarray(vector, theano.config.floatX))]
     return embs
-
-#  vim: set sts=4 ts=4 sw=4 tw=0 et :

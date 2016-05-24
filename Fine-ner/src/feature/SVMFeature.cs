@@ -18,7 +18,8 @@ namespace msra.nlp.tr
         List<string> feature = new List<string>();
         int offset = 0;
 
-        internal SVMFeature() : base() 
+        internal SVMFeature()
+            : base()
         {
 
         }
@@ -62,7 +63,8 @@ namespace msra.nlp.tr
         /// </returns>
         public List<string> ExtractFeature(Event e, bool isLiblinear = true)
         {
-
+            var basedir = @"D:\Codes\Project\EntityTyping\Fine-ner\analysis\features";
+            var writer = new LargeFileWriter();
             this.feature.Clear();
             var rawFeature = e.Feature;
             if (!isLiblinear)
@@ -74,301 +76,222 @@ namespace msra.nlp.tr
             {
                 this.offset = 1;
             }
+            this.offset = 0;
 
-
+            DataCenter.GetWordShapeTableSize();
+            DataCenter.GetPosTagTableSize();
+            DataCenter.GetWordTableSize();
+            DataCenter.GetClusterNumber();
+            DataCenter.GetMentionClusterNumber();
             #region last word (make last word more accurate)
-            if(useLastWord)
+            if (useLastWord)
             {
-                AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordStemmed")),
-                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordTag")):null,
-                    useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordID")):null,
-                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("lastWordShape")):null);
+                var word2index = DataCenter.word2index;
+                writer = new LargeFileWriter(Path.Combine(basedir, "lastWordSurf.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetWordTableSize());
+                foreach (var item in word2index.OrderBy(i => i.Value))
+                {
+                    writer.WriteLine(item.Key);
+                }
+                offset += DataCenter.GetWordTableSize();
+                var tag2index = DataCenter.posTag2index;
+                writer = new LargeFileWriter(Path.Combine(basedir, "lastWordTag.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetPosTagTableSize());
+                foreach (var item in tag2index.OrderBy(i => i.Value))
+                {
+                    writer.WriteLine(item.Key);
+                }
+                offset += DataCenter.GetPosTagTableSize();
+                writer = new LargeFileWriter(Path.Combine(basedir, "lastWordID.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetClusterNumber() + 1);
+
+                for (var i = 0; i < DataCenter.GetClusterNumber()+1; i++)
+                {
+                    writer.WriteLine(i);
+                }
+                offset += DataCenter.GetClusterNumber() + 1;
+                writer = new LargeFileWriter(Path.Combine(basedir, "lastWordShape.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetWordShapeTableSize());
+                foreach (var item in DataCenter.wordShape2index.OrderBy(i => i.Value))
+                {
+                    writer.WriteLine(item.Key);
+                }
+                offset += DataCenter.GetWordShapeTableSize();
             }
             #endregion
 
 
             #region next word
-            if(useNextWord)
+            if (useNextWord)
             {
-                AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordStemmed")),
-                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordTag")) : null,
-                    useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordID")) : null,
-                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("nextWordShape")) : null);
+                var word2index = DataCenter.word2index;
+                writer = new LargeFileWriter(Path.Combine(basedir, "nextWordSurf.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetWordTableSize());
+                foreach (var item in word2index.OrderBy(i => i.Value))
+                {
+                    writer.WriteLine(item.Key);
+                }
+                offset += DataCenter.GetWordTableSize();
+                var tag2index = DataCenter.posTag2index;
+                writer = new LargeFileWriter(Path.Combine(basedir, "nextWordTag.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetPosTagTableSize());
+                foreach (var item in tag2index.OrderBy(i => i.Value))
+                {
+                    writer.WriteLine(item.Key);
+                }
+                offset += DataCenter.GetPosTagTableSize();
+                writer = new LargeFileWriter(Path.Combine(basedir, "nextWordID.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetClusterNumber() + 1);
+
+                for (var i = 0; i < DataCenter.GetClusterNumber()+1; i++)
+                {
+                    writer.WriteLine(i);
+                }
+                offset += DataCenter.GetClusterNumber() + 1;
+                writer = new LargeFileWriter(Path.Combine(basedir, "nextWordShape.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetWordShapeTableSize());
+                foreach (var item in DataCenter.wordShape2index.OrderBy(i => i.Value))
+                {
+                    writer.WriteLine(item.Key);
+                }
+                offset += DataCenter.GetWordShapeTableSize();
             }
             #endregion
 
             #region  mention head
-            if(useMentionHead)
+            if (useMentionHead)
             {
-                AddWordFieldToFeature(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadStemmed")),
-                    useWordTag ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadTag")) : null,
-                    useWordID ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadID")) : null,
-                    useWordShape ? rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionHeadShape")) : null);
+                var word2index = DataCenter.word2index;
+                writer = new LargeFileWriter(Path.Combine(basedir, "mentionHeadSurf.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetWordTableSize());
+                foreach (var item in word2index.OrderBy(i => i.Value))
+                {
+                    writer.WriteLine(item.Key);
+                }
+                offset += DataCenter.GetWordTableSize();
+                var tag2index = DataCenter.posTag2index;
+                writer = new LargeFileWriter(Path.Combine(basedir, "mentionHeadTag.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetPosTagTableSize());
+                foreach (var item in tag2index.OrderBy(i => i.Value))
+                {
+                    writer.WriteLine(item.Key);
+                }
+                offset += DataCenter.GetPosTagTableSize();
+                writer = new LargeFileWriter(Path.Combine(basedir, "mentionHeadID.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetClusterNumber() + 1);
+
+                for (var i = 0; i < DataCenter.GetClusterNumber()+1; i++)
+                {
+                    writer.WriteLine(i);
+                }
+                offset += DataCenter.GetClusterNumber() + 1;
+                writer = new LargeFileWriter(Path.Combine(basedir, "mentionHeadShape.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetWordShapeTableSize());
+                foreach (var item in DataCenter.wordShape2index.OrderBy(i => i.Value))
+                {
+                    writer.WriteLine(item.Key);
+                }
+                offset += DataCenter.GetWordShapeTableSize();
 
             }
             #endregion
 
             #region mention words
-            if(useMentionSurfaces)
+            if (useMentionSurfaces)
             {
-                var dic = new Dictionary<int, int>();
-                int value = 0;
-                var dic2 = new SortedDictionary<int, int>();
-
-                #region mention stemmed words
-
-                string[] words = null;
-                try
+                var word2index = DataCenter.word2index;
+                writer = new LargeFileWriter(Path.Combine(basedir, "mentionWordsSurf.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetWordTableSize());
+                foreach (var item in word2index.OrderBy(i => i.Value))
                 {
-                    words = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionSurfacesStemmed")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    writer.WriteLine(item.Key);
                 }
-                catch (Exception)
+                offset += DataCenter.GetWordTableSize();
+                var tag2index = DataCenter.posTag2index;
+                writer = new LargeFileWriter(Path.Combine(basedir, "mentionWordsTag.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetPosTagTableSize());
+                foreach (var item in tag2index.OrderBy(i => i.Value))
                 {
-                    throw new Exception("Mention words is null");
+                    writer.WriteLine(item.Key);
                 }
-                foreach (var w in words) // words surface
+                offset += DataCenter.GetPosTagTableSize();
+                writer = new LargeFileWriter(Path.Combine(basedir, "mentionWordsID.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetClusterNumber() + 1);
+                for (var i = 0; i < DataCenter.GetClusterNumber()+1; i++)
                 {
-                    var index = offset + DataCenter.GetWordIndex(w);
-                    dic.TryGetValue(index, out value);
-                    dic[index] = value + 1;
+                    writer.WriteLine(i);
                 }
-                var keys = dic.Keys.ToList();
-                keys.Sort();
-                foreach (var key in keys)
+                offset += DataCenter.GetClusterNumber() + 1;
+                writer = new LargeFileWriter(Path.Combine(basedir, "mentionWordsShape.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetWordShapeTableSize());
+                foreach (var item in DataCenter.wordShape2index.OrderBy(i => i.Value))
                 {
-                    feature.Add(key + ":" + dic[key]);
+                    writer.WriteLine(item.Key);
                 }
-                offset += DataCenter.GetWordTableSize() + 1;
-                dic.Clear();
-
-                #endregion
-                writer.WriteLine(lastOffset + "~" + (offset - 2));
-                lastOffset = offset;
-
-                #region mention word tags
-                if (useWordTag)
-                {
-                    string[] tags = null;
-                    try
-                    {
-                        tags = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionTags")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    }
-                    catch (Exception)
-                    {
-                        throw new Exception("Mention tags is null");
-                    }
-                    foreach (var tag in tags)
-                    {   // words pos tags
-                        var index = offset + DataCenter.GetPosTagIndex(tag);
-                        dic.TryGetValue(index, out value);
-                        dic[index] = value + 1;
-                    }
-                    keys = dic.Keys.ToList();
-                    keys.Sort();
-                    foreach (var key in keys)
-                    {
-                        feature.Add(key + ":" + dic[key]);
-                    }
-                    offset += DataCenter.GetPosTagTableSize() + 1;
-                    dic.Clear();
-                }
-                #endregion
-                writer.WriteLine(lastOffset + "~" + (offset - 2));
-                lastOffset = offset;
-
-                #region mention word IDs
-                if (useWordID)
-                {
-                    string[] IDs = null;
-                    try
-                    {
-                        IDs = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionIDs")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    }
-                    catch (Exception)
-                    {
-                        throw new Exception("Mention ids is null");
-                    }
-                    foreach (var ID in IDs) // words' cluster id
-                    {
-                        var index = offset + int.Parse(ID);
-                        dic.TryGetValue(index, out value);
-                        dic[index] = value + 1;
-                    }
-                    keys = dic.Keys.ToList();
-                    keys.Sort();
-                    foreach (var key in keys)
-                    {
-                        feature.Add(key + ":" + dic[key]);
-                    }
-                    offset += DataCenter.GetClusterNumber() + 1;
-                    dic.Clear();
-                }
-                #endregion
-                writer.WriteLine(lastOffset + "~" + (offset - 2));
-                lastOffset = offset;
-
-                #region mention word shapes
-                if (useWordShape)
-                {
-                    string[] shapes = null;
-                    try
-                    {
-                        shapes = rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionShapes")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    }
-                    catch (Exception)
-                    {
-                        throw new Exception("Mention shpaes is null");
-                    }
-                    foreach (var shape in shapes) // words shapes
-                    {
-                        var index = offset + DataCenter.GetWordShapeIndex(shape);
-                        dic.TryGetValue(index, out value);
-                        dic[index] = value + 1;
-                    }
-                    keys = dic.Keys.ToList();
-                    keys.Sort();
-                    foreach (var key in keys)
-                    {
-                        feature.Add(key + ":" + dic[key]);
-                    }
-                    offset += DataCenter.GetWordShapeTableSize() + 1;
-                    dic.Clear();
-                }
-                #endregion
-                writer.WriteLine(lastOffset + "~" + (offset - 2));
-                lastOffset = offset;
+                offset += DataCenter.GetWordShapeTableSize();
             }
             #endregion
 
             #region mention cluster id
-            if(useMentionID)
+            if (useMentionID)
             {
-                var mentionID = int.Parse(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionID")));
-                feature.Add((offset + mentionID) + ":1");
+                writer = new LargeFileWriter(Path.Combine(basedir, "mentionID.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + DataCenter.GetMentionClusterNumber() + 1);
+                for (var i = 0; i < DataCenter.GetMentionClusterNumber()+1; i++)
+                {
+                    writer.WriteLine(i);
+                }
                 offset += DataCenter.GetMentionClusterNumber() + 1;
-                writer.WriteLine(lastOffset + "~" + (offset - 2));
-                lastOffset = offset;
             }
             #endregion
 
 
             #region mention length: 1,2,3,4 or longer than 5
-            if(useMentionLength)
+            if (useMentionLength)
             {
-                var length = int.Parse(rawFeature.ElementAt(Parameter.GetFeatureIndex("mentionLength")));
-                if (length > 5)
+                writer = new LargeFileWriter(Path.Combine(basedir, "mentionLength.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + (offset + 4));
+                for (var i = 0; i < 5; i++)
                 {
-                    length = 5;
+                    writer.WriteLine(i);
                 }
-                feature.Add((offset + length - 1) + ":1");
                 offset += 5;
-                writer.WriteLine(lastOffset + "~" + (offset - 2));
-                lastOffset = offset;
             }
             #endregion
 
 
             #region DBpedia types
             {
-                if (useDbpediaTypesWithIndegree)
+                var type2index = DataCenter.dbpediaType2index;
+                writer = new LargeFileWriter(Path.Combine(basedir, "DbpediaType.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + (DataCenter.GetDBpediaTypeNum() * 2));
+                foreach (var item in type2index.OrderBy(i => i.Value))
                 {
-                    var types = rawFeature.ElementAt(Parameter.GetFeatureIndex("dbpediaTypesWithIndegree")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (types.Count() == 1 && !types[0].Contains(":"))
-                    {
-                        var index = DataCenter.GetDBpediaTypeIndex(types[0]);
-                        feature.Add((offset + index) + ":1");
-                    }
-                    else
-                    {
-                        var dic = new Dictionary<int, string>();
-                        foreach (var item in types)    // UNKNOW
-                        {
-                            var array = item.Split(':');
-                            var type = array[0];
-                            var distance = array[1];
-                            if (distance.ToLower().Equals("nan"))
-                            {
-                                continue;
-                            }
-                            try
-                            {
-                                var index = DataCenter.GetDBpediaTypeIndex(type);
-                                dic[index] = distance;
-                            }
-                            catch (Exception)
-                            {
-                                Console.WriteLine(item);
-                                Console.WriteLine(type);
-                            }
-                        }
-                        var indexes = dic.Keys.ToList();
-                        indexes.Sort();
-                        foreach (var index in indexes)
-                        {
-                            feature.Add((offset + index) + ":" + dic[index]);
-                        }
-                    }
-                    offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
+                    writer.WriteLine(item.Key);
                 }
-                writer.WriteLine(lastOffset + "~" + (offset - 2));
-                lastOffset = offset;
-                if (useDbpediaTypesWithAbstract)
+                foreach (var item in type2index.OrderBy(i => i.Value))
                 {
-                    var types = rawFeature.ElementAt(Parameter.GetFeatureIndex("dbpediaTypesWithAbstract")).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (types.Count() == 1 && !types[0].Contains(":"))
-                    {
-                        var index = DataCenter.GetDBpediaTypeIndex(types[0]);
-                        feature.Add((offset + index) + ":1");
-                    }
-                    else
-                    {
-                        var dic = new Dictionary<int, string>();
-                        foreach (var item in types)    // UNKNOW
-                        {
-                            var array = item.Split(':');
-                            var type = array[0];
-                            var distance = array[1];
-                            var index = DataCenter.GetDBpediaTypeIndex(type);
-                            dic[index] = distance;
-                        }
-                        var indexes = dic.Keys.ToList();
-                        indexes.Sort();
-                        foreach (var index in indexes)
-                        {
-                            feature.Add((offset + index) + ":" + dic[index]);
-                        }
-                    }
-                    offset += DataCenter.GetDBpediaTypeNum(); // the index of typeNum will never occur.
+                    writer.WriteLine(item.Key);
                 }
-                writer.WriteLine(lastOffset + "~" + (offset - 2));
-                lastOffset = offset;
+                offset += DataCenter.GetDBpediaTypeNum() * 2;
             }
             #endregion
-        
+
 
             #region Key words
-            if(useKeywords)
+            if (useKeywords)
             {
-                var keywords = rawFeature.ElementAt(Parameter.GetFeatureIndex("keywords")).Split(',');
-                var list = new List<Pair<int,string>>();
-                foreach (var keyword in keywords)
+                var keyword2index = DataCenter.keyWords;
+                writer = new LargeFileWriter(Path.Combine(basedir, "Keywords.txt"), FileMode.Create);
+                writer.WriteLine(offset + "\t" + (offset+DataCenter.GetKeyWordNumber()));
+                foreach (var item in keyword2index.OrderBy(i => i.Value))
                 {
-                    var array = keyword.Split(':');
-                    var word = array[0];
-                    var index = DataCenter.GetKeyWordIndex(word);
-                    list.Add(new Pair<int,string>(offset + index, array[1]));
-                }
-                list.Sort(list[0].GetByFirstComparer());
-                foreach (var index in list)
-                {
-                    feature.Add(index.first + ":"+index.second);
+                    writer.WriteLine(item.Key);
                 }
                 offset += DataCenter.GetKeyWordNumber();
-                writer.WriteLine(lastOffset + "~" + (offset - 2));
-                lastOffset = offset;
             }
             #endregion
-
+            Console.WriteLine("Done!");
             writer.Close();
 
             //set feature dimension
@@ -376,6 +299,7 @@ namespace msra.nlp.tr
             {
                 feature[0] = FeatureDimension.ToString();
             }
+            Console.WriteLine("Done!");
             return feature;
         }
 
@@ -387,7 +311,7 @@ namespace msra.nlp.tr
                 // word surface
                 feature.Add((offset + DataCenter.GetWordIndex(stemmedWord)) + ":1");
                 offset += DataCenter.GetWordTableSize() + 1;
-                writer.WriteLine(lastOffset+"~"+(offset-1));
+                writer.WriteLine(lastOffset + "~" + (offset - 1));
                 lastOffset = offset;
             }
             // word pos tag

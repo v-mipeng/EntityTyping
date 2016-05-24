@@ -112,6 +112,7 @@ namespace msra.nlp.tr
             #region last word
             if(useLastWord)
             {
+
                 var index = GetLastTokenIndex();
                 if (index >= 0)
                 {

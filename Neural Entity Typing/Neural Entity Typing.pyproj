@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3ebda6c3-5f65-4272-9d9c-a84a0d1b5935</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>test\multi_time_lstm.py</StartupFile>
+    <StartupFile>Test.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -34,7 +34,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="dataset\__init__.py" />
-    <Compile Include="test\deep_bidir_lstm.py" />
     <Compile Include="model\deep_bidir_lstm.py" />
     <Compile Include="model\deep_lstm.py" />
     <Compile Include="model\multi_time_lstm.py">
@@ -48,16 +47,33 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Neural_Entity_Typing.py" />
+    <Compile Include="script\analyze\config.py" />
+    <Compile Include="script\analyze\sample_num_script.py" />
+    <Compile Include="script\analyze\__init__.py" />
+    <Compile Include="script\config.py" />
+    <Compile Include="script\english_script.py" />
+    <Compile Include="script\ext_emb_script.py" />
+    <Compile Include="script\format_script.py" />
+    <Compile Include="script\freq_script.py" />
+    <Compile Include="script\hypen_script.py" />
+    <Compile Include="script\len_script.py" />
+    <Compile Include="script\mask_script.py" />
+    <Compile Include="script\sym_script.py" />
+    <Compile Include="script\tokenize_script.py" />
+    <Compile Include="script\__init__.py" />
     <Compile Include="Test.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="test\multi_time_lstm.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="dataset\" />
     <Folder Include="model\" />
     <Folder Include="config\" />
-    <Folder Include="test\" />
+    <Folder Include="script\" />
+    <Folder Include="script\analyze\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="script\analyze\config.pyc" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

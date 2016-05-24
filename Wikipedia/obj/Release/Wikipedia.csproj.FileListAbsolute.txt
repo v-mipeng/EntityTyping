@@ -1,0 +1,8 @@
+D:\Codes\Project\EntityTyping\Wikipedia\bin\Release\Wikipedia.exe.config
+D:\Codes\Project\EntityTyping\Wikipedia\obj\Release\Wikipedia.csprojResolveAssemblyReference.cache
+D:\Codes\Project\EntityTyping\Wikipedia\bin\Release\Wikipedia.exe
+D:\Codes\Project\EntityTyping\Wikipedia\bin\Release\Wikipedia.pdb
+D:\Codes\Project\EntityTyping\Wikipedia\bin\Release\package-pml.dll
+D:\Codes\Project\EntityTyping\Wikipedia\bin\Release\package-pml.pdb
+D:\Codes\Project\EntityTyping\Wikipedia\obj\Release\Wikipedia.exe
+D:\Codes\Project\EntityTyping\Wikipedia\obj\Release\Wikipedia.pdb

@@ -16,6 +16,7 @@ using pml.type;
 using msra.nlp.tr;
 using MathNet.Numerics.Statistics;
 using System.Text.RegularExpressions;
+using msra.nlp.tr.eval;
 
 namespace User
 {
@@ -68,165 +69,51 @@ namespace User
 
         public static void Main(string[] args)
         {
-            Temp();
-            ////Analyze(@"D:\Codes\Project\EntityTyping\Fine-ner\analysis\model.txt",
-            ////    @"D:\Codes\Project\EntityTyping\Fine-ner\analysis\weight span.txt");
-            //var pipeline = new Pipeline(@"D:\Codes\Project\EntityTyping\release package\config for 5 class liblinear model.xml");
-            //var writer = new LargeFileWriter(@"D:\Codes\Project\EntityTyping\Fine-ner\analysis\type2index.txt", FileMode.Create);
-            //var dbpediaType2Indexes = DataCenter.GetDBpediaTypes();
-            //var pairs = new List<Pair<string, int>>();
-            //foreach (var item in dbpediaType2Indexes)
-            //{
-            //    pairs.Add(new Pair<string, int>(item.Key, item.Value));
-            //}
-            //pairs.Sort(pairs[0].GetBySecondComparer());
-            //foreach (var pair in pairs)
-            //{
-            //    writer.WriteLine(pair.first);
-            //}
-            //writer.Close();
+            ExtractEmb();
+        }
+        public static void Evaluate()
+        {
+            var evaluator = new ClassByClassEvaluator();
+            //evaluator.EvaluateResult(@"D:\Codes\Project\EntityTyping\Neural Entity Typing\output\result\train on satori and bbn\multi_time_lstm test on satori.txt",
+            //    @"D:\Codes\Project\EntityTyping\Neural Entity Typing\output\result\train on satori and bbn\satori result.txt");
+            evaluator.EvaluateResult(@"D:\Codes\Project\EntityTyping\Neural Entity Typing\output\result\train on satori and bbn\multi_time_lstm test on satori conll and bbn.txt",
+    @"D:\Codes\Project\EntityTyping\Neural Entity Typing\output\result\train on satori and bbn\satori conll and bbn result.txt");
+   //         evaluator.EvaluateResult(@"D:\Codes\Project\EntityTyping\Neural Entity Typing\output\result\train on satori and bbn\multi_time_lstm test on conll.txt",
+   //@"D:\Codes\Project\EntityTyping\Neural Entity Typing\output\result\train on satori and bbn\conll result.txt");
         }
 
-        public static void Analyze(string modelFile, string spanFile)
+        public static void ExtractEmb()
         {
-            var writer = new LargeFileWriter(@"D:\Codes\Project\EntityTyping\Fine-ner\analysis\weight analysis.txt", FileMode.Create);
-            var reader = new LargeFileReader(spanFile);
-            var offsets = new List<int>();
+            var source = @"D:\Codes\Project\EntityTyping\Neural Entity Typing\input\tables\satori and bbn\word2id.txt";
+            var reader = new LargeFileReader(source);
+            var words = new HashSet<string>();
             string line;
             while((line = reader.ReadLine())!=null)
             {
-                var offset = int.Parse(line.Split('~')[1]);
-                offsets.Add(offset);
+                words.Add(line.Split('\t')[0]);
             }
-            reader.Open(modelFile);
-            var parameters = new Dictionary<int, List<double>>();
-            var paraStatistic = new Dictionary<int, List<Pair<double, double>>>();
-            for(var i = 0;i<15;i++)
+            reader.Close();
+            var writer = new LargeFileWriter(@"D:\Codes\Project\EntityTyping\Neural Entity Typing\input\tables\word embedding.txt", FileMode.Create);
+            reader.Open(@"D:\Data\Google-word2vec\GoogleNews-vectors-negative300.txt");
+            int count = 0;
+            while ((line = reader.ReadLine()) != null)
             {
-                parameters[i] = new List<double>(offsets[offsets.Count-1]+1);
-                paraStatistic[i] = new List<Pair<double, double>>();
-                for(var j = 0;j < offsets[offsets.Count-1]+1;j++)
+                if(++count%10000==0)
                 {
-                    parameters[i].Add(0);
+                    Console.WriteLine(count);
+                }
+                var word = line.Split(new char[]{' '}, 2)[0];
+                if(words.Contains(word))
+                {
+                    writer.WriteLine(line);
                 }
             }
             reader.Close();
-
-            var regex = new System.Text.RegularExpressions.Regex(@"(\d{1,2})\+f(\d+)\t(.+)");
-            var heads = new string[] {"last word surface",
-                                    "last word tag",
-                                    "last word cluster id",
-                                    "last word shape",
-                                    "next word surface",
-                                    "next word tag",
-                                    "next word cluster id",
-                                    "next word shape",
-                                    "mention head surface",
-                                    "mention head tag",
-                                    "mention head cluster id",
-                                    "mention head shape",
-                                    "mention words surfaces",
-                                    "mention words tags",
-                                    "mention words cluster ids",
-                                    "mention words shapes",
-                                    "mention cluster id",
-                                    "mention length",
-                                    "dbpedia types 1",
-                                    "dbpedia types 2",
-                                    "keywords" };
-            while ((line = reader.ReadLine()) != null)
-            {
-                var match = regex.Match(line);
-                if (match.Success)
-                {
-                    var label = int.Parse(match.Groups[1].Value);
-                    var offset = int.Parse(match.Groups[2].Value);
-                    var weight = double.Parse(match.Groups[3].Value);
-                    parameters[label][offset] = weight;
-                }
-            }
-            int lastOffset = 0;
-
-            for(var i = 0;i<15;i++)
-            {
-                var weights = parameters[i];
-                lastOffset = 0;
-                writer.WriteLine("Weights of class " + i+ ":");
-                int j = 0;
-                foreach(var offset in offsets)
-                {
-                    var mean = Mean(weights, lastOffset, offset);
-                    var variance = Var(weights, lastOffset, offset);
-                    paraStatistic[i].Add(new Pair<double, double>(mean, variance));
-                    lastOffset = offset + 1;
-                    writer.Write(string.Format("{0, -25} : ",heads[j++]));
-                    writer.WriteLine(mean + ":" + variance);
-                }
-                writer.WriteLine("");
-            }
             writer.Close();
         }
-
-        public static double Mean(IEnumerable<double> weights, int begin, int end)
-        {
-            var weightCopy = new List<double>();
-            for (var i = begin; i <= end;i++ )
-            {
-                if (weights.ElementAt(i) != 0)
-                {
-                    weightCopy.Add(weights.ElementAt(i));
-                }
-            }
-            if(weightCopy.Count == 0)
-            {
-                return 0;
-            }
-            return Statistics.HarmonicMean(weightCopy);
-        }
-
-        public static double Var(IEnumerable<double> weights, int begin, int end)
-        {
-            var weightCopy = new List<double>();
-            for (var i = begin; i <= end; i++)
-            {
-                if (weights.ElementAt(i) != 0)
-                {
-                    weightCopy.Add(weights.ElementAt(i));
-                }
-            }
-            if (weightCopy.Count == 0)
-            {
-                return 0;
-            }
-            return Statistics.Variance(weightCopy);
-        }
-
-        public static void Temp()
-        {
-            var regex = new Regex(@"(?<!/)(\w+)/(\w+)(?!/)");
-            var regex2 = new Regex(@"(\w+)-(?=\w+)");
-            var basedir = @"D:\Codes\Project\EntityTyping\Neural Entity Typing\input\test\";
-            var files = Directory.GetFiles(Path.Combine(basedir,"sen"));
-            if(!Directory.Exists(Path.Combine(basedir, "hypen")))
-            {
-                Directory.CreateDirectory(Path.Combine(basedir, "hypen"));
-            }
-            foreach(var file in files)
-            {
-                var reader = new LargeFileReader(file);
-                var writer = new LargeFileWriter(Path.Combine(basedir, "hypen",Path.GetFileName(file)),FileMode.Create);
-                string line;
-                while((line = reader.ReadLine())!=null)
-                {
-                     var str = regex.Replace(line,@"$1 / $2");
-                     str = regex2.Replace(str, @"$1 - ");
-                     writer.Write(str + "\n");
-                }
-                reader.Close();
-                writer.Close();
-            }
-        }
     }
+
+
 
 }
 
